@@ -2,15 +2,15 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { use, useState } from "react";
-import { createUser } from "./actions/createUser";
+import { useState } from "react";
+import { createUser } from "./actions/user/createUser";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const [clientData, setClientData] = useState({
+  const [clientData, setClientData] = useState<ClientDataProps>({
     name: "",
     surname: "",
-    phone: "",
+    phone: 0,
     weight: 0,
     height: 0,
     goal: "",
@@ -24,15 +24,13 @@ export default function Home() {
   // TODO: add validation
   const handleClientInfo = (value: string | number, name: string) => {
     setClientData({ ...clientData, [name]: value });
-
-    console.log(clientData);
   };
 
   const handleSaveClientInfo = async () => {
     const newUser = await createUser(clientData);
 
     if (newUser) {
-      router.push("/onboarding");
+      router.push(`/onboarding?userId=${newUser.id}`);
     }
   };
 
@@ -69,7 +67,9 @@ export default function Home() {
             id="phone"
             name="phone"
             placeholder="Telefono"
-            onChange={(e) => handleClientInfo(e.target.value, e.target.name)}
+            onChange={(e) =>
+              handleClientInfo(Number(e.target.value), e.target.name)
+            }
           />
         </div>
         <div className="text-center">

@@ -6,11 +6,11 @@ declare type SearchParamProps = {
 declare type ClientDataProps = {
   name: string;
   surname: string;
-  phone: string;
+  phone: number;
   weight: number;
   height: number;
   goal: string;
   age: number;
-  injuries: string;
-  surgeries: string;
+  injuries?: string;
+  surgeries?: string;
 };

@@ -19,13 +19,13 @@ model User {
   surname      String
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  phone        String        @unique
+  phone        BigInt        @unique
   weight       Int
   height       Int
   goal         String
   age          Int
-  injuries     String
-  surgeries    String
+  injuries     String?
+  surgeries    String?
   appointments Appointment[]
 }
 
