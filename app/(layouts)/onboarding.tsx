@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import React, { ReactNode } from "react";
 
@@ -5,29 +6,42 @@ type OnboardingLayoutProps = {
   children: ReactNode;
 };
 
-const OnboardingLayout = (props: OnboardingLayoutProps) => {
-  const { children } = props;
+const OnboardingLayout = ({ children }: OnboardingLayoutProps) => {
   return (
-    <div className="grid xl:grid-cols-12 min-h-screen">
-      <div className="col-span-6 w-full py-10 bg-neutral-300">
+    <div className="relative min-h-screen flex flex-col lg:flex-row">
+      {/* Background image for mobile */}
+      <div className="absolute inset-0 z-0 lg:hidden">
+        <Image
+          src="/onboarding.jpg"
+          layout="fill"
+          objectFit="cover"
+          alt="onboarding-background"
+          priority
+        />
+      </div>
+
+      {/* Left side (form) */}
+      <div className="relative z-10 w-full lg:w-1/2 py-10 lg:bg-primary">
         <div className="max-w-[70%] mx-auto">
           <Image
-            src={"/logo.svg"}
+            src="/red-logo.svg"
             height={150}
             width={150}
-            alt="onboarding-pic"
+            alt="logo"
             className="mx-auto"
           />
-          {children}
+          <Card className="p-10 mt-10 rounded-none">{children}</Card>
         </div>
       </div>
-      <div className="col-span-6 w-full">
+
+      {/* Right side (image) - hidden on mobile */}
+      <div className="hidden lg:block lg:w-1/2 relative">
         <Image
-          src={"/onboarding.jpg"}
-          height={1000}
-          width={1000}
+          src="/onboarding.jpg"
+          layout="fill"
+          objectFit="cover"
           alt="onboarding-pic"
-          className="min-h-screen"
+          priority
         />
       </div>
     </div>

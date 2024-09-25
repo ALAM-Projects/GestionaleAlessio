@@ -46,13 +46,11 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
 
   return (
     <OnboardingLayout>
-      <h1 className="text-5xl mt-10 text-white text-center font-bold">
-        Inserisci i tuoi dati
+      <h1 className="text-4xl text-primary text-center font-bold">
+        Completa il tuo profilo
       </h1>
       <div className="grid mt-5 w-full max-w-sm items-center gap-1.5 mx-auto">
-        <Label htmlFor="age" className="text-white">
-          Età
-        </Label>
+        <Label htmlFor="age">Età</Label>
         <Input
           type="number"
           id="age"
@@ -64,9 +62,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
         />
       </div>
       <div className="grid mt-5 w-full max-w-sm items-center gap-1.5 mx-auto">
-        <Label htmlFor="weight" className="text-white">
-          Peso (kg)
-        </Label>
+        <Label htmlFor="weight">Peso (kg)</Label>
         <Input
           type="text"
           id="weight"
@@ -78,9 +74,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
         />
       </div>
       <div className="grid mt-5 w-full max-w-sm items-center gap-1.5 mx-auto">
-        <Label htmlFor="weight" className="text-white">
-          Altezza (cm)
-        </Label>
+        <Label htmlFor="weight">Altezza (cm)</Label>
         <Input
           type="number"
           id="height"
@@ -92,9 +86,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
         />
       </div>
       <div className="grid mt-5 w-full max-w-sm items-center gap-1.5 mx-auto">
-        <Label htmlFor="goal" className="text-white">
-          Obiettivi
-        </Label>
+        <Label htmlFor="goal">Obiettivi</Label>
         <Textarea
           placeholder="Scrivi gli obiettivi che vuoi raggiungere con l'allenamento"
           id="goal"
@@ -103,9 +95,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
         />
       </div>
       <div className="grid mt-5 w-full max-w-sm items-center gap-1.5 mx-auto">
-        <Label htmlFor="injuries" className="text-white">
-          Infortuni
-        </Label>
+        <Label htmlFor="injuries">Infortuni</Label>
         <Textarea
           placeholder="Scrivi eventuali infortuni"
           id="injuries"
@@ -114,9 +104,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
         />
       </div>
       <div className="grid mt-5 w-full max-w-sm items-center gap-1.5 mx-auto">
-        <Label htmlFor="surgeries" className="text-white">
-          Operazioni
-        </Label>
+        <Label htmlFor="surgeries">Operazioni</Label>
         <Textarea
           placeholder="Scrivi eventuali operazioni"
           id="surgeries"

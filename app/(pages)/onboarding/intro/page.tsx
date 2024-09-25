@@ -42,7 +42,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
   return (
     <OnboardingLayout>
       {isAdmin && <AdminModal />}
-      <h1 className="text-5xl mt-10 text-center font-bold">
+      <h1 className="text-4xl text-center text-primary font-bold">
         Inserisci i tuoi dati
       </h1>
       <div className="grid mt-6 w-full max-w-sm items-center gap-1.5 mx-auto">
