@@ -4,6 +4,8 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  max-width: 1920px;
+  margin: 0 auto;
 }
 
 @layer utilities {
@@ -36,6 +38,8 @@ body {
     --secondary: 0 5% 95.85%;
     --secondary-foreground: 0 7% 11.7%;
 
+    --tertiary: 2.31 29.55% 82.75%;
+
     --accent: 0 5% 95.85%;
     --accent-foreground: 0 7% 11.7%;
 
@@ -46,6 +50,39 @@ body {
 
     --radius: 0.5rem;
   }
+  /* --gradient: #550000;
+    --background: hsl(0 100% 98.34%);
+    --foreground: hsl(0 10% 0.68%);
+
+    --muted: hsl(0 10% 91.7%);
+    --muted-foreground: hsl(0 5% 41.7%);
+
+    --popover: hsl(0 10% 91.7%);
+    --popover-foreground: hsl(0 10% 0.8500000000000001%);
+
+    --card: hsl(0 10% 91.7%);
+    --card-foreground: hsl(0 10% 0.8500000000000001%);
+
+    --border: hsl(0 15% 89.68%);
+    --input: hsl(0 15% 89.68%);
+
+    --primary: hsl(0 100% 17%);
+    --primary-foreground: hsl(0 2% 91.7%);
+
+    --secondary: hsl(0 5% 95.85%);
+    --secondary-foreground: hsl(0 7% 11.7%);
+
+    --tertiary: hsl(2.31, 29.55%, 82.75%);
+
+    --accent: hsl(0 5% 95.85%);
+    --accent-foreground: hsl(0 7% 11.7%);
+
+    --destructive: hsl(0 84.2% 60.2%);
+    --destructive-foreground: hsl(0 0% 98%);
+
+    --ring: hsl(0 100% 17%);
+
+    --radius: 0.5rem; */
 }
 
 @layer base {
