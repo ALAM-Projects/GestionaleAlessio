@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import {
@@ -18,29 +17,16 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { decryptKey, encryptKey } from "@/lib/utils";
+import { encryptKey } from "@/lib/utils";
 
 export const AdminModal = () => {
   const router = useRouter();
-  const path = usePathname();
   const [open, setOpen] = useState(false);
   const [passkey, setPasskey] = useState("");
   const [error, setError] = useState("");
 
-  // const encryptedKey =
-  //   typeof window !== "undefined"
-  //     ? window.localStorage.getItem("accessKey")
-  //     : null;
-
   useEffect(() => {
     setOpen(true);
-
-    // if (path)
-    //   if (accessKey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY!.toString()) {
-    //     setOpen(false);
-    //     router.push("/dashboard?accessKey=" + encryptKey(accessKey));
-    //   } else {
-    //   }
   }, []);
 
   const closeModal = () => {
@@ -68,9 +54,12 @@ export const AdminModal = () => {
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent className="border-0">
         <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-start justify-between">
-            Accesso Admin
-            <div className="cursor-pointer" onClick={() => closeModal()}>
+          <AlertDialogTitle className="text-primary flex items-start justify-between">
+            <span className="text-3xl">Accesso Admin</span>
+            <div
+              className="text-black text-md cursor-pointer"
+              onClick={() => closeModal()}
+            >
               X
             </div>
           </AlertDialogTitle>
@@ -84,13 +73,13 @@ export const AdminModal = () => {
             value={passkey}
             onChange={(value) => setPasskey(value)}
           >
-            <InputOTPGroup className="shad-otp">
-              <InputOTPSlot className="shad-otp-slot" index={0} />
-              <InputOTPSlot className="shad-otp-slot" index={1} />
-              <InputOTPSlot className="shad-otp-slot" index={2} />
-              <InputOTPSlot className="shad-otp-slot" index={3} />
-              <InputOTPSlot className="shad-otp-slot" index={4} />
-              <InputOTPSlot className="shad-otp-slot" index={5} />
+            <InputOTPGroup className="shad-otp ">
+              <InputOTPSlot className="shad-otp-slot text-2xl" index={0} />
+              <InputOTPSlot className="shad-otp-slot text-2xl" index={1} />
+              <InputOTPSlot className="shad-otp-slot text-2xl" index={2} />
+              <InputOTPSlot className="shad-otp-slot text-2xl" index={3} />
+              <InputOTPSlot className="shad-otp-slot text-2xl" index={4} />
+              <InputOTPSlot className="shad-otp-slot text-2xl" index={5} />
             </InputOTPGroup>
           </InputOTP>
 

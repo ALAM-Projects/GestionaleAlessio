@@ -14,3 +14,16 @@ declare type ClientDataProps = {
   injuries?: string;
   surgeries?: string;
 };
+
+declare type DashboardStats = {
+  usersCount: Number;
+  trainingCount: Number;
+  earnings: String;
+  workedHours: String;
+};
+
+declare type CardStats = {
+  id: string;
+  title: string;
+  description: string;
+};

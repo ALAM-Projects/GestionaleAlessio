@@ -34,85 +34,167 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { User } from "@prisma/client";
 
-const data: Payment[] = [
-  {
-    id: "m5gr84i9",
-    amount: 316,
-    status: "success",
-    email: "ken99@yahoo.com",
-  },
-  {
-    id: "3u1reuv4",
-    amount: 242,
-    status: "success",
-    email: "Abe45@gmail.com",
-  },
-  {
-    id: "derv1ws0",
-    amount: 837,
-    status: "processing",
-    email: "Monserrat44@gmail.com",
-  },
-  {
-    id: "5kma53ae",
-    amount: 874,
-    status: "success",
-    email: "Silas22@gmail.com",
-  },
-  {
-    id: "bhqecj4p",
-    amount: 721,
-    status: "failed",
-    email: "carmella@hotmail.com",
-  },
-];
+// const data: Payment[] = [
+//   {
+//     id: "m5gr84i9",
+//     amount: 316,
+//     status: "success",
+//     name: "ken99@yahoo.com",
+//   },
+//   {
+//     id: "3u1reuv4",
+//     amount: 242,
+//     status: "success",
+//     name: "Abe45@gmail.com",
+//   },
+//   {
+//     id: "derv1ws0",
+//     amount: 837,
+//     status: "processing",
+//     name: "Monserrat44@gmail.com",
+//   },
+//   {
+//     id: "5kma53ae",
+//     amount: 874,
+//     status: "success",
+//     name: "Silas22@gmail.com",
+//   },
+//   {
+//     id: "bhqecj4p",
+//     amount: 721,
+//     status: "failed",
+//     name: "carmella@hotmail.com",
+//   },
+//   {
+//     id: "m5gr84i9",
+//     amount: 316,
+//     status: "success",
+//     name: "ken99@yahoo.com",
+//   },
+//   {
+//     id: "3u1reuv4",
+//     amount: 242,
+//     status: "success",
+//     name: "Abe45@gmail.com",
+//   },
+//   {
+//     id: "derv1ws0",
+//     amount: 837,
+//     status: "processing",
+//     name: "Monserrat44@gmail.com",
+//   },
+//   {
+//     id: "5kma53ae",
+//     amount: 874,
+//     status: "success",
+//     name: "Silas22@gmail.com",
+//   },
+//   {
+//     id: "bhqecj4p",
+//     amount: 721,
+//     status: "failed",
+//     name: "carmella@hotmail.com",
+//   },
+//   {
+//     id: "m5gr84i9",
+//     amount: 316,
+//     status: "success",
+//     name: "ken99@yahoo.com",
+//   },
+//   {
+//     id: "3u1reuv4",
+//     amount: 242,
+//     status: "success",
+//     name: "Abe45@gmail.com",
+//   },
+//   {
+//     id: "derv1ws0",
+//     amount: 837,
+//     status: "processing",
+//     name: "Monserrat44@gmail.com",
+//   },
+//   {
+//     id: "5kma53ae",
+//     amount: 874,
+//     status: "success",
+//     name: "Silas22@gmail.com",
+//   },
+//   {
+//     id: "bhqecj4p",
+//     amount: 721,
+//     status: "failed",
+//     name: "alessandro amara",
+//   },
+// ];
 
 export type Payment = {
   id: string;
   amount: number;
   status: "pending" | "processing" | "success" | "failed";
-  email: string;
+  name: string;
 };
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<User>[] = [
   {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("status")}</div>
-    ),
-  },
-  {
-    accessorKey: "email",
+    accessorKey: "name",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Email
+          Nome
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+    cell: ({ row }) => (
+      <div className="capitalize ml-4">{row.getValue("name")}</div>
+    ),
   },
   {
-    accessorKey: "amount",
-    header: () => <div className="text-right">Amount</div>,
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
-
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
-
-      return <div className="text-right font-medium">{formatted}</div>;
+    accessorKey: "surname",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Cognome
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
     },
+    cell: ({ row }) => (
+      <div className="capitalize ml-4">{row.getValue("surname")}</div>
+    ),
   },
+  {
+    accessorKey: "phone",
+    header: () => {
+      return "Telefono";
+    },
+    cell: ({ row }) => (
+      <div className="">{(row.getValue("phone") as string).toString()}</div>
+    ),
+  },
+  // {
+  //   accessorKey: "amount",
+  //   header: () => <div className="text-right">Costo</div>,
+  //   cell: ({ row }) => {
+  //     const amount = parseFloat(row.getValue("amount"));
+
+  //     // Format the amount as a dollar amount
+  //     const formatted = new Intl.NumberFormat("en-US", {
+  //       style: "currency",
+  //       currency: "USD",
+  //     }).format(amount);
+
+  //     return <div className="text-right font-medium">{formatted}</div>;
+  //   },
+  // },
   {
     id: "actions",
     enableHiding: false,
@@ -122,7 +204,7 @@ export const columns: ColumnDef<Payment>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" className=" h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
@@ -144,7 +226,9 @@ export const columns: ColumnDef<Payment>[] = [
   },
 ];
 
-export function DataTableDemo() {
+export function DataTableDemo(users: any) {
+  const data = users.users;
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -177,10 +261,10 @@ export function DataTableDemo() {
       <h2 className="text-4xl font-bold my-3 text-primary">Clienti</h2>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter clients..."
+          value={(table.getColumn("surname")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            table.getColumn("surname")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
@@ -236,7 +320,7 @@ export function DataTableDemo() {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  // data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
