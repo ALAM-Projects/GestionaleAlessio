@@ -64,14 +64,14 @@ function Dashboard() {
   }
 
   return (
-    <div className="p-10 min-h-screen bg-zinc-800">
-      <Image
+    <div className="p-10 min-h-screen">
+      {/* <Image
         src="/red-logo.svg"
         height={100}
         width={100}
         alt="logo"
         className="mx-auto mb-10"
-      />
+      /> */}
       <div className="flex gap-5 lg:gap-3 flex-wrap justify-between md:flex-row">
         {stats &&
           dashboardCardStats?.map((stat: CardStats) => {

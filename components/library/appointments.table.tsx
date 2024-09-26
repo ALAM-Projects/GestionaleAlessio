@@ -13,7 +13,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import {
+  ArrowUpDown,
+  ChevronDown,
+  MoreHorizontal,
+  SeparatorVertical,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,17 +38,43 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Appointment } from "@prisma/client";
-import { clientsColumns } from "@/data/index";
+import { Appointment, User } from "@prisma/client";
 import { formatDate } from "@/polyfills";
+import { Badge } from "../ui/badge";
+import { createAppointment } from "@/app/actions/appointments/createAppointment";
 
 export const columns: ColumnDef<Appointment>[] = [
+  {
+    accessorKey: "user",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          className="px-0"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Cliente
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const client = row.getValue("user") as User;
+
+      return (
+        <div className="text-left font-medium">
+          {client.name + " " + client.surname}
+        </div>
+      );
+    },
+  },
   {
     accessorKey: "date",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
+          className="px-0"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Data
@@ -53,74 +84,90 @@ export const columns: ColumnDef<Appointment>[] = [
     },
     cell: ({ row }) => {
       const date = row.getValue("date");
-      return (
-        <div className="capitalize ml-4">{formatDate(date as string)}</div>
-      );
+      return <div className="capitalize">{date as string}</div>;
     },
     enableHiding: false,
   },
   {
-    accessorKey: "name",
+    accessorKey: "time",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
+          className="px-0"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Nome
+          Ora
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const time = row.getValue("time");
+      return <div className="">h{time as string}</div>;
+    },
+    enableHiding: false,
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          className="px-0"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Stato
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const isConfirmed = row.getValue("status") === "Confermato";
+      return (
+        <Badge
+          className=""
+          variant={isConfirmed ? "successOutline" : "dangerOutline"}
+        >
+          {row.getValue("status")}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "price",
+    header: () => <div className="text-left">Guadagno</div>,
+    cell: ({ row }) => {
+      const formattedPrice = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "EUR",
+      }).format(row.getValue("price"));
+
+      return <div className="text-left font-medium">{formattedPrice}</div>;
+    },
+  },
+  {
+    accessorKey: "paid",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          className="px-0"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Pagato
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize ml-4">{row.getValue("name")}</div>
+      <Badge
+        className=""
+        variant={row.getValue("paid") ? "success" : "default"}
+      >
+        {row.getValue("paid") ? "Pagato" : "Da pagare"}
+      </Badge>
     ),
-  },
-  {
-    accessorKey: "phone",
-    header: () => {
-      return "Telefono";
-    },
-    cell: ({ row }) => (
-      <div className="">{(row.getValue("phone") as string)?.toString()}</div>
-    ),
-  },
-  {
-    accessorKey: "appointments",
-    header: () => <div className="text-right">Pagati / Da pagare</div>,
-    cell: ({ row }) => {
-      const totalPaid = (
-        row.getValue("appointments") as { price: number; paid: boolean }[]
-      )?.reduce((acc, { price, paid }) => {
-        if (paid) return acc + price;
-        return acc;
-      }, 0);
-      const totalUnpaid = (
-        row.getValue("appointments") as { price: number; paid: boolean }[]
-      )?.reduce((acc, { price, paid }) => {
-        if (!paid) return acc + price;
-        return acc;
-      }, 0);
-      const paidAmount = parseFloat(totalPaid?.toString());
-      const unpaidAmount = parseFloat(totalUnpaid?.toString());
-
-      // Format the amount as a dollar amount
-      const formattedPaidAmount = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "EUR",
-      }).format(paidAmount);
-
-      const formattedUnpaidAmount = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "EUR",
-      }).format(unpaidAmount);
-
-      return (
-        <div className="text-right font-medium">
-          {formattedPaidAmount + " / " + formattedUnpaidAmount}
-        </div>
-      );
-    },
   },
   {
     id: "actions",
@@ -145,19 +192,20 @@ export const columns: ColumnDef<Appointment>[] = [
                 router.push("/dashboard/cliente/" + client.id);
               }}
             >
-              Vedi Cliente
+              Modifica appuntamento
             </DropdownMenuItem>
-            {/* <DropdownMenuItem
-              onClick={async () => {
-                if (typeof client.phone === "bigint") {
-                  await navigator.clipboard.writeText(client.phone.toString());
-                } else {
-                  await navigator.clipboard.writeText(client.phone);
-                }
-              }}
-            >
-              Copia numero di telefono
-            </DropdownMenuItem> */}
+            {row.getValue("status") === "Confermato" && (
+              // TODO: aggiungere chiamata per annullare appuntamento
+              <DropdownMenuItem onClick={() => {}}>
+                Annulla appuntamento
+              </DropdownMenuItem>
+            )}
+            {!row.getValue("paid") && (
+              // TODO: aggiungere chiamata per modificare pagamento
+              <DropdownMenuItem onClick={() => {}}>
+                Segna come pagato
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -167,8 +215,6 @@ export const columns: ColumnDef<Appointment>[] = [
 
 export function AppointmentsTable(appointments: any) {
   const data = appointments.appointments;
-
-  const router = useRouter();
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -197,16 +243,38 @@ export function AppointmentsTable(appointments: any) {
     },
   });
 
+  const handleCreateAppointment = async () => {
+    const appointment = await createAppointment({
+      price: 20,
+      status: "Confermato",
+      paid: false,
+      userId: "cm1jcwho30000fzexsyjzwman",
+      id: "",
+      date: "2024-09-30",
+      time: "10:00",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    return appointment;
+  };
+
   return (
-    <div className="w-full bg-card mt-10 px-5 py-3 rounded-md">
-      <h2 className="text-4xl font-bold my-3 text-primary">Appuntamenti</h2>
+    <div className="w-full mt-5">
+      <div className="flex justify-between items-center">
+        <h2 className="text-4xl font-bold my-3 text-primary">Appuntamenti</h2>
+        <Button onClick={() => handleCreateAppointment()}>
+          Crea nuovo appuntamento
+        </Button>
+      </div>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filtra clienti..."
-          value={(table.getColumn("surname")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("surname")?.setFilterValue(event.target.value)
-          }
+          type="date"
+          placeholder="Filtra per data..."
+          value={(table.getColumn("date")?.getFilterValue() as string) ?? ""}
+          onChange={(event) => {
+            table.getColumn("date")?.setFilterValue(event.target.value);
+          }}
           className="w-2/3 md:w-4/5 xl:w-4/12"
         />
         <DropdownMenu>
@@ -229,7 +297,7 @@ export function AppointmentsTable(appointments: any) {
                       column.toggleVisibility(!!value)
                     }
                   >
-                    {clientsColumns[column.id as keyof typeof clientsColumns]}
+                    {column.id}
                   </DropdownMenuCheckboxItem>
                 );
               })}

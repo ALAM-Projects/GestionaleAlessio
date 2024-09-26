@@ -17,6 +17,7 @@ model User {
   id           String        @id @default(cuid())
   name         String
   surname      String
+  fullName     String        @computed("concat(name, ' ', surname)")
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   phone        BigInt        @unique
@@ -33,7 +34,8 @@ model Appointment {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  date      DateTime
+  date      String
+  time      String
   status    String
   price     Int
   paid      Boolean

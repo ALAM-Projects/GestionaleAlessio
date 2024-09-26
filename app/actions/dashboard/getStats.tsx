@@ -14,7 +14,7 @@ async function getStats(): Promise<DashboardStats> {
     return acc;
   }, 0);
 
-  if (users && trainings && earnings) {
+  if (users) {
     return {
       usersCount: users.length,
       trainingCount: trainings.length,

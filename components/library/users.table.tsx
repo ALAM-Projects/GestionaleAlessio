@@ -83,7 +83,7 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     accessorKey: "appointments",
-    header: () => <div className="text-right">Pagati / Da pagare</div>,
+    header: () => <div className="text-left">Pagati / Da pagare</div>,
     cell: ({ row }) => {
       const totalPaid = (
         row.getValue("appointments") as { price: number; paid: boolean }[]
@@ -112,7 +112,7 @@ export const columns: ColumnDef<User>[] = [
       }).format(unpaidAmount);
 
       return (
-        <div className="text-right font-medium">
+        <div className="text-left font-medium">
           {formattedPaidAmount + " / " + formattedUnpaidAmount}
         </div>
       );
@@ -194,7 +194,7 @@ export function UsersTable(users: any) {
   });
 
   return (
-    <div className="w-full bg-card mt-10 px-5 py-3 rounded-md">
+    <div className="w-full mt-10 rounded-md">
       <h2 className="text-4xl font-bold my-3 text-primary">Clienti</h2>
       <div className="flex items-center py-4">
         <Input
