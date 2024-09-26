@@ -2,7 +2,8 @@
 
 import { withAuth } from "@/app/(hocs)/with-auth";
 import { getStats } from "@/app/actions/dashboard/getStats";
-import { DataTableDemo } from "@/components/library/data.table";
+import { UsersTable } from "@/components/library/users.table";
+import { AppointmentsTable } from "@/components/library/appointments.table";
 
 import {
   Card,
@@ -13,17 +14,21 @@ import {
 } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import Spinner from "@/components/ui/spinner";
-import dashboardCardStats from "@/data/index";
-import { User } from "@prisma/client";
+import { dashboardCardStats } from "@/data/index";
+import { Appointment, User } from "@prisma/client";
 import { getUsers } from "@/app/actions/user/getUsers";
+import Image from "next/image";
+import { getAppointments } from "@/app/actions/appointments/getAppointments";
 
 function Dashboard() {
   const [stats, setStats] = useState<DashboardStats>();
   const [users, setUsers] = useState<User[]>();
+  const [appointments, setAppointments] = useState<Appointment[]>();
 
   useEffect(() => {
     getDashboardStats();
     getAllUsers();
+    getAllAppointments();
   }, []);
 
   const getDashboardStats = async () => {
@@ -42,6 +47,14 @@ function Dashboard() {
     }
   };
 
+  const getAllAppointments = async () => {
+    const response = await getAppointments();
+
+    if (response) {
+      setAppointments(response);
+    }
+  };
+
   if (!stats?.usersCount && !stats?.trainingCount && !stats?.earnings) {
     return (
       <div className="mx-auto p-10">
@@ -51,14 +64,21 @@ function Dashboard() {
   }
 
   return (
-    <div className="p-10">
-      <div className="flex gap-5 flex-wrap justify-between md:flex-row md:justify-center">
+    <div className="p-10 min-h-screen bg-zinc-800">
+      <Image
+        src="/red-logo.svg"
+        height={100}
+        width={100}
+        alt="logo"
+        className="mx-auto mb-10"
+      />
+      <div className="flex gap-5 lg:gap-3 flex-wrap justify-between md:flex-row">
         {stats &&
           dashboardCardStats?.map((stat: CardStats) => {
             return (
               <Card
                 key={stat.id}
-                className="w-[45%] md:w-[25%] bg-tertiary text-primary"
+                className="w-[45%] sm:w-[45%] lg:w-[24%] bg-tertiary text-primary"
               >
                 <CardHeader>
                   <CardTitle>{stat.title}</CardTitle>
@@ -73,7 +93,8 @@ function Dashboard() {
             );
           })}
       </div>
-      {users && <DataTableDemo users={users} />}
+      {users && <UsersTable users={users} />}
+      {appointments && <AppointmentsTable appointments={appointments} />}
     </div>
   );
 }

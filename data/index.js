@@ -1,8 +1,8 @@
-const dashboardCardStats = [
+export const dashboardCardStats = [
   {
     id: "trainingCount",
     title: "Allenamenti",
-    description: "Il numero totale degli appuntamenti effettuati",
+    description: "Il numero totale degli allenamenti effettuati",
   },
   {
     id: "usersCount",
@@ -21,4 +21,9 @@ const dashboardCardStats = [
   },
 ];
 
-export default dashboardCardStats;
+export const clientsColumns = {
+  name: "Nome",
+  surname: "Cognome",
+  phone: "Telefono",
+  appointments: "Pagati / Da Pagare",
+};

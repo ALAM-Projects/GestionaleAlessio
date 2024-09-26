@@ -14,7 +14,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
-
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,7 +22,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -35,108 +34,27 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { User } from "@prisma/client";
-
-// const data: Payment[] = [
-//   {
-//     id: "m5gr84i9",
-//     amount: 316,
-//     status: "success",
-//     name: "ken99@yahoo.com",
-//   },
-//   {
-//     id: "3u1reuv4",
-//     amount: 242,
-//     status: "success",
-//     name: "Abe45@gmail.com",
-//   },
-//   {
-//     id: "derv1ws0",
-//     amount: 837,
-//     status: "processing",
-//     name: "Monserrat44@gmail.com",
-//   },
-//   {
-//     id: "5kma53ae",
-//     amount: 874,
-//     status: "success",
-//     name: "Silas22@gmail.com",
-//   },
-//   {
-//     id: "bhqecj4p",
-//     amount: 721,
-//     status: "failed",
-//     name: "carmella@hotmail.com",
-//   },
-//   {
-//     id: "m5gr84i9",
-//     amount: 316,
-//     status: "success",
-//     name: "ken99@yahoo.com",
-//   },
-//   {
-//     id: "3u1reuv4",
-//     amount: 242,
-//     status: "success",
-//     name: "Abe45@gmail.com",
-//   },
-//   {
-//     id: "derv1ws0",
-//     amount: 837,
-//     status: "processing",
-//     name: "Monserrat44@gmail.com",
-//   },
-//   {
-//     id: "5kma53ae",
-//     amount: 874,
-//     status: "success",
-//     name: "Silas22@gmail.com",
-//   },
-//   {
-//     id: "bhqecj4p",
-//     amount: 721,
-//     status: "failed",
-//     name: "carmella@hotmail.com",
-//   },
-//   {
-//     id: "m5gr84i9",
-//     amount: 316,
-//     status: "success",
-//     name: "ken99@yahoo.com",
-//   },
-//   {
-//     id: "3u1reuv4",
-//     amount: 242,
-//     status: "success",
-//     name: "Abe45@gmail.com",
-//   },
-//   {
-//     id: "derv1ws0",
-//     amount: 837,
-//     status: "processing",
-//     name: "Monserrat44@gmail.com",
-//   },
-//   {
-//     id: "5kma53ae",
-//     amount: 874,
-//     status: "success",
-//     name: "Silas22@gmail.com",
-//   },
-//   {
-//     id: "bhqecj4p",
-//     amount: 721,
-//     status: "failed",
-//     name: "alessandro amara",
-//   },
-// ];
-
-export type Payment = {
-  id: string;
-  amount: number;
-  status: "pending" | "processing" | "success" | "failed";
-  name: string;
-};
+import { clientsColumns } from "@/data/index";
 
 export const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "surname",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Cognome
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="capitalize ml-4">{row.getValue("surname")}</div>
+    ),
+    enableHiding: false,
+  },
   {
     accessorKey: "name",
     header: ({ column }) => {
@@ -155,70 +73,87 @@ export const columns: ColumnDef<User>[] = [
     ),
   },
   {
-    accessorKey: "surname",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Cognome
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => (
-      <div className="capitalize ml-4">{row.getValue("surname")}</div>
-    ),
-  },
-  {
     accessorKey: "phone",
     header: () => {
       return "Telefono";
     },
     cell: ({ row }) => (
-      <div className="">{(row.getValue("phone") as string).toString()}</div>
+      <div className="">{(row.getValue("phone") as string)?.toString()}</div>
     ),
   },
-  // {
-  //   accessorKey: "amount",
-  //   header: () => <div className="text-right">Costo</div>,
-  //   cell: ({ row }) => {
-  //     const amount = parseFloat(row.getValue("amount"));
+  {
+    accessorKey: "appointments",
+    header: () => <div className="text-right">Pagati / Da pagare</div>,
+    cell: ({ row }) => {
+      const totalPaid = (
+        row.getValue("appointments") as { price: number; paid: boolean }[]
+      )?.reduce((acc, { price, paid }) => {
+        if (paid) return acc + price;
+        return acc;
+      }, 0);
+      const totalUnpaid = (
+        row.getValue("appointments") as { price: number; paid: boolean }[]
+      )?.reduce((acc, { price, paid }) => {
+        if (!paid) return acc + price;
+        return acc;
+      }, 0);
+      const paidAmount = parseFloat(totalPaid?.toString());
+      const unpaidAmount = parseFloat(totalUnpaid?.toString());
 
-  //     // Format the amount as a dollar amount
-  //     const formatted = new Intl.NumberFormat("en-US", {
-  //       style: "currency",
-  //       currency: "USD",
-  //     }).format(amount);
+      // Format the amount as a dollar amount
+      const formattedPaidAmount = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "EUR",
+      }).format(paidAmount);
 
-  //     return <div className="text-right font-medium">{formatted}</div>;
-  //   },
-  // },
+      const formattedUnpaidAmount = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "EUR",
+      }).format(unpaidAmount);
+
+      return (
+        <div className="text-right font-medium">
+          {formattedPaidAmount + " / " + formattedUnpaidAmount}
+        </div>
+      );
+    },
+  },
   {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const payment = row.original;
+      const client = row.original;
+
+      const router = useRouter();
 
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className=" h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
+              <span className="sr-only">Apri menù</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel>Azioni</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
+              onClick={() => {
+                router.push("/dashboard/cliente/" + client.id);
+              }}
             >
-              Copy payment ID
+              Vedi Cliente
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={async () => {
+                if (typeof client.phone === "bigint") {
+                  await navigator.clipboard.writeText(client.phone.toString());
+                } else {
+                  await navigator.clipboard.writeText(client.phone);
+                }
+              }}
+            >
+              Copia numero di telefono
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -226,8 +161,10 @@ export const columns: ColumnDef<User>[] = [
   },
 ];
 
-export function DataTableDemo(users: any) {
+export function UsersTable(users: any) {
   const data = users.users;
+
+  const router = useRouter();
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -261,17 +198,17 @@ export function DataTableDemo(users: any) {
       <h2 className="text-4xl font-bold my-3 text-primary">Clienti</h2>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter clients..."
+          placeholder="Filtra clienti..."
           value={(table.getColumn("surname")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("surname")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="w-2/3 md:w-4/5 xl:w-4/12"
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
+              Colonne <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -288,7 +225,7 @@ export function DataTableDemo(users: any) {
                       column.toggleVisibility(!!value)
                     }
                   >
-                    {column.id}
+                    {clientsColumns[column.id as keyof typeof clientsColumns]}
                   </DropdownMenuCheckboxItem>
                 );
               })}
@@ -338,7 +275,7 @@ export function DataTableDemo(users: any) {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  Nessun risultato.
                 </TableCell>
               </TableRow>
             )}
@@ -346,10 +283,10 @@ export function DataTableDemo(users: any) {
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
+        {/* <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
+        </div> */}
         <div className="space-x-2">
           <Button
             variant="outline"
@@ -357,7 +294,7 @@ export function DataTableDemo(users: any) {
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Previous
+            Indietro
           </Button>
           <Button
             variant="outline"
@@ -365,7 +302,7 @@ export function DataTableDemo(users: any) {
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Next
+            Avanti
           </Button>
         </div>
       </div>

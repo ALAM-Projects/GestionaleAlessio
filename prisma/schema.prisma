@@ -34,7 +34,6 @@ model Appointment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   date      DateTime
-  time      DateTime
   status    String
   price     Int
   paid      Boolean

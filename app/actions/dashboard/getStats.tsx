@@ -10,7 +10,8 @@ async function getStats(): Promise<DashboardStats> {
   const trainings = await prisma.appointment.findMany();
 
   const earnings = await trainings.reduce((acc, training) => {
-    return acc + training.price;
+    if (training.paid) return acc + training.price;
+    return acc;
   }, 0);
 
   if (users && trainings && earnings) {
