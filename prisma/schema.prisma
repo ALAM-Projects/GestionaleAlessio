@@ -14,20 +14,28 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(cuid())
-  name         String
-  surname      String
-  fullName     String        @computed("concat(name, ' ', surname)")
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  phone        BigInt        @unique
-  weight       Int
-  height       Int
-  goal         String
-  age          Int
-  injuries     String?
-  surgeries    String?
-  appointments Appointment[]
+  id                  String        @id @default(cuid())
+  name                String
+  surname             String
+  // fullName     String        @default("concat(name, ' ', surname)")
+  sex                 String
+  currentlyTraining   String
+  currentTrainingRate String?
+  currentSport        String?
+  personalTraining    String?
+  inactivityPeriod    String?
+  inactivityReason    String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  phone               BigInt        @unique
+  weight              Int
+  height              Int
+  goal                String
+  age                 Int
+  injuries            String?
+  surgeries           String?
+  problems            String?
+  appointments        Appointment[]
 }
 
 model Appointment {

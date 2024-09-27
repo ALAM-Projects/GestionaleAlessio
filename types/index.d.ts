@@ -13,6 +13,14 @@ declare type ClientDataProps = {
   age: number;
   injuries?: string;
   surgeries?: string;
+  sex: string;
+  currentlyTraining: string;
+  currentTrainingRate?: string;
+  currentSport?: string;
+  personalTraining?: string;
+  inactivityPeriod?: string;
+  inactivityReason?: string;
+  problems?: string;
 };
 
 declare type DashboardStats = {

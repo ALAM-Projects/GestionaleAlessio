@@ -24,13 +24,15 @@ const OnboardingLayout = ({ children }: OnboardingLayoutProps) => {
       <div className="relative z-10 w-full lg:w-1/2 py-10 lg:bg-primary">
         <div className="max-w-[70%] mx-auto">
           <Image
-            src="/red-logo.svg"
+            src="/logo.svg"
             height={150}
             width={150}
             alt="logo"
             className="mx-auto"
           />
-          <Card className="p-10 mt-10 rounded-none">{children}</Card>
+          <Card className="p-10 mt-10 bg-neutral-800 border-none">
+            {children}
+          </Card>
         </div>
       </div>
 
