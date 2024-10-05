@@ -50,7 +50,7 @@ export const columns: ColumnDef<Appointment>[] = [
       return (
         <Button
           variant="ghost"
-          className="px-0"
+          className="px-0 hover:bg-trasparent hover:text-white"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Cliente
@@ -74,7 +74,7 @@ export const columns: ColumnDef<Appointment>[] = [
       return (
         <Button
           variant="ghost"
-          className="px-0"
+          className="px-0 hover:bg-trasparent hover:text-white"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Data
@@ -94,7 +94,7 @@ export const columns: ColumnDef<Appointment>[] = [
       return (
         <Button
           variant="ghost"
-          className="px-0"
+          className="px-0 hover:bg-trasparent hover:text-white"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Ora
@@ -114,7 +114,7 @@ export const columns: ColumnDef<Appointment>[] = [
       return (
         <Button
           variant="ghost"
-          className="px-0"
+          className="px-0 hover:bg-trasparent hover:text-white"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Stato
@@ -152,7 +152,7 @@ export const columns: ColumnDef<Appointment>[] = [
       return (
         <Button
           variant="ghost"
-          className="px-0"
+          className="px-0 hover:bg-trasparent hover:text-white"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Pagato
@@ -163,7 +163,7 @@ export const columns: ColumnDef<Appointment>[] = [
     cell: ({ row }) => (
       <Badge
         className=""
-        variant={row.getValue("paid") ? "success" : "default"}
+        variant={row.getValue("paid") ? "success" : "destructive"}
       >
         {row.getValue("paid") ? "Pagato" : "Da pagare"}
       </Badge>
@@ -248,9 +248,8 @@ export function AppointmentsTable(appointments: any) {
       price: 20,
       status: "Confermato",
       paid: false,
-      userId: "cm1jcwho30000fzexsyjzwman",
-      id: "",
-      date: "2024-09-30",
+      userId: "cm1krzu0n00009gnc4ianau8p",
+      date: "2024-10-05",
       time: "10:00",
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -263,9 +262,6 @@ export function AppointmentsTable(appointments: any) {
     <div className="w-full mt-5">
       <div className="flex justify-between items-center">
         <h2 className="text-4xl font-bold my-3 text-primary">Appuntamenti</h2>
-        <Button onClick={() => handleCreateAppointment()}>
-          Crea nuovo appuntamento
-        </Button>
       </div>
       <div className="flex items-center py-4">
         <Input
@@ -278,8 +274,18 @@ export function AppointmentsTable(appointments: any) {
           className="w-2/3 md:w-4/5 xl:w-4/12"
         />
         <DropdownMenu>
+          <Button
+            variant="brand"
+            className="ml-auto"
+            onClick={() => handleCreateAppointment()}
+          >
+            Crea nuovo appuntamento
+          </Button>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button
+              variant="outline"
+              className="ml-4 bg-neutral-200 text-primary"
+            >
               Colonne <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -308,7 +314,7 @@ export function AppointmentsTable(appointments: any) {
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow className="hover:bg-neutral-800" key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
@@ -329,6 +335,7 @@ export function AppointmentsTable(appointments: any) {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
+                  className="hover:bg-neutral-800 text-white"
                   // data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
@@ -345,7 +352,7 @@ export function AppointmentsTable(appointments: any) {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-24 text-center text-white hover:bg-primary"
                 >
                   Nessun risultato.
                 </TableCell>
@@ -361,15 +368,16 @@ export function AppointmentsTable(appointments: any) {
         </div> */}
         <div className="space-x-2">
           <Button
-            variant="outline"
+            variant={"dashboard"}
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            className=""
           >
             Indietro
           </Button>
           <Button
-            variant="outline"
+            variant={"dashboard"}
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}

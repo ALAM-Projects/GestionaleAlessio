@@ -52,12 +52,12 @@ export const AdminModal = () => {
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogContent className="border-0">
+      <AlertDialogContent className="border-0 bg-primary">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-primary flex items-start justify-between">
+          <AlertDialogTitle className="text-white flex items-start justify-between">
             <span className="text-3xl">Accesso Admin</span>
             <div
-              className="text-black text-md cursor-pointer"
+              className="text-white text-md cursor-pointer"
               onClick={() => closeModal()}
             >
               X
@@ -72,8 +72,9 @@ export const AdminModal = () => {
             maxLength={6}
             value={passkey}
             onChange={(value) => setPasskey(value)}
+            className=""
           >
-            <InputOTPGroup className="shad-otp ">
+            <InputOTPGroup className="shad-otp text-white ">
               <InputOTPSlot className="shad-otp-slot text-2xl" index={0} />
               <InputOTPSlot className="shad-otp-slot text-2xl" index={1} />
               <InputOTPSlot className="shad-otp-slot text-2xl" index={2} />
@@ -84,7 +85,7 @@ export const AdminModal = () => {
           </InputOTP>
 
           {error && (
-            <p className="shad-error text-14-regular mt-4 flex justify-center">
+            <p className="shad-error text-14-regular mt-4 flex justify-center text-white">
               {error}
             </p>
           )}
@@ -92,7 +93,7 @@ export const AdminModal = () => {
         <AlertDialogFooter>
           <AlertDialogAction
             onClick={(e) => validatePasskey(e)}
-            className="shad-primary-btn w-full"
+            className="bg-brandRed hover:bg-brandRed w-full"
           >
             Login
           </AlertDialogAction>

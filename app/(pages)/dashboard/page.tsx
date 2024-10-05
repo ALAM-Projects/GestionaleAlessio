@@ -12,13 +12,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Spinner from "@/components/ui/spinner";
 import { dashboardCardStats } from "@/data/index";
 import { Appointment, User } from "@prisma/client";
 import { getUsers } from "@/app/actions/user/getUsers";
 import Image from "next/image";
 import { getAppointments } from "@/app/actions/appointments/getAppointments";
+import Link from "next/link";
+import { Icon } from "lucide-react";
 
 function Dashboard() {
   const [stats, setStats] = useState<DashboardStats>();
@@ -55,46 +57,60 @@ function Dashboard() {
     }
   };
 
-  if (!stats?.usersCount && !stats?.trainingCount && !stats?.earnings) {
-    return (
-      <div className="mx-auto p-10">
-        <Spinner size="lg" color="border-primary" />;
-      </div>
-    );
-  }
+  const dashboardReady = useMemo(() => {
+    return stats && users && appointments;
+  }, [stats, users, appointments]);
 
   return (
     <div className="p-10 min-h-screen">
-      {/* <Image
-        src="/red-logo.svg"
-        height={100}
-        width={100}
-        alt="logo"
-        className="mx-auto mb-10"
-      /> */}
-      <div className="flex gap-5 lg:gap-3 flex-wrap justify-between md:flex-row">
-        {stats &&
-          dashboardCardStats?.map((stat: CardStats) => {
-            return (
-              <Card
-                key={stat.id}
-                className="w-[45%] sm:w-[45%] lg:w-[24%] bg-tertiary text-primary"
-              >
-                <CardHeader>
-                  <CardTitle>{stat.title}</CardTitle>
-                  <CardDescription>{stat.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <h5 className="text-5xl font-bold">
-                    {String(stats[stat.id as keyof DashboardStats])}
-                  </h5>
-                </CardContent>
-              </Card>
-            );
-          })}
-      </div>
-      {users && <UsersTable users={users} />}
-      {appointments && <AppointmentsTable appointments={appointments} />}
+      {dashboardReady ? (
+        <>
+          <div className="flex justify-between items-center">
+            <Image
+              src="/onboarding-banner.svg"
+              height={300}
+              width={400}
+              alt="logo-banner"
+              className="mr-auto mb-5"
+            />
+            <Image
+              src="/logo.svg"
+              height={110}
+              width={110}
+              alt="logo"
+              className="mb-5"
+            />
+          </div>
+          <Link href="/" className="text-white underline">
+            Esci dalla dashboard
+          </Link>
+          <div className="flex gap-5 lg:gap-3 flex-wrap justify-between md:flex-row mt-5">
+            {stats &&
+              dashboardCardStats?.map((stat: CardStats) => {
+                return (
+                  <Card
+                    key={stat.id}
+                    className="w-[46%] sm:w-[45%] lg:w-[24%] bg-tertiary text-white"
+                  >
+                    <CardHeader className="px-3 md:px-4">
+                      <CardTitle>{stat.title}</CardTitle>
+                      <CardDescription>{stat.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="px-3 md:px-5">
+                      <h5 className="text-5xl font-bold">
+                        {String(stats[stat.id as keyof DashboardStats])}
+                      </h5>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+          </div>
+          <UsersTable users={users} />
+          <AppointmentsTable appointments={appointments} />
+        </>
+      ) : (
+        <Spinner size="lg" color="border-white" />
+      )}
     </div>
   );
 }

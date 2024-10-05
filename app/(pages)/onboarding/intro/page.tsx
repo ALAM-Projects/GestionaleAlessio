@@ -194,7 +194,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
       </div>
       <div className="text-center mt-5">
         <Button
-          className="mt-5 w-full max-w-sm bg-[#550000] hover:bg-[#550000] text-md font-bold"
+          className="mt-5 w-full max-w-sm bg-brandRed hover:bg-brandRed text-md font-bold"
           onClick={() => handleSaveClientInfo()}
         >
           Continua

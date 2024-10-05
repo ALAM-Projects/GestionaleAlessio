@@ -203,11 +203,14 @@ export function UsersTable(users: any) {
           onChange={(event) =>
             table.getColumn("surname")?.setFilterValue(event.target.value)
           }
-          className="w-2/3 md:w-4/5 xl:w-4/12"
+          className="w-2/3 md:w-4/5 xl:w-4/12 "
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
+            <Button
+              variant="outline"
+              className="ml-auto bg-neutral-200 text-primary"
+            >
               Colonne <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -236,7 +239,7 @@ export function UsersTable(users: any) {
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow className="hover:bg-neutral-800 m" key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
@@ -256,11 +259,12 @@ export function UsersTable(users: any) {
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
+                  className="hover:bg-neutral-800"
                   key={row.id}
                   // data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="text-white">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -273,7 +277,7 @@ export function UsersTable(users: any) {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-24 text-center text-white hover:bg-primary"
                 >
                   Nessun risultato.
                 </TableCell>
@@ -289,15 +293,16 @@ export function UsersTable(users: any) {
         </div> */}
         <div className="space-x-2">
           <Button
-            variant="outline"
             size="sm"
+            variant={"dashboard"}
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
+            className="text-primary"
           >
             Indietro
           </Button>
           <Button
-            variant="outline"
+            variant={"dashboard"}
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}

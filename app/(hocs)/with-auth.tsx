@@ -49,17 +49,18 @@ export function withAuth<P extends object>(
     if (isAuthorized === false) {
       // Unauthorized
       return (
-        <div className="p-10 flex justify-center">
-          <Card className="w-[25%] bg-tertiary text-primary">
+        <div className="p-10 flex justify-center items-center">
+          <Card className="w-[25%] bg-brandRed border-0">
             <CardHeader>
-              <CardTitle>Non sei autorizzato</CardTitle>
+              <CardTitle className="text-white">Non sei autorizzato</CardTitle>
               <CardDescription>
-                Non sei autorizzato, effettua il login come Admin per
-                visualizzare il contenuto di questa pagina.
+                Effettua il login come Admin per visualizzare il contenuto di
+                questa pagina.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button
+                className="bg-primary text-white"
                 onClick={() => router.push("/onboarding/intro?admin=true")}
               >
                 Login
