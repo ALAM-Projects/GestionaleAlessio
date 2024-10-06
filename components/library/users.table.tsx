@@ -195,7 +195,9 @@ export function UsersTable(users: any) {
 
   return (
     <div className="w-full mt-10 rounded-md">
-      <h2 className="text-4xl font-bold my-3 text-primary">Clienti</h2>
+      <h2 className="text-2xl lg:text-4xl font-bold my-3 text-primary text-white">
+        Clienti
+      </h2>
       <div className="flex items-center py-4">
         <Input
           placeholder="Filtra clienti..."

@@ -38,11 +38,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
 
   // TODO: add validation
   const handleClientInfo = (value: string | number, name: string) => {
-    console.log(name, value);
-
     setClientData({ ...clientData, [name]: value });
-
-    console.log(clientData);
   };
 
   const handleSaveClientInfo = async () => {

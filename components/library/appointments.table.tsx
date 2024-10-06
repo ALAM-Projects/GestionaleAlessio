@@ -63,7 +63,7 @@ export const columns: ColumnDef<Appointment>[] = [
 
       return (
         <div className="text-left font-medium">
-          {client.name + " " + client.surname}
+          {client ? client.name + " " + client.surname : ""}
         </div>
       );
     },
@@ -213,8 +213,9 @@ export const columns: ColumnDef<Appointment>[] = [
   },
 ];
 
-export function AppointmentsTable(appointments: any) {
-  const data = appointments.appointments;
+export function AppointmentsTable({ ...props }) {
+  const data = props.appointments;
+  const withClient = props.withClient || true;
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -261,7 +262,16 @@ export function AppointmentsTable(appointments: any) {
   return (
     <div className="w-full mt-5">
       <div className="flex justify-between items-center">
-        <h2 className="text-4xl font-bold my-3 text-primary">Appuntamenti</h2>
+        <h2 className="text-2xl lg:text-4xl font-bold my-3 text-white">
+          Appuntamenti
+        </h2>
+        <Button
+          variant="brand"
+          className="ml-auto"
+          onClick={() => handleCreateAppointment()}
+        >
+          Crea nuovo appuntamento
+        </Button>
       </div>
       <div className="flex items-center py-4">
         <Input
@@ -274,13 +284,6 @@ export function AppointmentsTable(appointments: any) {
           className="w-2/3 md:w-4/5 xl:w-4/12"
         />
         <DropdownMenu>
-          <Button
-            variant="brand"
-            className="ml-auto"
-            onClick={() => handleCreateAppointment()}
-          >
-            Crea nuovo appuntamento
-          </Button>
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
@@ -316,16 +319,18 @@ export function AppointmentsTable(appointments: any) {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow className="hover:bg-neutral-800" key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
+                  if (header.id == "user" && withClient) return null;
+                  else
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
                 })}
               </TableRow>
             ))}
@@ -338,14 +343,18 @@ export function AppointmentsTable(appointments: any) {
                   className="hover:bg-neutral-800 text-white"
                   // data-state={row.getIsSelected() && "selected"}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    if (cell.column.id == "user" && withClient) return null;
+                    else
+                      return (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      );
+                  })}
                 </TableRow>
               ))
             ) : (

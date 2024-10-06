@@ -20,7 +20,7 @@ import { getUsers } from "@/app/actions/user/getUsers";
 import Image from "next/image";
 import { getAppointments } from "@/app/actions/appointments/getAppointments";
 import Link from "next/link";
-import { Icon } from "lucide-react";
+import DashboardLayout from "@/app/(layouts)/dashboard";
 
 function Dashboard() {
   const [stats, setStats] = useState<DashboardStats>();
@@ -62,7 +62,7 @@ function Dashboard() {
   }, [stats, users, appointments]);
 
   return (
-    <div className="p-10 min-h-screen">
+    <DashboardLayout>
       {dashboardReady ? (
         <>
           <div className="flex justify-between items-center">
@@ -72,13 +72,6 @@ function Dashboard() {
               width={400}
               alt="logo-banner"
               className="mr-auto mb-5"
-            />
-            <Image
-              src="/logo.svg"
-              height={110}
-              width={110}
-              alt="logo"
-              className="mb-5"
             />
           </div>
           <Link href="/" className="text-white underline">
@@ -106,12 +99,12 @@ function Dashboard() {
               })}
           </div>
           <UsersTable users={users} />
-          <AppointmentsTable appointments={appointments} />
+          <AppointmentsTable appointments={appointments} withClient={true} />
         </>
       ) : (
         <Spinner size="lg" color="border-white" />
       )}
-    </div>
+    </DashboardLayout>
   );
 }
 
