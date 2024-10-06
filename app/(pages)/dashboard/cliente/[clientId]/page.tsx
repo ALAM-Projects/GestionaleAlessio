@@ -18,8 +18,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { UserWithFullName } from "@/prisma/user-extension";
 import { useEffect, useState } from "react";
 
-const ClientPage = ({ params }: SearchParamProps) => {
+const ClientPage = ({ params, searchParams }: SearchParamProps) => {
   const clientId = params.clientId;
+  const appointment = searchParams?.appointment === "true";
 
   const [user, setUser] = useState<UserWithFullName>();
 
@@ -42,7 +43,7 @@ const ClientPage = ({ params }: SearchParamProps) => {
           <h1 className="text-4xl text-white text-center font-bold">
             {user?.fullName}
           </h1>
-          <h3 className="text-xl lg:text-2xl text-white mt-10">
+          <h3 className="text-2xl lg:text-4xl font-bold text-white mt-10">
             Informazioni personali
           </h3>
           <div className="grid grid-cols-12 gap-x-4 gap-y-2 mt-2">
@@ -469,6 +470,8 @@ const ClientPage = ({ params }: SearchParamProps) => {
             <AppointmentsTable
               appointments={user.appointments}
               withClient={false}
+              openAppointmentModal={appointment}
+              clientId={clientId}
             />
           ) : null}
         </>

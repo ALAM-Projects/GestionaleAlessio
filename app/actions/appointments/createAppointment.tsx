@@ -1,17 +1,27 @@
 "use server";
 
-import { Appointment, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function createAppointment(
-  appointmentData: Appointment
-): Promise<Appointment> {
-  const newAppointment = await prisma.appointment.create({
-    data: appointmentData,
+  clientId: string,
+  date: string,
+  time: string,
+  price: number
+): Promise<boolean> {
+  const created = await prisma.appointment.create({
+    data: {
+      date,
+      time,
+      price,
+      userId: clientId,
+      status: "Confermato",
+      paid: false,
+    },
   });
 
-  return newAppointment;
+  return !!created;
 }
 
 export { createAppointment };

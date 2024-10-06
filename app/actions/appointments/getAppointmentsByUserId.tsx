@@ -1,6 +1,6 @@
 "use server";
 
-import { Appointment, PrismaClient, User } from "@prisma/client";
+import { Appointment, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
