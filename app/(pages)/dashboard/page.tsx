@@ -21,11 +21,15 @@ import Image from "next/image";
 import { getAppointments } from "@/app/actions/appointments/getAppointments";
 import Link from "next/link";
 import DashboardLayout from "@/app/(layouts)/dashboard";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 function Dashboard() {
   const [stats, setStats] = useState<DashboardStats>();
   const [users, setUsers] = useState<User[]>();
   const [appointments, setAppointments] = useState<Appointment[]>();
+
+  const router = useRouter();
 
   useEffect(() => {
     getDashboardStats();
@@ -99,6 +103,17 @@ function Dashboard() {
               })}
           </div>
           <UsersTable users={users} />
+          <div className="flex justify-between items-center mt-10">
+            <h2 className="text-2xl lg:text-4xl font-bold my-3 text-white">
+              Appuntamenti
+            </h2>
+            <Button
+              variant={"brand"}
+              onClick={() => router.push("?appointment=true")}
+            >
+              Crea nuovo appuntamento
+            </Button>
+          </div>
           <AppointmentsTable appointments={appointments} withClient={true} />
         </>
       ) : (

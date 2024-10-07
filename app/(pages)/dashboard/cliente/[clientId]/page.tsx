@@ -3,26 +3,23 @@
 import DashboardLayout from "@/app/(layouts)/dashboard";
 import { getUserById } from "@/app/actions/user/getUserById";
 import { AppointmentsTable } from "@/components/library/appointments.table";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import Spinner from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { UserWithFullName } from "@/prisma/user-extension";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { AppointmentModal } from "@/components/library/appointment-modal";
 
 const ClientPage = ({ params, searchParams }: SearchParamProps) => {
   const clientId = params.clientId;
-  const appointment = searchParams?.appointment === "true";
+  const appointmentModal = searchParams?.appointment === "true";
 
   const [user, setUser] = useState<UserWithFullName>();
+  const router = useRouter();
 
   useEffect(() => {
     getClient();
@@ -30,8 +27,9 @@ const ClientPage = ({ params, searchParams }: SearchParamProps) => {
 
   const getClient = async () => {
     const user = await getUserById(clientId);
-    if (user) return setUser(user);
-
+    if (user) {
+      setUser(user);
+    }
     return;
   };
 
@@ -467,12 +465,31 @@ const ClientPage = ({ params, searchParams }: SearchParamProps) => {
             </div>
           </div>
           {user.appointments.length ? (
-            <AppointmentsTable
-              appointments={user.appointments}
-              withClient={false}
-              openAppointmentModal={appointment}
-              clientId={clientId}
-            />
+            <>
+              {appointmentModal && (
+                <AppointmentModal
+                  clientId={clientId}
+                  getClient={getClient}
+                  searchParams={searchParams}
+                />
+              )}
+              <div className="flex justify-between items-center mt-10">
+                <h2 className="text-2xl lg:text-4xl font-bold my-3 text-white">
+                  Appuntamenti
+                </h2>
+                <Button
+                  variant={"brand"}
+                  onClick={() => router.push("?appointment=true")}
+                >
+                  Crea nuovo appuntamento
+                </Button>
+              </div>
+              <AppointmentsTable
+                appointments={user.appointments}
+                withClient={false}
+                clientId={clientId}
+              />
+            </>
           ) : null}
         </>
       ) : (

@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,12 +11,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
-import { encryptKey } from "@/lib/utils";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { createAppointment } from "@/app/actions/appointments/createAppointment";
@@ -53,7 +46,23 @@ export const AppointmentModal = ({ ...props }) => {
 
     if (created) {
       setOpen(false);
-      router.refresh();
+      // Create a new URLSearchParams object without the 'appointment' parameter
+      const newSearchParams = new URLSearchParams(
+        Object.entries(props.searchParams).map(([key, value]) => [
+          key,
+          String(value),
+        ])
+      );
+      newSearchParams.delete("appointment");
+
+      // Construct the new URL
+      const newPathname = window.location.pathname;
+      const newSearch = newSearchParams.toString();
+      const newUrl = newPathname + (newSearch ? `?${newSearch}` : "");
+
+      // Update the URL without adding a new history entry
+      window.history.replaceState({}, "", newUrl);
+      props.getClient();
     }
   };
 

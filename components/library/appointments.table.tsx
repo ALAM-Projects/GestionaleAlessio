@@ -219,9 +219,9 @@ export const columns: ColumnDef<Appointment>[] = [
 export function AppointmentsTable({ ...props }) {
   const data = props.appointments;
   const withClient = props.withClient || true;
-  const clientId = props.clientId;
+  // const clientId = props.clientId;
 
-  const router = useRouter();
+  // const router = useRouter();
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -250,36 +250,9 @@ export function AppointmentsTable({ ...props }) {
     },
   });
 
-  // const handleCreateAppointment = async () => {
-  //   const appointment = await createAppointment({
-  //     price: 20,
-  //     status: "Confermato",
-  //     paid: false,
-  //     userId: "cm1krzu0n00009gnc4ianau8p",
-  //     date: "2024-10-05",
-  //     time: "10:00",
-  //     createdAt: new Date(),
-  //     updatedAt: new Date(),
-  //   });
-
-  //   return appointment;
-  // };
-
   return (
     <div className="w-full mt-5">
-      {props.openAppointmentModal && <AppointmentModal clientId={clientId} />}
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl lg:text-4xl font-bold my-3 text-white">
-          Appuntamenti
-        </h2>
-        <Button
-          variant={"brand"}
-          onClick={() => router.push("?appointment=true")}
-        >
-          Crea nuovo appuntamento
-        </Button>
-      </div>
-      <div className="flex items-center py-4">
+      <div className="flex items-center pb-4">
         <Input
           type="date"
           placeholder="Filtra per data..."
