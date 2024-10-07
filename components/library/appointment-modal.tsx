@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   AlertDialog,
@@ -14,7 +13,6 @@ import {
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { createAppointment } from "@/app/actions/appointments/createAppointment";
-import { Combobox } from "./combobox";
 
 export const AppointmentModal = ({ ...props }) => {
   const [open, setOpen] = useState(false);
@@ -128,7 +126,7 @@ export const AppointmentModal = ({ ...props }) => {
             }
           />
         </div>
-        {!clientId && (
+        {/* {!clientId && (
           <div className="gap-1.5">
             <Label
               className="text-neutral-400 font-bold text-md"
@@ -136,9 +134,8 @@ export const AppointmentModal = ({ ...props }) => {
             >
               Cliente
             </Label>
-            <Combobox users={users} />
           </div>
-        )}
+        )} */}
         <div className="mx-auto mb-5">
           {error && (
             <p className="shad-error text-14-regular mt-4 flex justify-center text-white">

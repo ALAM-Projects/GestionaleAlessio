@@ -66,14 +66,14 @@ const ClientPage = ({ params, searchParams }: SearchParamProps) => {
       {user && stats ? (
         // PERSONAL-INFO
         <>
-          <div className="grid grid-cols-12 items-center mt-5">
-            <div className="flex col-span-5 gap-5 lg:gap-3 flex-wrap justify-between md:flex-row">
+          <div className="grid grid-cols-12 items-center mt-5 space-y-12 lg:space-y-0">
+            <div className="h-full flex col-span-12 lg:col-span-5 gap-5 lg:gap-3 flex-wrap justify-between md:flex-row">
               {stats &&
                 clientCardStats?.map((stat: CardStats) => {
                   return (
                     <Card
                       key={stat.id}
-                      className="w-[46%] sm:w-[45%] lg:w-[48%] bg-tertiary text-white"
+                      className="w-[46%] lg:w-[98%] xl:w-[48.5%] bg-tertiary text-white"
                     >
                       <CardHeader className="px-3 md:px-4">
                         <CardTitle>{stat.title}</CardTitle>
@@ -82,7 +82,7 @@ const ClientPage = ({ params, searchParams }: SearchParamProps) => {
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="px-3 md:px-5">
-                        <h5 className="text-5xl font-bold">
+                        <h5 className="text-3xl lg:text-5xl font-bold">
                           {String(stats[stat.id as keyof DashboardStats])}
                         </h5>
                       </CardContent>
@@ -90,8 +90,8 @@ const ClientPage = ({ params, searchParams }: SearchParamProps) => {
                   );
                 })}
             </div>
-            <Card className="col-span-7 ml-auto w-[46%] sm:w-[45%] lg:w-[97%] bg-brand/40 text-white flex justify-between h-full">
-              <div className="px-3 md:px-4 ">
+            <Card className="flex flex-col items-between lg:flex-row lg:justify-between col-span-12 lg:col-span-7 ml-auto w-[100%] lg:w-[98%] bg-brand/40 text-white  h-full">
+              <div className="px-3 md:px-4">
                 <CardHeader className="px-0">
                   {/* <span>CLIENTE:</span> */}
                   <CardTitle className="text-4xl">{user?.fullName}</CardTitle>
@@ -105,7 +105,7 @@ const ClientPage = ({ params, searchParams }: SearchParamProps) => {
                     : `Da pagare ${appointmentsToPay} appuntamenti`}
                 </Badge>
               </div>
-              <CardContent className="px-3 md:px-4 p-6">
+              <CardContent className="px-3 pb-0 pt-6 md:px-4 xl:p-6">
                 <div className="text-xl ">
                   Telefono:{" "}
                   <span className="font-bold">{Number(user?.phone)}</span>
@@ -129,7 +129,7 @@ const ClientPage = ({ params, searchParams }: SearchParamProps) => {
           </div>
 
           {/* ANAMNESI */}
-          <h3 className="text-2xl lg:text-4xl font-bold text-white mt-10">
+          <h3 className="text-3xl lg:text-4xl font-bold text-white mt-16">
             Scheda di anamnesi
           </h3>
           <div className="grid grid-cols-12 gap-2 mt-2">
