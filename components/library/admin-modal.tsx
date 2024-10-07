@@ -93,7 +93,7 @@ export const AdminModal = () => {
         <AlertDialogFooter>
           <AlertDialogAction
             onClick={(e) => validatePasskey(e)}
-            className="bg-brandRed hover:bg-brandRed w-full"
+            className="bg-brand hover:bg-brand w-full"
           >
             Login
           </AlertDialogAction>

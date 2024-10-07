@@ -24,10 +24,10 @@ declare type ClientDataProps = {
 };
 
 declare type DashboardStats = {
-  usersCount: Number;
+  usersCount?: Number;
   trainingCount: Number;
   earnings: String;
-  workedHours: String;
+  workedHours?: String;
 };
 
 declare type CardStats = {

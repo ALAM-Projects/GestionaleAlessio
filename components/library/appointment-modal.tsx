@@ -14,14 +14,15 @@ import {
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { createAppointment } from "@/app/actions/appointments/createAppointment";
+import { Combobox } from "./combobox";
 
 export const AppointmentModal = ({ ...props }) => {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [appointmentData, setAppointmentData] = useState<any>({});
   const [error, setError] = useState("");
 
   const clientId = props.clientId;
+  const users = props.users;
 
   useEffect(() => {
     setOpen(true);
@@ -29,7 +30,6 @@ export const AppointmentModal = ({ ...props }) => {
 
   const closeModal = () => {
     setOpen(false);
-    router.push("/dashboard/cliente/" + clientId);
   };
 
   const handleCreateAppointment = async (
@@ -83,6 +83,7 @@ export const AppointmentModal = ({ ...props }) => {
             Inserisci data ed ora del nuovo appuntamento
           </AlertDialogDescription>
         </AlertDialogHeader>
+
         <div className="gap-1.5">
           <Label className="text-neutral-400 font-bold text-md" htmlFor="email">
             Data
@@ -127,6 +128,17 @@ export const AppointmentModal = ({ ...props }) => {
             }
           />
         </div>
+        {!clientId && (
+          <div className="gap-1.5">
+            <Label
+              className="text-neutral-400 font-bold text-md"
+              htmlFor="email"
+            >
+              Cliente
+            </Label>
+            <Combobox users={users} />
+          </div>
+        )}
         <div className="mx-auto mb-5">
           {error && (
             <p className="shad-error text-14-regular mt-4 flex justify-center text-white">
@@ -137,7 +149,7 @@ export const AppointmentModal = ({ ...props }) => {
         <AlertDialogFooter>
           <AlertDialogAction
             onClick={(e) => handleCreateAppointment(e)}
-            className="bg-brandRed hover:bg-brandRed w-full"
+            className="bg-brand hover:bg-brand w-full"
           >
             Crea
           </AlertDialogAction>

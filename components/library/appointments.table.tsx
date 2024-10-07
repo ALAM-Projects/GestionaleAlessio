@@ -197,14 +197,22 @@ export const columns: ColumnDef<Appointment>[] = [
             >
               Modifica appuntamento
             </DropdownMenuItem>
-            {row.getValue("status") === "Confermato" && (
+            {row.getValue("status") === "Confermato" ? (
               // TODO: aggiungere chiamata per annullare appuntamento
               <DropdownMenuItem onClick={() => {}}>
                 Annulla appuntamento
               </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onClick={() => {}}>
+                Conferma appuntamento
+              </DropdownMenuItem>
             )}
-            {!row.getValue("paid") && (
+            {row.getValue("paid") ? (
               // TODO: aggiungere chiamata per modificare pagamento
+              <DropdownMenuItem onClick={() => {}}>
+                Segna come da pagare
+              </DropdownMenuItem>
+            ) : (
               <DropdownMenuItem onClick={() => {}}>
                 Segna come pagato
               </DropdownMenuItem>
@@ -219,9 +227,6 @@ export const columns: ColumnDef<Appointment>[] = [
 export function AppointmentsTable({ ...props }) {
   const data = props.appointments;
   const withClient = props.withClient || true;
-  // const clientId = props.clientId;
-
-  // const router = useRouter();
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -252,7 +257,7 @@ export function AppointmentsTable({ ...props }) {
 
   return (
     <div className="w-full mt-5">
-      <div className="flex items-center pb-4">
+      <div className="flex justify-between items-center pb-4">
         <Input
           type="date"
           placeholder="Filtra per data..."

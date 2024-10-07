@@ -16,7 +16,7 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        brandRed: {
+        brand: {
           DEFAULT: "#550000",
         },
         popover: {

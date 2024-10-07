@@ -50,7 +50,7 @@ export function withAuth<P extends object>(
       // Unauthorized
       return (
         <div className="p-10 flex justify-center items-center">
-          <Card className="w-[25%] bg-brandRed border-0">
+          <Card className="w-[25%] bg-brand border-0">
             <CardHeader>
               <CardTitle className="text-white">Non sei autorizzato</CardTitle>
               <CardDescription>

@@ -3,8 +3,6 @@
 import { withAuth } from "@/app/(hocs)/with-auth";
 import { getStats } from "@/app/actions/dashboard/getStats";
 import { UsersTable } from "@/components/library/users.table";
-import { AppointmentsTable } from "@/components/library/appointments.table";
-
 import {
   Card,
   CardContent,
@@ -17,19 +15,19 @@ import Spinner from "@/components/ui/spinner";
 import { dashboardCardStats } from "@/data/index";
 import { Appointment, User } from "@prisma/client";
 import { getUsers } from "@/app/actions/user/getUsers";
-import Image from "next/image";
 import { getAppointments } from "@/app/actions/appointments/getAppointments";
-import Link from "next/link";
 import DashboardLayout from "@/app/(layouts)/dashboard";
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import AppointmentManager from "@/components/appointment-manager";
+import { AppointmentModal } from "@/components/library/appointment-modal";
 
-function Dashboard() {
+function Dashboard({ searchParams }: SearchParamProps) {
   const [stats, setStats] = useState<DashboardStats>();
   const [users, setUsers] = useState<User[]>();
   const [appointments, setAppointments] = useState<Appointment[]>();
 
   const router = useRouter();
+  const appointmentModal = searchParams?.appointment === "true";
 
   useEffect(() => {
     getDashboardStats();
@@ -66,21 +64,16 @@ function Dashboard() {
   }, [stats, users, appointments]);
 
   return (
-    <DashboardLayout>
+    <DashboardLayout linkText={"Esci dalla dashboard"} link={"/"}>
       {dashboardReady ? (
         <>
-          <div className="flex justify-between items-center">
-            <Image
-              src="/onboarding-banner.svg"
-              height={300}
-              width={400}
-              alt="logo-banner"
-              className="mr-auto mb-5"
+          {appointmentModal && (
+            <AppointmentModal
+              getClient={getAllAppointments}
+              searchParams={searchParams}
+              users={users}
             />
-          </div>
-          <Link href="/" className="text-white underline">
-            Esci dalla dashboard
-          </Link>
+          )}
           <div className="flex gap-5 lg:gap-3 flex-wrap justify-between md:flex-row mt-5">
             {stats &&
               dashboardCardStats?.map((stat: CardStats) => {
@@ -91,7 +84,9 @@ function Dashboard() {
                   >
                     <CardHeader className="px-3 md:px-4">
                       <CardTitle>{stat.title}</CardTitle>
-                      <CardDescription>{stat.description}</CardDescription>
+                      <CardDescription className="text-md">
+                        {stat.description}
+                      </CardDescription>
                     </CardHeader>
                     <CardContent className="px-3 md:px-5">
                       <h5 className="text-5xl font-bold">
@@ -103,18 +98,7 @@ function Dashboard() {
               })}
           </div>
           <UsersTable users={users} />
-          <div className="flex justify-between items-center mt-10">
-            <h2 className="text-2xl lg:text-4xl font-bold my-3 text-white">
-              Appuntamenti
-            </h2>
-            <Button
-              variant={"brand"}
-              onClick={() => router.push("?appointment=true")}
-            >
-              Crea nuovo appuntamento
-            </Button>
-          </div>
-          <AppointmentsTable appointments={appointments} withClient={true} />
+          <AppointmentManager showButton={false} appointments={appointments} />
         </>
       ) : (
         <Spinner size="lg" color="border-white" />

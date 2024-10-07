@@ -2,28 +2,44 @@
 
 import DashboardLayout from "@/app/(layouts)/dashboard";
 import { getUserById } from "@/app/actions/user/getUserById";
-import { AppointmentsTable } from "@/components/library/appointments.table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Spinner from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { UserWithFullName } from "@/prisma/user-extension";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { AppointmentModal } from "@/components/library/appointment-modal";
+import AppointmentManager from "@/components/appointment-manager";
+import { getClientStats } from "@/app/actions/dashboard/getClientStats";
+import { clientCardStats } from "@/data";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 const ClientPage = ({ params, searchParams }: SearchParamProps) => {
   const clientId = params.clientId;
   const appointmentModal = searchParams?.appointment === "true";
 
   const [user, setUser] = useState<UserWithFullName>();
-  const router = useRouter();
+  const [stats, setStats] = useState<DashboardStats>();
 
   useEffect(() => {
     getClient();
+    getUserStats();
   }, []);
+
+  const getUserStats = async () => {
+    const response = await getClientStats(clientId);
+
+    if (response) {
+      setStats(response);
+    }
+  };
 
   const getClient = async () => {
     const user = await getUserById(clientId);
@@ -33,178 +49,89 @@ const ClientPage = ({ params, searchParams }: SearchParamProps) => {
     return;
   };
 
+  const paidAppointmentsNumber = useMemo(() => {
+    return (
+      user?.appointments?.filter((appointment) => appointment.paid).length || 0
+    );
+  }, [user?.appointments]);
+
+  const allPaid = paidAppointmentsNumber === user?.appointments.length;
+  const appointmentsToPay =
+    user?.appointments && user?.appointments?.length - paidAppointmentsNumber;
+
+  console.log(paidAppointmentsNumber);
+
   return (
-    <DashboardLayout>
-      {user ? (
+    <DashboardLayout linkText={"Torna alla dashboard"} link={"/dashboard"}>
+      {user && stats ? (
         // PERSONAL-INFO
         <>
-          <h1 className="text-4xl text-white text-center font-bold">
-            {user?.fullName}
-          </h1>
-          <h3 className="text-2xl lg:text-4xl font-bold text-white mt-10">
-            Informazioni personali
-          </h3>
-          <div className="grid grid-cols-12 gap-x-4 gap-y-2 mt-2">
-            <div className="col-span-12 xl:col-span-3 items-center gap-1.5">
-              <Label
-                className="text-neutral-400 font-bold text-md"
-                htmlFor="email"
-              >
-                Nome
-              </Label>
-              <Input
-                value={user?.name}
-                disabled
-                type="text"
-                id="name"
-                name="name"
-                className="text-primary text-md"
-                placeholder="Il tuo nome"
-                // onChange={(e) => handleClientInfo(e.target.value, e.target.name)}
-              />
+          <div className="grid grid-cols-12 items-center mt-5">
+            <div className="flex col-span-5 gap-5 lg:gap-3 flex-wrap justify-between md:flex-row">
+              {stats &&
+                clientCardStats?.map((stat: CardStats) => {
+                  return (
+                    <Card
+                      key={stat.id}
+                      className="w-[46%] sm:w-[45%] lg:w-[48%] bg-tertiary text-white"
+                    >
+                      <CardHeader className="px-3 md:px-4">
+                        <CardTitle>{stat.title}</CardTitle>
+                        <CardDescription className="text-md">
+                          {stat.description}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="px-3 md:px-5">
+                        <h5 className="text-5xl font-bold">
+                          {String(stats[stat.id as keyof DashboardStats])}
+                        </h5>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
             </div>
-            <div className="col-span-12 xl:col-span-3 items-center gap-1.5 ">
-              <Label
-                className="text-neutral-400 font-bold text-md"
-                htmlFor="email"
-              >
-                Cognome
-              </Label>
-              <Input
-                value={user?.surname}
-                disabled
-                type="text"
-                id="surname"
-                name="surname"
-                className="text-md"
-                placeholder="Il tuo cognome"
-                // onChange={(e) => handleClientInfo(e.target.value, e.target.name)}
-              />
-            </div>
-            <div className="col-span-12 xl:col-span-3 items-center gap-1.5">
-              <Label
-                className="text-neutral-400 font-bold text-md"
-                htmlFor="email"
-              >
-                Telefono
-              </Label>
-              <Input
-                value={Number(user?.phone)}
-                disabled
-                type="number"
-                id="phone"
-                name="phone"
-                className=" text-md"
-                placeholder="Il tuo numero di telefono"
-                // onChange={(e) =>
-                //   // handleClientInfo(Number(e.target.value), e.target.name)
-                // }
-              />
-            </div>
-            <div className="col-span-12 xl:col-span-3 items-center gap-1.5">
-              <Label
-                className="text-neutral-400 font-bold text-md"
-                htmlFor="age"
-              >
-                Età
-              </Label>
-              <Input
-                value={user?.age}
-                disabled
-                type="number"
-                className="text-md"
-                id="age"
-                name="age"
-                placeholder="La tua età"
-                // onChange={(e) =>
-                //   // handleClientInfo(Number(e.target.value), e.target.name)
-                // }
-              />
-            </div>
-            <div className="col-span-12 xl:col-span-3 items-center gap-1.5 ">
-              <Label
-                className="text-neutral-400 font-bold text-md"
-                htmlFor="height"
-              >
-                Altezza (cm)
-              </Label>
-              <Input
-                value={user?.height}
-                disabled
-                type="number"
-                className="text-md"
-                id="height"
-                name="height"
-                placeholder="Altezza"
-                // onChange={(e) =>
-                //   // handleClientInfo(Number(e.target.value), e.target.name)
-                // }
-              />
-            </div>
-
-            <div className="col-span-12 xl:col-span-3 items-center gap-1.5 ">
-              <Label
-                className="text-neutral-400 font-bold text-md"
-                htmlFor="weight"
-              >
-                Peso (kg)
-              </Label>
-              <Input
-                value={user?.weight}
-                disabled
-                type="number"
-                className="text-md"
-                id="weight"
-                name="weight"
-                placeholder="Peso"
-                // onChange={(e) =>
-                //   // handleClientInfo(Number(e.target.value), e.target.name)
-                // }
-              />
-            </div>
-            <div className="col-span-12 xl:col-span-3 items-center gap-1.5 mt-1">
-              <Label
-                className="text-neutral-400 font-bold text-md"
-                htmlFor="sex"
-              >
-                Sesso
-              </Label>
-              <RadioGroup
-                disabled
-                value={user?.sex}
-                className="flex mt-3"
-                id="sex"
-                name="sex"
-                // onValueChange={(e) => handleClientInfo(e, "sex")}
-              >
-                <div className="flex items-center space-x-2 text-white text-md">
-                  <RadioGroupItem
-                    value="Maschio"
-                    id="Maschio"
-                    className="text-white border-white"
-                  />
-                  <Label htmlFor="M" className="text-md">
-                    M
-                  </Label>
+            <Card className="col-span-7 ml-auto w-[46%] sm:w-[45%] lg:w-[97%] bg-brand/40 text-white flex justify-between h-full">
+              <div className="px-3 md:px-4 ">
+                <CardHeader className="px-0">
+                  {/* <span>CLIENTE:</span> */}
+                  <CardTitle className="text-4xl">{user?.fullName}</CardTitle>
+                </CardHeader>
+                <Badge
+                  className="text-md"
+                  variant={allPaid ? "success" : "destructive"}
+                >
+                  {allPaid
+                    ? "Pagamenti in regola"
+                    : `Da pagare ${appointmentsToPay} appuntamenti`}
+                </Badge>
+              </div>
+              <CardContent className="px-3 md:px-4 p-6">
+                <div className="text-xl ">
+                  Telefono:{" "}
+                  <span className="font-bold">{Number(user?.phone)}</span>
                 </div>
-                <div className="flex items-center space-x-2 text-white text-md">
-                  <RadioGroupItem
-                    value="Femmina"
-                    id="Femmina"
-                    className="text-white border-white"
-                  />
-                  <Label htmlFor="F" className="text-md">
-                    F
-                  </Label>
+                <div className="text-xl ">
+                  Età: <span className="font-bold">{Number(user?.age)}</span>
                 </div>
-              </RadioGroup>
-            </div>
+                <div className="text-xl ">
+                  Altezza:{" "}
+                  <span className="font-bold">{Number(user?.height)} cm</span>
+                </div>
+                <div className="text-xl ">
+                  Peso:{" "}
+                  <span className="font-bold">{Number(user?.weight)} kg</span>
+                </div>
+                <div className="text-xl ">
+                  Sesso: <span className="font-bold">{user?.sex}</span>
+                </div>
+              </CardContent>
+            </Card>
           </div>
+
           {/* ANAMNESI */}
-          <h3 className="text-xl lg:text-2xl text-white mt-10">
+          <h3 className="text-2xl lg:text-4xl font-bold text-white mt-10">
             Scheda di anamnesi
           </h3>
-
           <div className="grid grid-cols-12 gap-2 mt-2">
             <div className="col-span-12 items-center gap-1.5 mt-1">
               <Label
@@ -473,21 +400,10 @@ const ClientPage = ({ params, searchParams }: SearchParamProps) => {
                   searchParams={searchParams}
                 />
               )}
-              <div className="flex justify-between items-center mt-10">
-                <h2 className="text-2xl lg:text-4xl font-bold my-3 text-white">
-                  Appuntamenti
-                </h2>
-                <Button
-                  variant={"brand"}
-                  onClick={() => router.push("?appointment=true")}
-                >
-                  Crea nuovo appuntamento
-                </Button>
-              </div>
-              <AppointmentsTable
+              <AppointmentManager
                 appointments={user.appointments}
-                withClient={false}
                 clientId={clientId}
+                withClient={false}
               />
             </>
           ) : null}
