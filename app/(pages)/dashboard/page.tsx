@@ -20,10 +20,15 @@ import DashboardLayout from "@/app/(layouts)/dashboard";
 import { useRouter } from "next/navigation";
 import AppointmentManager from "@/components/appointment-manager";
 import { AppointmentModal } from "@/components/library/appointment-modal";
+import {
+  extendArrayOfUsersWithFullName,
+  extendUserWithFullName,
+  UserWithFullName,
+} from "@/prisma/user-extension";
 
 function Dashboard({ searchParams }: SearchParamProps) {
   const [stats, setStats] = useState<DashboardStats>();
-  const [users, setUsers] = useState<User[]>();
+  const [users, setUsers] = useState<UserWithFullName[]>();
   const [appointments, setAppointments] = useState<Appointment[]>();
 
   const router = useRouter();
@@ -46,8 +51,10 @@ function Dashboard({ searchParams }: SearchParamProps) {
   const getAllUsers = async () => {
     const response = await getUsers();
 
+    const usersWithFullname = extendArrayOfUsersWithFullName(response);
+
     if (response) {
-      setUsers(response);
+      setUsers(usersWithFullname);
     }
   };
 
@@ -98,7 +105,11 @@ function Dashboard({ searchParams }: SearchParamProps) {
               })}
           </div>
           <UsersTable users={users} />
-          <AppointmentManager showButton={false} appointments={appointments} />
+          <AppointmentManager
+            withClient={true}
+            showButton={false}
+            appointments={appointments}
+          />
         </>
       ) : (
         <Spinner size="lg" color="border-white" />

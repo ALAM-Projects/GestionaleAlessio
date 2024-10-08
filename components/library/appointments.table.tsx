@@ -13,12 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  ArrowUpDown,
-  ChevronDown,
-  MoreHorizontal,
-  SeparatorVertical,
-} from "lucide-react";
+import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,12 +34,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Appointment, User } from "@prisma/client";
-import { formatDate } from "@/polyfills";
 import { Badge } from "../ui/badge";
-import { createAppointment } from "@/app/actions/appointments/createAppointment";
-import { AlertDialog } from "../ui/alert-dialog";
-import { AppointmentModal } from "./appointment-modal";
-import Link from "next/link";
 
 export const columns: ColumnDef<Appointment>[] = [
   {
@@ -226,7 +216,7 @@ export const columns: ColumnDef<Appointment>[] = [
 
 export function AppointmentsTable({ ...props }) {
   const data = props.appointments;
-  const withClient = props.withClient || true;
+  const withClient = props.withClient;
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -303,7 +293,7 @@ export function AppointmentsTable({ ...props }) {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow className="hover:bg-neutral-800" key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  if (header.id == "user" && withClient) return null;
+                  if (header.id == "user" && !withClient) return null;
                   else
                     return (
                       <TableHead key={header.id}>
@@ -324,11 +314,11 @@ export function AppointmentsTable({ ...props }) {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className="hover:bg-neutral-800 text-white"
+                  className="hover:bg-neutral-800 text-white text-lg"
                   // data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => {
-                    if (cell.column.id == "user" && withClient) return null;
+                    if (cell.column.id == "user" && !withClient) return null;
                     else
                       return (
                         <TableCell key={cell.id}>

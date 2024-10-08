@@ -40,3 +40,13 @@ export function extendUserWithFullName(
     appointments: user.appointments || [],
   };
 }
+
+export function extendArrayOfUsersWithFullName(
+  users: (User & { appointments?: Appointment[] })[]
+): UserWithFullName[] {
+  return users.map((user) => ({
+    ...user,
+    fullName: `${user.name} ${user.surname}`,
+    appointments: user.appointments || [],
+  }));
+}

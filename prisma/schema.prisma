@@ -35,7 +35,7 @@ model User {
   injuries            String?
   surgeries           String?
   problems            String?
-  goalReason          String
+  goalReason          String?
   appointments        Appointment[]
 }
 

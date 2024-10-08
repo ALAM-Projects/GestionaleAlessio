@@ -33,44 +33,29 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { User } from "@prisma/client";
 import { clientsColumns } from "@/data/index";
+import { UserWithFullName } from "@/prisma/user-extension";
 
-export const columns: ColumnDef<User>[] = [
+export const columns: ColumnDef<UserWithFullName>[] = [
   {
-    accessorKey: "surname",
+    accessorKey: "fullName",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
+          className="px-0 hover:bg-trasparent hover:text-white"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Cognome
+          Cliente
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
-    cell: ({ row }) => (
-      <div className="capitalize ml-4">{row.getValue("surname")}</div>
-    ),
-    enableHiding: false,
-  },
-  {
-    accessorKey: "name",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Nome
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
+    cell: ({ row }) => {
+      const fullName = row.getValue("fullName");
+
+      return <div className="text-left font-medium">{fullName as string}</div>;
     },
-    cell: ({ row }) => (
-      <div className="capitalize ml-4">{row.getValue("name")}</div>
-    ),
   },
   {
     accessorKey: "phone",
@@ -161,10 +146,8 @@ export const columns: ColumnDef<User>[] = [
   },
 ];
 
-export function UsersTable(users: any) {
-  const data = users.users;
-
-  const router = useRouter();
+export function UsersTable({ ...props }) {
+  const data = props.users;
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -261,7 +244,7 @@ export function UsersTable(users: any) {
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
-                  className="hover:bg-neutral-800"
+                  className="hover:bg-neutral-800 text-lg"
                   key={row.id}
                   // data-state={row.getIsSelected() && "selected"}
                 >

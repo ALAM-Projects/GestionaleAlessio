@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "goalReason" DROP NOT NULL,
+ALTER COLUMN "goalReason" DROP DEFAULT;
