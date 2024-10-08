@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useEffect, useState } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -35,6 +35,9 @@ import {
 } from "@/components/ui/table";
 import { Appointment, User } from "@prisma/client";
 import { Badge } from "../ui/badge";
+import { editAppointment } from "@/app/actions/appointments/editAppointment";
+import { getAppointments } from "@/app/actions/appointments/getAppointments";
+import { get } from "http";
 
 export const columns: ColumnDef<Appointment>[] = [
   {
@@ -162,69 +165,16 @@ export const columns: ColumnDef<Appointment>[] = [
       </Badge>
     ),
   },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const client = row.original;
-
-      const router = useRouter();
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className=" h-8 w-8 p-0">
-              <span className="sr-only">Apri menù</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Azioni</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => {
-                router.push("/dashboard/cliente/" + client.id);
-              }}
-            >
-              Modifica appuntamento
-            </DropdownMenuItem>
-            {row.getValue("status") === "Confermato" ? (
-              // TODO: aggiungere chiamata per annullare appuntamento
-              <DropdownMenuItem onClick={() => {}}>
-                Annulla appuntamento
-              </DropdownMenuItem>
-            ) : (
-              <DropdownMenuItem onClick={() => {}}>
-                Conferma appuntamento
-              </DropdownMenuItem>
-            )}
-            {row.getValue("paid") ? (
-              // TODO: aggiungere chiamata per modificare pagamento
-              <DropdownMenuItem onClick={() => {}}>
-                Segna come da pagare
-              </DropdownMenuItem>
-            ) : (
-              <DropdownMenuItem onClick={() => {}}>
-                Segna come pagato
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
 ];
 
 export function AppointmentsTable({ ...props }) {
-  const data = props.appointments;
+  let data = props.appointments;
   const withClient = props.withClient;
 
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
 
   const table = useReactTable({
     data,
@@ -244,6 +194,28 @@ export function AppointmentsTable({ ...props }) {
       rowSelection,
     },
   });
+
+  const handleEditAppointment = async (
+    appointmentId: string,
+    date?: string,
+    status?: string,
+    paid?: boolean,
+    price?: number,
+    time?: string
+  ) => {
+    const updatedAppointment = await editAppointment(
+      appointmentId,
+      date,
+      status,
+      paid,
+      price,
+      time
+    );
+
+    if (updatedAppointment) {
+      data = getAppointments();
+    }
+  };
 
   return (
     <div className="w-full mt-5">
@@ -312,24 +284,68 @@ export function AppointmentsTable({ ...props }) {
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className="hover:bg-neutral-800 text-white text-lg"
-                  // data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => {
-                    if (cell.column.id == "user" && !withClient) return null;
-                    else
-                      return (
-                        <TableCell key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </TableCell>
-                      );
-                  })}
-                </TableRow>
+                <>
+                  <TableRow
+                    key={row.id}
+                    className="hover:bg-neutral-800 text-white text-lg"
+                    // data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => {
+                      if (cell.column.id == "user" && !withClient) return null;
+                      else
+                        return (
+                          <TableCell key={cell.id}>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        );
+                    })}
+                    <TableCell className="text-white">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className=" h-8 w-8 p-0">
+                            <span className="sr-only">Apri menù</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Azioni</DropdownMenuLabel>
+                          <DropdownMenuItem
+                          // onClick={() => {
+                          //   router.push("/dashboard/cliente/" + client.id);
+                          // }}
+                          >
+                            Modifica appuntamento
+                          </DropdownMenuItem>
+                          <DropdownMenuLabel>Azioni rapide</DropdownMenuLabel>
+                          {/* // TODO: aggiungere chiamata per annullare appuntamento */}
+                          <DropdownMenuItem onClick={() => {}}>
+                            {row.original.status === "Confermato"
+                              ? "Annulla appuntamento"
+                              : "Conferma appuntamento"}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleEditAppointment(
+                                row.original.id,
+                                undefined,
+                                undefined,
+                                !row.original.paid,
+                                undefined
+                              )
+                            }
+                          >
+                            {row.original.paid
+                              ? "Segna come DA PAGARE"
+                              : "Segna come PAGATO"}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                </>
               ))
             ) : (
               <TableRow>

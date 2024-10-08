@@ -17,12 +17,10 @@ import { Appointment, User } from "@prisma/client";
 import { getUsers } from "@/app/actions/user/getUsers";
 import { getAppointments } from "@/app/actions/appointments/getAppointments";
 import DashboardLayout from "@/app/(layouts)/dashboard";
-import { useRouter } from "next/navigation";
 import AppointmentManager from "@/components/appointment-manager";
 import { AppointmentModal } from "@/components/library/appointment-modal";
 import {
   extendArrayOfUsersWithFullName,
-  extendUserWithFullName,
   UserWithFullName,
 } from "@/prisma/user-extension";
 
@@ -31,7 +29,6 @@ function Dashboard({ searchParams }: SearchParamProps) {
   const [users, setUsers] = useState<UserWithFullName[]>();
   const [appointments, setAppointments] = useState<Appointment[]>();
 
-  const router = useRouter();
   const appointmentModal = searchParams?.appointment === "true";
 
   useEffect(() => {
