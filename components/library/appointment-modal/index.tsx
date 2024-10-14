@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,38 +10,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
+// import { Label } from "../ui/label";
+// import { Input } from "../ui/input";
 import { createAppointment } from "@/app/actions/appointments/createAppointment";
-import { Checkbox } from "../ui/checkbox";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "../ui/command";
-import { Button } from "../ui/button";
-import { UserWithFullName } from "@/prisma/user-extension";
-import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 export const AppointmentModal = ({ ...props }) => {
+  const [open, setOpen] = useState(false);
   const [appointmentData, setAppointmentData] = useState<any>({});
   const [error, setError] = useState("");
-  const [coupleTraining, setCoupleTraining] = useState(false);
-  const [openPopover, setOpenPopover] = useState(false);
-  const [popoverValue, setPopoverValue] = useState<string>();
 
   const clientId = props.clientId;
-  const modalOpen = props.modalOpen;
-  const setModalOpen = props.setModalOpen;
-  const allUsers = props.allUsers;
+
+  useEffect(() => {
+    setOpen(true);
+  }, []);
 
   const closeModal = () => {
-    setModalOpen(false);
+    setOpen(false);
   };
 
   const handleCreateAppointment = async (
@@ -57,7 +44,7 @@ export const AppointmentModal = ({ ...props }) => {
     );
 
     if (created) {
-      setModalOpen(false);
+      setOpen(false);
       // Create a new URLSearchParams object without the 'appointment' parameter
       const newSearchParams = new URLSearchParams(
         Object.entries(props.searchParams).map(([key, value]) => [
@@ -79,7 +66,7 @@ export const AppointmentModal = ({ ...props }) => {
   };
 
   return (
-    <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent className="border-0 bg-primary">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-white flex items-start justify-between">
@@ -140,77 +127,16 @@ export const AppointmentModal = ({ ...props }) => {
             }
           />
         </div>
-        <div className="items-top flex space-x-2">
-          <Checkbox
-            id="coupleTraining"
-            className="border-white border-2"
-            onClick={() => setCoupleTraining(!coupleTraining)}
-          />
-          <div className="grid gap-1.5 leading-none">
-            <label
-              htmlFor="coupleTraining"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white"
+        {/* {!clientId && (
+          <div className="gap-1.5">
+            <Label
+              className="text-neutral-400 font-bold text-md"
+              htmlFor="email"
             >
-              Allenamento di coppia
-            </label>
-            <p className="text-sm text-muted-foreground">
-              Seleziona se l'allenamento è di coppia
-            </p>
+              Cliente
+            </Label>
           </div>
-        </div>
-        {coupleTraining && (
-          <div className="z-50">
-            <Popover open={openPopover} onOpenChange={setOpenPopover}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={openPopover}
-                  className="w-full justify-between"
-                >
-                  {popoverValue
-                    ? allUsers.find(
-                        (user: UserWithFullName) => user.id === popoverValue
-                      )?.fullName
-                    : "Select framework..."}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0 ">
-                <Command>
-                  <CommandInput placeholder="Cerca cliente..." />
-                  <CommandList>
-                    <CommandEmpty>Nessun cliente trovato.</CommandEmpty>
-                    <CommandGroup className="z-50">
-                      {allUsers.map((user: UserWithFullName) => (
-                        <CommandItem
-                          key={user.fullName}
-                          value={user.fullName}
-                          onSelect={(currentValue) => {
-                            setPopoverValue(
-                              currentValue === user.id ? "" : currentValue
-                            );
-                            setOpenPopover(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              popoverValue === user.id
-                                ? "opacity-100"
-                                : "opacity-0"
-                            )}
-                          />
-                          {user.fullName}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
-        )}
+        )} */}
         <div className="mx-auto mb-5">
           {error && (
             <p className="shad-error text-14-regular mt-4 flex justify-center text-white">
@@ -218,14 +144,14 @@ export const AppointmentModal = ({ ...props }) => {
             </p>
           )}
         </div>
-        {/* <AlertDialogFooter className="z-30">
+        <AlertDialogFooter>
           <AlertDialogAction
             onClick={(e) => handleCreateAppointment(e)}
             className="bg-brand hover:bg-brand w-full"
           >
             Crea
           </AlertDialogAction>
-        </AlertDialogFooter> */}
+        </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );

@@ -6,7 +6,10 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Spinner from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
-import { UserWithFullName } from "@/prisma/user-extension";
+import {
+  extendArrayOfUsersWithFullName,
+  UserWithFullName,
+} from "@/prisma/user-extension";
 import { useEffect, useMemo, useState } from "react";
 import { AppointmentModal } from "@/components/library/appointment-modal";
 import AppointmentManager from "@/components/appointment-manager";
@@ -20,33 +23,36 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { getUsers } from "@/app/actions/user/getUsers";
+import { User } from "@prisma/client";
 
-const ClientPage = ({ params, searchParams }: SearchParamProps) => {
+const isClientPage = ({ params, searchParams }: SearchParamProps) => {
   const clientId = params.clientId;
-  const appointmentModal = searchParams?.appointment === "true";
 
   const [user, setUser] = useState<UserWithFullName>();
   const [stats, setStats] = useState<DashboardStats>();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [allUsers, setAllUsers] = useState<UserWithFullName[]>();
 
   useEffect(() => {
-    getClient();
-    getUserStats();
+    getClientPageInfo();
+    getAllUsers();
   }, []);
 
-  const getUserStats = async () => {
-    const response = await getClientStats(clientId);
+  const getClientPageInfo = async () => {
+    const stats = await getClientStats(clientId);
+    const user = await getUserById(clientId);
 
-    if (response) {
-      setStats(response);
-    }
+    stats && setStats(stats);
+    user && setUser(user);
   };
 
-  const getClient = async () => {
-    const user = await getUserById(clientId);
-    if (user) {
-      setUser(user);
-    }
-    return;
+  const getAllUsers = async () => {
+    const partialUsers = await getUsers();
+
+    const users = extendArrayOfUsersWithFullName(partialUsers);
+
+    users && setAllUsers(users);
   };
 
   const paidAppointmentsNumber = useMemo(() => {
@@ -58,8 +64,6 @@ const ClientPage = ({ params, searchParams }: SearchParamProps) => {
   const allPaid = paidAppointmentsNumber === user?.appointments.length;
   const appointmentsToPay =
     user?.appointments && user?.appointments?.length - paidAppointmentsNumber;
-
-  console.log(paidAppointmentsNumber);
 
   return (
     <DashboardLayout linkText={"Torna alla dashboard"} link={"/dashboard"}>
@@ -393,17 +397,19 @@ const ClientPage = ({ params, searchParams }: SearchParamProps) => {
           </div>
           {user.appointments.length ? (
             <>
-              {appointmentModal && (
-                <AppointmentModal
-                  clientId={clientId}
-                  getClient={getClient}
-                  searchParams={searchParams}
-                />
-              )}
+              <AppointmentModal
+                clientId={clientId}
+                searchParams={searchParams}
+                modalOpen={modalOpen}
+                setModalOpen={setModalOpen}
+                allUsers={allUsers}
+              />
               <AppointmentManager
                 appointments={user.appointments}
                 clientId={clientId}
                 withClient={false}
+                getPageInfo={getClientPageInfo}
+                setModalOpen={setModalOpen}
               />
             </>
           ) : null}
@@ -415,4 +421,4 @@ const ClientPage = ({ params, searchParams }: SearchParamProps) => {
   );
 };
 
-export default ClientPage;
+export default isClientPage;

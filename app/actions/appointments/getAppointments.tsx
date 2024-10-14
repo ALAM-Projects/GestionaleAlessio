@@ -9,6 +9,9 @@ async function getAppointments(): Promise<Appointment[]> {
     include: {
       user: true,
     },
+    orderBy: {
+      date: "asc",
+    },
   });
 
   return appointments;

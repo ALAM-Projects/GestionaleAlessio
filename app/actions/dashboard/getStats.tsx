@@ -7,7 +7,11 @@ const prisma = new PrismaClient();
 async function getStats(): Promise<DashboardStats> {
   const users = await prisma.user.findMany();
 
-  const trainings = await prisma.appointment.findMany();
+  const trainings = await prisma.appointment.findMany({
+    where: {
+      status: "Confermato",
+    },
+  });
 
   const earnings = await trainings.reduce((acc, training) => {
     if (training.paid) return acc + training.price;

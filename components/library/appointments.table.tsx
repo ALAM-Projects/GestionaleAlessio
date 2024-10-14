@@ -156,20 +156,24 @@ export const columns: ColumnDef<Appointment>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => (
-      <Badge
-        className=""
-        variant={row.getValue("paid") ? "success" : "destructive"}
-      >
-        {row.getValue("paid") ? "Pagato" : "Da pagare"}
-      </Badge>
-    ),
+    cell: ({ row }) => {
+      const appointmentCanceled = row.getValue("status") === "Annullato";
+      if (appointmentCanceled) return null;
+      return (
+        <Badge
+          className=""
+          variant={row.getValue("paid") ? "success" : "destructive"}
+        >
+          {row.getValue("paid") ? "Pagato" : "Da pagare"}
+        </Badge>
+      );
+    },
   },
 ];
 
 export function AppointmentsTable({ ...props }) {
   let data = props.appointments;
-  const withClient = props.withClient;
+  const isClientPage = props.isClientPage;
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -213,7 +217,7 @@ export function AppointmentsTable({ ...props }) {
     );
 
     if (updatedAppointment) {
-      data = getAppointments();
+      props.getPageInfo();
     }
   };
 
@@ -265,7 +269,7 @@ export function AppointmentsTable({ ...props }) {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow className="hover:bg-neutral-800" key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  if (header.id == "user" && !withClient) return null;
+                  if (header.id == "user" && isClientPage) return null;
                   else
                     return (
                       <TableHead key={header.id}>
@@ -291,7 +295,7 @@ export function AppointmentsTable({ ...props }) {
                     // data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => {
-                      if (cell.column.id == "user" && !withClient) return null;
+                      if (cell.column.id == "user" && isClientPage) return null;
                       else
                         return (
                           <TableCell key={cell.id}>
@@ -321,7 +325,21 @@ export function AppointmentsTable({ ...props }) {
                           </DropdownMenuItem>
                           <DropdownMenuLabel>Azioni rapide</DropdownMenuLabel>
                           {/* // TODO: aggiungere chiamata per annullare appuntamento */}
-                          <DropdownMenuItem onClick={() => {}}>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              const newStatus =
+                                row.original.status === "Confermato"
+                                  ? "Annullato"
+                                  : "Confermato";
+                              handleEditAppointment(
+                                row.original.id,
+                                undefined,
+                                newStatus,
+                                undefined,
+                                undefined
+                              );
+                            }}
+                          >
                             {row.original.status === "Confermato"
                               ? "Annulla appuntamento"
                               : "Conferma appuntamento"}

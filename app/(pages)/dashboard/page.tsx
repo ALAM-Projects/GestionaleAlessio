@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import Spinner from "@/components/ui/spinner";
 import { dashboardCardStats } from "@/data/index";
-import { Appointment, User } from "@prisma/client";
+import { Appointment } from "@prisma/client";
 import { getUsers } from "@/app/actions/user/getUsers";
 import { getAppointments } from "@/app/actions/appointments/getAppointments";
 import DashboardLayout from "@/app/(layouts)/dashboard";
@@ -32,35 +32,18 @@ function Dashboard({ searchParams }: SearchParamProps) {
   const appointmentModal = searchParams?.appointment === "true";
 
   useEffect(() => {
-    getDashboardStats();
-    getAllUsers();
-    getAllAppointments();
+    getDashboardInfo();
   }, []);
 
-  const getDashboardStats = async () => {
-    const response = await getStats();
+  const getDashboardInfo = async () => {
+    const stats = await getStats();
+    const partialUsers = await getUsers();
+    const users = extendArrayOfUsersWithFullName(partialUsers);
+    const appointments = await getAppointments();
 
-    if (response) {
-      setStats(response);
-    }
-  };
-
-  const getAllUsers = async () => {
-    const response = await getUsers();
-
-    const usersWithFullname = extendArrayOfUsersWithFullName(response);
-
-    if (response) {
-      setUsers(usersWithFullname);
-    }
-  };
-
-  const getAllAppointments = async () => {
-    const response = await getAppointments();
-
-    if (response) {
-      setAppointments(response);
-    }
+    stats && setStats(stats);
+    users && setAppointments(appointments);
+    appointments && setUsers(users);
   };
 
   const dashboardReady = useMemo(() => {
@@ -72,11 +55,7 @@ function Dashboard({ searchParams }: SearchParamProps) {
       {dashboardReady ? (
         <>
           {appointmentModal && (
-            <AppointmentModal
-              getClient={getAllAppointments}
-              searchParams={searchParams}
-              users={users}
-            />
+            <AppointmentModal searchParams={searchParams} users={users} />
           )}
           <div className="flex gap-5 lg:gap-3 flex-wrap justify-between md:flex-row mt-5">
             {stats &&
@@ -103,9 +82,10 @@ function Dashboard({ searchParams }: SearchParamProps) {
           </div>
           <UsersTable users={users} />
           <AppointmentManager
-            withClient={true}
+            isClientPage={false}
             showButton={false}
             appointments={appointments}
+            getPageInfo={getDashboardInfo}
           />
         </>
       ) : (

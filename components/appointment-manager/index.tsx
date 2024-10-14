@@ -3,13 +3,13 @@ import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 
 const AppointmentManager = ({ ...props }) => {
-  const router = useRouter();
-
   const {
     appointments,
     clientId,
-    withClient = true,
+    isClientPage = true,
     showButton = true,
+    getPageInfo,
+    setModalOpen,
   } = props;
 
   return (
@@ -22,7 +22,7 @@ const AppointmentManager = ({ ...props }) => {
           <Button
             variant={"brand"}
             size={"lg"}
-            onClick={() => router.push("?appointment=true")}
+            onClick={() => setModalOpen(true)}
             className="text-lg"
           >
             Crea nuovo appuntamento
@@ -31,8 +31,9 @@ const AppointmentManager = ({ ...props }) => {
       </div>
       <AppointmentsTable
         appointments={appointments}
-        withClient={withClient}
+        isClientPage={isClientPage}
         clientId={clientId}
+        getPageInfo={() => getPageInfo()}
       />
     </>
   );

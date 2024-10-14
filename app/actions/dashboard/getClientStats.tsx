@@ -16,11 +16,14 @@ async function getClientStats(clientId: string): Promise<DashboardStats> {
 
   if (user) {
     const earnings = await user.appointments.reduce((acc, training) => {
-      if (training.paid) return acc + training.price;
+      if (training.paid && training.status === "Confermato")
+        return acc + training.price;
       return acc;
     }, 0);
     return {
-      trainingCount: user.appointments.length,
+      trainingCount: user.appointments.filter(
+        (app) => app.status === "Confermato"
+      ).length,
       earnings: earnings + "€",
     };
   }
