@@ -41,7 +41,7 @@ export const AppointmentModal = ({ ...props }) => {
     setModalOpen(false);
   };
 
-  const handleCreateAppointment = async (
+  const handleUpsertAppointment = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.preventDefault();
@@ -232,7 +232,7 @@ export const AppointmentModal = ({ ...props }) => {
         </div>
         <AlertDialogFooter className="z-30">
           <AlertDialogAction
-            onClick={(e) => handleCreateAppointment(e)}
+            onClick={(e) => handleUpsertAppointment(e)}
             className="bg-brand hover:bg-brand w-full"
           >
             Salva
