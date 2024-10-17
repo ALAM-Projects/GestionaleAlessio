@@ -28,8 +28,7 @@ export function withAuth<P extends object>(
         }
 
         const accessKey = decryptKey(encryptedKey);
-        const isValid =
-          accessKey === process.env.NEXT_PUBLIC_ADMIN_PASSKEY?.toString();
+        const isValid = accessKey === process.env.ADMIN_PASSKEY?.toString();
 
         setIsAuthorized(isValid);
       };
