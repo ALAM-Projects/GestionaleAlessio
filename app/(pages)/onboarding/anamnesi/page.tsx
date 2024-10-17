@@ -47,6 +47,8 @@ export default function Onboarding({ params }: SearchParamProps) {
     setIsLoading(true);
     const userId = params.userId;
 
+    console.log("USER ID", userId);
+
     const updatedUser = await updateUser(clientData, userId);
 
     if (updatedUser) {
