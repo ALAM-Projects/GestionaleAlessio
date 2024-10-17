@@ -25,7 +25,7 @@ import AppointmentManager from "@/components/library/appointment-manager";
 import { Appointment } from "@prisma/client";
 import AnamnesiRecap from "@/components/library/anamnesi-recap";
 
-const isClientPage = ({ params, searchParams }: SearchParamProps) => {
+const isClientPage = ({ params }: SearchParamProps) => {
   const clientId = params.clientId;
 
   const [user, setUser] = useState<UserWithFullName>();
@@ -69,7 +69,6 @@ const isClientPage = ({ params, searchParams }: SearchParamProps) => {
     <DashboardLayout linkText={"Torna alla dashboard"} link={"/dashboard"}>
       <AppointmentModal
         clientId={clientId}
-        searchParams={searchParams}
         modalOpen={modalOpen}
         setModalOpen={setModalOpen}
         allUsers={allUsers}
