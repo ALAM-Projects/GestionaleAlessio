@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { upsertAppointment } from "@/app/actions/appointments/createAppointment";
+import { upsertAppointment } from "@/app/actions/appointments/upsertAppointment";
 import {
   Select,
   SelectContent,

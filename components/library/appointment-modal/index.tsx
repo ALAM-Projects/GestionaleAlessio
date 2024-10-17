@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 // import { Label } from "../ui/label";
 // import { Input } from "../ui/input";
-import { createAppointment } from "@/app/actions/appointments/createAppointment";
+import { upsertAppointment } from "@/app/actions/appointments/upsertAppointment";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
@@ -36,11 +36,12 @@ export const AppointmentModal = ({ ...props }) => {
   ) => {
     e.preventDefault();
 
-    const created = await createAppointment(
+    const created = await upsertAppointment(
       clientId,
       appointmentData?.date,
       appointmentData?.time,
-      Number(appointmentData?.price)
+      Number(appointmentData?.price),
+      appointmentData?.location
     );
 
     if (created) {
