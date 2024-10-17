@@ -22,11 +22,11 @@ const OnboardingLayout = ({ children }: OnboardingLayoutProps) => {
 
       {/* Left side (form) */}
       <div className="relative z-10 w-full lg:w-1/2 py-10 lg:bg-primary">
-        <div className="max-w-[70%] mx-auto">
+        <div className="max-w-[90%] lg:max-w-[70%] mx-auto">
           <Image
             src="/logo.svg"
-            height={150}
-            width={150}
+            height={120}
+            width={120}
             alt="logo"
             className="mx-auto"
           />

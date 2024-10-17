@@ -8,6 +8,9 @@ async function updateUser(
   clientData: ClientDataProps,
   userId: string
 ): Promise<User> {
+  if (!userId) {
+    throw new Error("User not found");
+  }
   const newUser = await prisma.user.update({
     where: {
       id: userId,

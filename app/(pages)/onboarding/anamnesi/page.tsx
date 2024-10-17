@@ -17,7 +17,9 @@ import OnboardingLayout from "@/app/(layouts)/onboarding";
 import { Textarea } from "@/components/ui/textarea";
 import QuestionnaireLayout from "@/app/(layouts)/questionnaire";
 
-export default function Onboarding({ searchParams }: SearchParamProps) {
+export default function Onboarding({ params }: SearchParamProps) {
+  const userId = params.userId;
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [clientData, setClientData] = useState<ClientDataProps>({
     name: "",
@@ -39,16 +41,12 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
 
   const router = useRouter();
 
-  // TODO: add validation
   const handleClientInfo = (value: string | number, name: string) => {
     setClientData({ ...clientData, [name]: value });
   };
 
   const handleSaveClientInfo = async () => {
     setIsLoading(true);
-    const userId = Array.isArray(searchParams.userId)
-      ? searchParams.userId[0]
-      : searchParams.userId || "";
     const updatedUser = await updateUser(clientData, userId);
 
     if (updatedUser) {
