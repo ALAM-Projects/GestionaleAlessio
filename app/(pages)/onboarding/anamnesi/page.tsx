@@ -11,14 +11,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { updateUser } from "@/app/actions/user/updateUser";
 import OnboardingLayout from "@/app/(layouts)/onboarding";
 import { Textarea } from "@/components/ui/textarea";
 import QuestionnaireLayout from "@/app/(layouts)/questionnaire";
 
-const Onboarding = ({ params }: SearchParamProps) => {
-  const userId = params.userId;
+const Onboarding = () => {
+  const searchParams = useSearchParams();
+  const userId = searchParams.get("userId") || "";
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [clientData, setClientData] = useState<ClientDataProps>({
