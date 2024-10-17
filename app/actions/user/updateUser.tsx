@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 async function updateUser(
   clientData: ClientDataProps,
-  userId: string
+  userId?: string
 ): Promise<User> {
   if (!userId) {
     throw new Error("User not found");

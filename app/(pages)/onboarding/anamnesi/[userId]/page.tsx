@@ -1,6 +1,6 @@
 "use client";
+
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { useMemo, useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -17,9 +17,8 @@ import OnboardingLayout from "@/app/(layouts)/onboarding";
 import { Textarea } from "@/components/ui/textarea";
 import QuestionnaireLayout from "@/app/(layouts)/questionnaire";
 
-const Onboarding = () => {
-  const searchParams = useSearchParams();
-  const userId = searchParams.get("userId") || "";
+const Onboarding = ({ params }: SearchParamProps) => {
+  const userId = params.userId;
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [clientData, setClientData] = useState<ClientDataProps>({
@@ -48,8 +47,6 @@ const Onboarding = () => {
 
   const handleSaveClientInfo = async () => {
     setIsLoading(true);
-
-    console.log("USER ID", userId);
 
     const updatedUser = await updateUser(clientData, userId);
 

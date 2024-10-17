@@ -48,7 +48,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
     if (typeof response === "string") {
       setError(response);
     } else {
-      router.push(`/onboarding/anamnesi?userId=${response.id}`);
+      router.push(`/onboarding/anamnesi?/${response.id}`);
     }
     setIsLoading(false);
   };
