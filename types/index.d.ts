@@ -10,6 +10,7 @@ declare type ClientDataProps = {
   weight: number;
   height: number;
   goal: string;
+  goalReason: string;
   age: number;
   injuries?: string;
   surgeries?: string;

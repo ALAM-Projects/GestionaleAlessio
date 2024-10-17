@@ -1,7 +1,7 @@
 "use client";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -26,6 +26,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
     weight: 0,
     height: 0,
     goal: "",
+    goalReason: "",
     age: 0,
     injuries: "",
     surgeries: "",
@@ -56,6 +57,21 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
     }
   };
 
+  const buttonDisabled = useMemo(() => {
+    if (
+      clientData.currentlyTraining === "" ||
+      (clientData.currentSport === "" &&
+        clientData.currentTrainingRate === "" &&
+        clientData.personalTraining === "") ||
+      (clientData.inactivityPeriod === "" &&
+        clientData.inactivityReason === "") ||
+      clientData.goal === "" ||
+      clientData.goalReason === ""
+    )
+      return true;
+    return false;
+  }, [clientData]);
+
   return (
     <OnboardingLayout>
       <QuestionnaireLayout
@@ -63,13 +79,13 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
         title="Scheda di anamnesi"
         subtitle="Inserisci tutte le informazioni richieste per completare la
           compilazione della tua scheda di anamnesi"
-        // withAdminAccess={false}
+        buttonDisabled={buttonDisabled}
         onAction={handleSaveClientInfo}
       >
         <div className="grid grid-cols-12 gap-2 mt-10">
           <div className="col-span-12 items-center gap-1.5 mt-1">
             <Label
-              className="text-neutral-400 font-bold text-md"
+              className="text-neutral-300 font-bold text-md"
               htmlFor="currentlyTraining"
             >
               Attualmente ti stai allenando?
@@ -108,7 +124,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
             <>
               <div className="col-span-12 items-center gap-1.5 mt-1">
                 <Label
-                  className="text-neutral-400 font-bold text-md"
+                  className="text-neutral-300 font-bold text-md"
                   htmlFor="currentSport"
                 >
                   In quale disciplina?
@@ -125,7 +141,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
               </div>
               <div className="col-span-12 items-center gap-1.5 mt-1">
                 <Label
-                  className="text-neutral-400 font-bold text-md"
+                  className="text-neutral-300 font-bold text-md"
                   htmlFor="currentTrainingRate"
                 >
                   Quanto spesso?
@@ -142,7 +158,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
               </div>
               <div className="col-span-12 items-center gap-1.5 mt-1 mb-3">
                 <Label
-                  className="text-neutral-400 font-bold text-md"
+                  className="text-neutral-300 font-bold text-md"
                   htmlFor="personalTraining"
                 >
                   Hai mai fatto sedute di PT?
@@ -183,7 +199,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
             <>
               <div className="col-span-12  items-center gap-1.5 mt-1">
                 <Label
-                  className="text-neutral-400 font-bold text-md"
+                  className="text-neutral-300 font-bold text-md"
                   htmlFor="inactivityPeriod"
                 >
                   Da quanto sei inattivo?
@@ -200,7 +216,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
               </div>
               <div className="col-span-12 items-center gap-1.5 mt-1">
                 <Label
-                  className="text-neutral-400 font-bold text-md"
+                  className="text-neutral-300 font-bold text-md"
                   htmlFor="inactivityReason"
                 >
                   Perché hai interrotto?
@@ -220,7 +236,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
 
           <div className="col-span-12  items-center gap-1.5 mt-2">
             <Label
-              className="text-neutral-400 font-bold text-md"
+              className="text-neutral-300 font-bold text-md"
               htmlFor="goal"
             >
               Obiettivi
@@ -235,7 +251,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
           </div>
           <div className="col-span-12  items-center gap-1.5 mt-2">
             <Label
-              className="text-neutral-400 font-bold text-md"
+              className="text-neutral-300 font-bold text-md"
               htmlFor="goalReason"
             >
               Cosa ti ha spinto a scegliere di perseguire questi obiettivi?
@@ -264,10 +280,10 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
           </div>
           <div className="col-span-12   items-center gap-1.5 ">
             <Label
-              className="text-neutral-400 font-bold text-md"
+              className="text-neutral-300 font-bold text-md"
               htmlFor="problems"
             >
-              Problematiche a livello articolare
+              Problematiche a livello articolare (non obbligatorio)
             </Label>
             <Textarea
               placeholder="Scrivi eventuali problematiche (eg: Ernie, Shiacciamenti, Protusioni, Contropatie, ecc)"
@@ -279,10 +295,10 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
           </div>
           <div className="col-span-12   items-center gap-1.5 ">
             <Label
-              className="text-neutral-400 font-bold text-md"
+              className="text-neutral-300 font-bold text-md"
               htmlFor="injuries"
             >
-              Infortuni
+              Infortuni (non obbligatorio)
             </Label>
             <Textarea
               placeholder="Scrivi eventuali infortuni"
@@ -294,10 +310,10 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
           </div>
           <div className="col-span-12 items-center gap-1.5 ">
             <Label
-              className="text-neutral-400 font-bold text-md"
+              className="text-neutral-300 font-bold text-md"
               htmlFor="surgeries"
             >
-              Operazioni
+              Operazioni (non obbligatorio)
             </Label>
             <Textarea
               placeholder="Scrivi eventuali operazioni"

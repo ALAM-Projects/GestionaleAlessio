@@ -10,6 +10,7 @@ type DashboardLayoutProps = {
   subtitle: string;
   isLoading: boolean;
   onAction: () => void;
+  buttonDisabled: boolean;
   withAdminAccess?: boolean;
 };
 
@@ -23,7 +24,7 @@ const QuestionnaireLayout = (props: DashboardLayoutProps) => {
       {props.children}
       <div className="text-center mt-5">
         <Button
-          disabled={props.isLoading}
+          disabled={props.isLoading || props.buttonDisabled}
           className="mt-5 w-full max-w-sm bg-brand hover:bg-brand text-md font-bold"
           onClick={props.onAction}
         >

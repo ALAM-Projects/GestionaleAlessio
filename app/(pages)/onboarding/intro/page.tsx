@@ -2,7 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createUser } from "@/app/actions/user/createUser";
 import OnboardingLayout from "@/app/(layouts)/onboarding";
@@ -32,6 +32,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
     currentlyTraining: "",
     personalTraining: "",
     problems: "",
+    goalReason: "",
   });
 
   const router = useRouter();
@@ -52,11 +53,26 @@ export default function Intro({ searchParams }: SearchParamProps) {
     setIsLoading(false);
   };
 
+  const buttonDisabled = useMemo(() => {
+    if (
+      clientData.name === "" ||
+      clientData.surname === "" ||
+      clientData.phone === 0 ||
+      clientData.weight === 0 ||
+      clientData.height === 0 ||
+      clientData.age === 0 ||
+      clientData.sex === ""
+    )
+      return true;
+    return false;
+  }, [clientData]);
+
   return (
     <OnboardingLayout>
       {isAdmin && <AdminModal />}
       <QuestionnaireLayout
         isLoading={isLoading}
+        buttonDisabled={buttonDisabled}
         title="Informazioni personali"
         subtitle="Inserisci tutte le informazioni richieste per procedere con la
           compilazione della tua scheda di anamnesi"
@@ -71,7 +87,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
         <div className="grid grid-cols-12 gap-x-4 gap-y-2 mt-5">
           <div className="col-span-12 xl:col-span-6 items-center gap-1.5">
             <Label
-              className="text-neutral-400 font-bold text-md"
+              className="text-neutral-300 font-bold text-md"
               htmlFor="email"
             >
               Nome
@@ -87,7 +103,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
           </div>
           <div className="col-span-12 xl:col-span-6 items-center gap-1.5 ">
             <Label
-              className="text-neutral-400 font-bold text-md"
+              className="text-neutral-300 font-bold text-md"
               htmlFor="email"
             >
               Cognome
@@ -103,7 +119,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
           </div>
           <div className="col-span-12 xl:col-span-6 items-center gap-1.5">
             <Label
-              className="text-neutral-400 font-bold text-md"
+              className="text-neutral-300 font-bold text-md"
               htmlFor="email"
             >
               Telefono
@@ -120,7 +136,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
             />
           </div>
           <div className="col-span-12 xl:col-span-6 items-center gap-1.5">
-            <Label className="text-neutral-400 font-bold text-md" htmlFor="age">
+            <Label className="text-neutral-300 font-bold text-md" htmlFor="age">
               Età
             </Label>
             <Input
@@ -136,7 +152,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
           </div>
           <div className="col-span-12 xl:col-span-6 items-center gap-1.5 ">
             <Label
-              className="text-neutral-400 font-bold text-md"
+              className="text-neutral-300 font-bold text-md"
               htmlFor="height"
             >
               Altezza (cm)
@@ -155,7 +171,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
 
           <div className="col-span-12 xl:col-span-6 items-center gap-1.5 ">
             <Label
-              className="text-neutral-400 font-bold text-md"
+              className="text-neutral-300 font-bold text-md"
               htmlFor="weight"
             >
               Peso (kg)
@@ -172,7 +188,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
             />
           </div>
           <div className="col-span-12 xl:col-span-6 items-center gap-1.5 mt-1">
-            <Label className="text-neutral-400 font-bold text-md" htmlFor="sex">
+            <Label className="text-neutral-300 font-bold text-md" htmlFor="sex">
               Sesso
             </Label>
             <RadioGroup
