@@ -12,33 +12,30 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { createAppointment } from "@/app/actions/appointments/createAppointment";
-import { Checkbox } from "../ui/checkbox";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { upsertAppointment } from "@/app/actions/appointments/createAppointment";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "../ui/command";
-import { Button } from "../ui/button";
-import { UserWithFullName } from "@/prisma/user-extension";
-import { cn } from "@/lib/utils";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 export const AppointmentModal = ({ ...props }) => {
-  const [appointmentData, setAppointmentData] = useState<any>({});
-  const [error, setError] = useState("");
-  const [coupleTraining, setCoupleTraining] = useState(false);
-  const [openPopover, setOpenPopover] = useState(false);
-  const [popoverValue, setPopoverValue] = useState<string>();
+  const {
+    appointmentData,
+    setAppointmentData,
+    clientId,
+    modalOpen,
+    setModalOpen,
+    allUsers,
+    reloadPageData,
+  } = props;
 
-  const clientId = props.clientId;
-  const modalOpen = props.modalOpen;
-  const setModalOpen = props.setModalOpen;
-  const allUsers = props.allUsers;
+  const [error, setError] = useState("");
+  // const [coupleTraining, setCoupleTraining] = useState(false);
+  // const [openPopover, setOpenPopover] = useState(false);
+  // const [popoverValue, setPopoverValue] = useState<string>();
 
   const closeModal = () => {
     setModalOpen(false);
@@ -49,32 +46,18 @@ export const AppointmentModal = ({ ...props }) => {
   ) => {
     e.preventDefault();
 
-    const created = await createAppointment(
+    const created = await upsertAppointment(
       clientId,
       appointmentData?.date,
       appointmentData?.time,
-      Number(appointmentData?.price)
+      Number(appointmentData?.price),
+      appointmentData?.location,
+      appointmentData?.id || null
     );
 
     if (created) {
       setModalOpen(false);
-      // Create a new URLSearchParams object without the 'appointment' parameter
-      const newSearchParams = new URLSearchParams(
-        Object.entries(props.searchParams).map(([key, value]) => [
-          key,
-          String(value),
-        ])
-      );
-      newSearchParams.delete("appointment");
-
-      // Construct the new URL
-      const newPathname = window.location.pathname;
-      const newSearch = newSearchParams.toString();
-      const newUrl = newPathname + (newSearch ? `?${newSearch}` : "");
-
-      // Update the URL without adding a new history entry
-      window.history.replaceState({}, "", newUrl);
-      props.getClient();
+      reloadPageData();
     }
   };
 
@@ -104,6 +87,7 @@ export const AppointmentModal = ({ ...props }) => {
             type="date"
             id="date"
             name="date"
+            value={appointmentData?.date || ""}
             className="text-primary text-md"
             onChange={(e) =>
               setAppointmentData({ ...appointmentData, date: e.target.value })
@@ -120,10 +104,37 @@ export const AppointmentModal = ({ ...props }) => {
             name="time"
             className="text-primary text-md"
             placeholder=""
+            value={appointmentData?.time || ""}
             onChange={(e) =>
               setAppointmentData({ ...appointmentData, time: e.target.value })
             }
           />
+        </div>
+        <div className="gap-1.5">
+          <Label
+            className="text-neutral-400 font-bold text-md"
+            htmlFor="location"
+          >
+            Luogo
+          </Label>
+          <Select
+            value={appointmentData?.location || ""}
+            onValueChange={(value) => {
+              setAppointmentData({
+                ...appointmentData,
+                location: value,
+              });
+            }}
+          >
+            <SelectTrigger className="bg-white text-black">
+              <SelectValue placeholder="Seleziona una risposta" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Casa">Casa</SelectItem>
+              <SelectItem value="Online">Online</SelectItem>
+              <SelectItem value="Domicilio">Domicilio</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="gap-1.5">
           <Label className="text-neutral-400 font-bold text-md" htmlFor="email">
@@ -135,12 +146,13 @@ export const AppointmentModal = ({ ...props }) => {
             name="price"
             className="text-primary text-md"
             placeholder="eg. 20€"
+            value={appointmentData?.price || ""}
             onChange={(e) =>
               setAppointmentData({ ...appointmentData, price: e.target.value })
             }
           />
         </div>
-        <div className="items-top flex space-x-2">
+        {/* <div className="items-top flex space-x-2">
           <Checkbox
             id="coupleTraining"
             className="border-white border-2"
@@ -210,7 +222,7 @@ export const AppointmentModal = ({ ...props }) => {
               </PopoverContent>
             </Popover>
           </div>
-        )}
+        )} */}
         <div className="mx-auto mb-5">
           {error && (
             <p className="shad-error text-14-regular mt-4 flex justify-center text-white">
@@ -218,14 +230,14 @@ export const AppointmentModal = ({ ...props }) => {
             </p>
           )}
         </div>
-        {/* <AlertDialogFooter className="z-30">
+        <AlertDialogFooter className="z-30">
           <AlertDialogAction
             onClick={(e) => handleCreateAppointment(e)}
             className="bg-brand hover:bg-brand w-full"
           >
-            Crea
+            Salva
           </AlertDialogAction>
-        </AlertDialogFooter> */}
+        </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );

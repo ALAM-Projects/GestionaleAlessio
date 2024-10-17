@@ -184,9 +184,11 @@ export function UsersTable({ ...props }) {
       <div className="flex items-center py-4">
         <Input
           placeholder="Filtra clienti..."
-          value={(table.getColumn("surname")?.getFilterValue() as string) ?? ""}
+          value={
+            (table.getColumn("fullName")?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
-            table.getColumn("surname")?.setFilterValue(event.target.value)
+            table.getColumn("fullName")?.setFilterValue(event.target.value)
           }
           className="w-2/3 md:w-4/5 xl:w-4/12 "
         />

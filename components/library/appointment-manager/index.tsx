@@ -1,6 +1,5 @@
-import { AppointmentsTable } from "../library/appointments.table";
-import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { AppointmentsTable } from "../appointments.table";
 
 const AppointmentManager = ({ ...props }) => {
   const {
@@ -10,6 +9,7 @@ const AppointmentManager = ({ ...props }) => {
     showButton = true,
     getPageInfo,
     setModalOpen,
+    setAppointmentData,
   } = props;
 
   return (
@@ -32,8 +32,10 @@ const AppointmentManager = ({ ...props }) => {
       <AppointmentsTable
         appointments={appointments}
         isClientPage={isClientPage}
+        setModalOpen={setModalOpen}
         clientId={clientId}
         getPageInfo={() => getPageInfo()}
+        setAppointmentData={setAppointmentData}
       />
     </>
   );

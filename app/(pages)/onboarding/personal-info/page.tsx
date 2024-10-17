@@ -110,7 +110,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
               </Label>
               <Textarea
                 placeholder="Scrivi quale disciplina stai praticando"
-                className="text-white text-md"
+                className=" text-md"
                 id="currentSport"
                 name="currentSport"
                 onChange={(e) =>
@@ -127,7 +127,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
               </Label>
               <Textarea
                 placeholder="Eg: 3 volte a settimana, 2 volte al mese"
-                className="text-white text-md"
+                className=" text-md"
                 id="currentTrainingRate"
                 name="currentTrainingRate"
                 onChange={(e) =>
@@ -185,7 +185,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
               </Label>
               <Textarea
                 placeholder="Eg: 3 mesi, 1 anno"
-                className="text-white text-md"
+                className=" text-md"
                 id="currentinactivityPeriodSport"
                 name="inactivityPeriod"
                 onChange={(e) =>
@@ -202,7 +202,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
               </Label>
               <Textarea
                 placeholder="Scrivi il motivo per cui hai interrotto, lasciare vuoto se "
-                className="text-white text-md"
+                className=" text-md"
                 id="inactivityReason"
                 name="inactivityReason"
                 onChange={(e) =>
@@ -219,7 +219,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
           </Label>
           <Textarea
             placeholder="Eg: Dimagrire, Aumentare la massa muscolare, Maggiore mobilità, Mal di schiena, ecc"
-            className="text-white text-md"
+            className=" text-md"
             id="goal"
             name="goal"
             onChange={(e) => handleClientInfo(e.target.value, e.target.name)}
@@ -258,7 +258,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
           </Label>
           <Textarea
             placeholder="Scrivi eventuali problematiche (eg: Ernie, Shiacciamenti, Protusioni, Contropatie, ecc)"
-            className="text-white text-md"
+            className=" text-md"
             id="problems"
             name="problems"
             onChange={(e) => handleClientInfo(e.target.value, e.target.name)}
@@ -273,7 +273,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
           </Label>
           <Textarea
             placeholder="Scrivi eventuali infortuni"
-            className="text-white text-md"
+            className=" text-md"
             id="injuries"
             name="injuries"
             onChange={(e) => handleClientInfo(e.target.value, e.target.name)}
@@ -288,7 +288,7 @@ export default function Onboarding({ searchParams }: SearchParamProps) {
           </Label>
           <Textarea
             placeholder="Scrivi eventuali operazioni"
-            className="text-white text-md"
+            className=" text-md"
             id="surgeries"
             name="surgeries"
             onChange={(e) => handleClientInfo(e.target.value, e.target.name)}

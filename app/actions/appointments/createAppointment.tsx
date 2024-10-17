@@ -4,12 +4,27 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-async function createAppointment(
+async function upsertAppointment(
   clientId: string,
   date: string,
   time: string,
-  price: number
+  price: number,
+  location: string,
+  appointmentId?: string
 ): Promise<boolean> {
+  if (appointmentId) {
+    const updated = await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: {
+        date,
+        time,
+        price,
+        location,
+      },
+    });
+
+    return !!updated;
+  }
   const created = await prisma.appointment.create({
     data: {
       date,
@@ -18,10 +33,11 @@ async function createAppointment(
       userId: clientId,
       status: "Confermato",
       paid: false,
+      location,
     },
   });
 
   return !!created;
 }
 
-export { createAppointment };
+export { upsertAppointment };

@@ -12,7 +12,7 @@ import {
 } from "@/prisma/user-extension";
 import { useEffect, useMemo, useState } from "react";
 import { AppointmentModal } from "@/components/library/appointment-modal";
-import AppointmentManager from "@/components/appointment-manager";
+
 import { getClientStats } from "@/app/actions/dashboard/getClientStats";
 import { clientCardStats } from "@/data";
 import {
@@ -24,7 +24,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getUsers } from "@/app/actions/user/getUsers";
-import { User } from "@prisma/client";
+import AppointmentManager from "@/components/library/appointment-manager";
+import { Appointment } from "@prisma/client";
 
 const isClientPage = ({ params, searchParams }: SearchParamProps) => {
   const clientId = params.clientId;
@@ -33,6 +34,7 @@ const isClientPage = ({ params, searchParams }: SearchParamProps) => {
   const [stats, setStats] = useState<DashboardStats>();
   const [modalOpen, setModalOpen] = useState(false);
   const [allUsers, setAllUsers] = useState<UserWithFullName[]>();
+  const [appointmentData, setAppointmentData] = useState<Appointment>();
 
   useEffect(() => {
     getClientPageInfo();
@@ -395,24 +397,25 @@ const isClientPage = ({ params, searchParams }: SearchParamProps) => {
               />
             </div>
           </div>
-          {user.appointments.length ? (
-            <>
-              <AppointmentModal
-                clientId={clientId}
-                searchParams={searchParams}
-                modalOpen={modalOpen}
-                setModalOpen={setModalOpen}
-                allUsers={allUsers}
-              />
-              <AppointmentManager
-                appointments={user.appointments}
-                clientId={clientId}
-                withClient={false}
-                getPageInfo={getClientPageInfo}
-                setModalOpen={setModalOpen}
-              />
-            </>
-          ) : null}
+
+          <AppointmentModal
+            clientId={clientId}
+            searchParams={searchParams}
+            modalOpen={modalOpen}
+            setModalOpen={setModalOpen}
+            allUsers={allUsers}
+            reloadPageData={getClientPageInfo}
+            appointmentData={appointmentData}
+            setAppointmentData={setAppointmentData}
+          />
+          <AppointmentManager
+            appointments={user.appointments}
+            clientId={clientId}
+            withClient={false}
+            getPageInfo={getClientPageInfo}
+            setModalOpen={setModalOpen}
+            setAppointmentData={setAppointmentData}
+          />
         </>
       ) : (
         <Spinner size="lg" color="border-white" />

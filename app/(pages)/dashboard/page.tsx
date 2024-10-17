@@ -17,17 +17,19 @@ import { Appointment } from "@prisma/client";
 import { getUsers } from "@/app/actions/user/getUsers";
 import { getAppointments } from "@/app/actions/appointments/getAppointments";
 import DashboardLayout from "@/app/(layouts)/dashboard";
-import AppointmentManager from "@/components/appointment-manager";
 import { AppointmentModal } from "@/components/library/appointment-modal";
 import {
   extendArrayOfUsersWithFullName,
   UserWithFullName,
 } from "@/prisma/user-extension";
+import AppointmentManager from "@/components/library/appointment-manager";
 
 function Dashboard({ searchParams }: SearchParamProps) {
   const [stats, setStats] = useState<DashboardStats>();
   const [users, setUsers] = useState<UserWithFullName[]>();
   const [appointments, setAppointments] = useState<Appointment[]>();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [appointmentData, setAppointmentData] = useState<Appointment>();
 
   const appointmentModal = searchParams?.appointment === "true";
 
@@ -81,11 +83,21 @@ function Dashboard({ searchParams }: SearchParamProps) {
               })}
           </div>
           <UsersTable users={users} />
+          <AppointmentModal
+            searchParams={searchParams}
+            modalOpen={modalOpen}
+            setModalOpen={setModalOpen}
+            reloadPageData={getDashboardInfo}
+            appointmentData={appointmentData}
+            setAppointmentData={setAppointmentData}
+          />
           <AppointmentManager
             isClientPage={false}
             showButton={false}
             appointments={appointments}
             getPageInfo={getDashboardInfo}
+            setModalOpen={setModalOpen}
+            setAppointmentData={setAppointmentData}
           />
         </>
       ) : (

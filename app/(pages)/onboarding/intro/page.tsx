@@ -73,7 +73,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
             type="text"
             id="name"
             name="name"
-            className="text-white text-md"
+            className=" text-md"
             placeholder="Il tuo nome"
             onChange={(e) => handleClientInfo(e.target.value, e.target.name)}
           />
@@ -86,7 +86,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
             type="text"
             id="surname"
             name="surname"
-            className="text-white text-md"
+            className=" text-md"
             placeholder="Il tuo cognome"
             onChange={(e) => handleClientInfo(e.target.value, e.target.name)}
           />
@@ -99,7 +99,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
             type="number"
             id="phone"
             name="phone"
-            className="text-white text-md"
+            className=" text-md"
             placeholder="Il tuo numero di telefono"
             onChange={(e) =>
               handleClientInfo(Number(e.target.value), e.target.name)
@@ -112,7 +112,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
           </Label>
           <Input
             type="number"
-            className="text-white text-md"
+            className=" text-md"
             id="age"
             name="age"
             placeholder="La tua età"
@@ -130,7 +130,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
           </Label>
           <Input
             type="number"
-            className="text-white text-md"
+            className=" text-md"
             id="height"
             name="height"
             placeholder="Altezza"
@@ -149,7 +149,7 @@ export default function Intro({ searchParams }: SearchParamProps) {
           </Label>
           <Input
             type="number"
-            className="text-white text-md"
+            className=" text-md"
             id="weight"
             name="weight"
             placeholder="Peso"

@@ -48,6 +48,7 @@ model Appointment {
   status    String
   price     Int
   paid      Boolean
+  location  String
   // relation to client table
   user      User     @relation(fields: [userId], references: [id])
   userId    String

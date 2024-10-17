@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,7 +14,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -36,8 +35,6 @@ import {
 import { Appointment, User } from "@prisma/client";
 import { Badge } from "../ui/badge";
 import { editAppointment } from "@/app/actions/appointments/editAppointment";
-import { getAppointments } from "@/app/actions/appointments/getAppointments";
-import { get } from "http";
 
 export const columns: ColumnDef<Appointment>[] = [
   {
@@ -103,6 +100,24 @@ export const columns: ColumnDef<Appointment>[] = [
       return <div className="">h{time as string}</div>;
     },
     enableHiding: false,
+  },
+  {
+    accessorKey: "location",
+    header: () => {
+      return <div className="text-left">Luogo</div>;
+    },
+    cell: ({ row }) => {
+      const location = row.getValue("location");
+      let badgeVariant: "home" | "online" | "residence" = "home";
+      if (location === "Online") badgeVariant = "online";
+      if (location === "Domicilio") badgeVariant = "residence";
+
+      return (
+        <Badge className="" variant={badgeVariant}>
+          {location as string}
+        </Badge>
+      );
+    },
   },
   {
     accessorKey: "status",
@@ -172,13 +187,15 @@ export const columns: ColumnDef<Appointment>[] = [
 ];
 
 export function AppointmentsTable({ ...props }) {
-  let data = props.appointments;
-  const isClientPage = props.isClientPage;
+  const { appointments, isClientPage, setModalOpen, setAppointmentData } =
+    props;
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+
+  const data = appointments;
 
   const table = useReactTable({
     data,
@@ -317,14 +334,14 @@ export function AppointmentsTable({ ...props }) {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Azioni</DropdownMenuLabel>
                           <DropdownMenuItem
-                          // onClick={() => {
-                          //   router.push("/dashboard/cliente/" + client.id);
-                          // }}
+                            onClick={() => {
+                              setModalOpen(true);
+                              setAppointmentData(row.original);
+                            }}
                           >
                             Modifica appuntamento
                           </DropdownMenuItem>
                           <DropdownMenuLabel>Azioni rapide</DropdownMenuLabel>
-                          {/* // TODO: aggiungere chiamata per annullare appuntamento */}
                           <DropdownMenuItem
                             onClick={() => {
                               const newStatus =
@@ -335,7 +352,7 @@ export function AppointmentsTable({ ...props }) {
                                 row.original.id,
                                 undefined,
                                 newStatus,
-                                undefined,
+                                false,
                                 undefined
                               );
                             }}
