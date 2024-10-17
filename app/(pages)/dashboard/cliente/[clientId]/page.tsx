@@ -70,7 +70,6 @@ const isClientPage = ({ params, searchParams }: SearchParamProps) => {
   return (
     <DashboardLayout linkText={"Torna alla dashboard"} link={"/dashboard"}>
       {user && stats ? (
-        // PERSONAL-INFO
         <>
           <div className="grid grid-cols-12 items-center mt-5 space-y-12 lg:space-y-0">
             <div className="h-full flex col-span-12 lg:col-span-5 gap-5 lg:gap-3 flex-wrap justify-between md:flex-row">
