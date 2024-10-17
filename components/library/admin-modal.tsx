@@ -72,7 +72,7 @@ export const AdminModal = () => {
             maxLength={6}
             value={passkey}
             onChange={(value) => setPasskey(value)}
-            className=""
+            className="target:text-white"
           >
             <InputOTPGroup className="shad-otp text-white ">
               <InputOTPSlot className="shad-otp-slot text-2xl" index={0} />

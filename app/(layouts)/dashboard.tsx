@@ -1,3 +1,4 @@
+import { ArrowBigLeft, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { ReactNode } from "react";
@@ -20,8 +21,11 @@ const DashboardLayout = (props: DashboardLayoutProps) => {
           className="mr-auto mb-5"
         />
       </div>
-      <Link href={props.link} className="text-white underline text-lg">
-        {props.linkText}
+      <Link
+        href={props.link}
+        className="text-white underline text-lg flex items-center"
+      >
+        <ArrowBigLeft size={"25"} /> {props.linkText}
       </Link>
       {props.children}
     </div>

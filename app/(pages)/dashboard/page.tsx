@@ -31,8 +31,6 @@ function Dashboard({ searchParams }: SearchParamProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [appointmentData, setAppointmentData] = useState<Appointment>();
 
-  const appointmentModal = searchParams?.appointment === "true";
-
   useEffect(() => {
     getDashboardInfo();
   }, []);
@@ -56,9 +54,14 @@ function Dashboard({ searchParams }: SearchParamProps) {
     <DashboardLayout linkText={"Esci dalla dashboard"} link={"/"}>
       {dashboardReady ? (
         <>
-          {appointmentModal && (
-            <AppointmentModal searchParams={searchParams} users={users} />
-          )}
+          <AppointmentModal
+            searchParams={searchParams}
+            modalOpen={modalOpen}
+            setModalOpen={setModalOpen}
+            reloadPageData={getDashboardInfo}
+            appointmentData={appointmentData}
+            setAppointmentData={setAppointmentData}
+          />
           <div className="flex gap-5 lg:gap-3 flex-wrap justify-between md:flex-row mt-5">
             {stats &&
               dashboardCardStats?.map((stat: CardStats) => {
@@ -83,14 +86,7 @@ function Dashboard({ searchParams }: SearchParamProps) {
               })}
           </div>
           <UsersTable users={users} />
-          <AppointmentModal
-            searchParams={searchParams}
-            modalOpen={modalOpen}
-            setModalOpen={setModalOpen}
-            reloadPageData={getDashboardInfo}
-            appointmentData={appointmentData}
-            setAppointmentData={setAppointmentData}
-          />
+
           <AppointmentManager
             isClientPage={false}
             showButton={false}
