@@ -8,7 +8,7 @@ import {
   UserWithFullName,
 } from "@/prisma/user-extension";
 import { useEffect, useMemo, useState } from "react";
-import { AppointmentModal } from "@/components/library/appointment-modal";
+import { AppointmentModal } from "@/components/library/appointments/appointment-modal";
 
 import { getClientStats } from "@/app/actions/dashboard/getClientStats";
 import { clientCardStats } from "@/data";
@@ -21,9 +21,9 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getUsers } from "@/app/actions/user/getUsers";
-import AppointmentManager from "@/components/library/appointment-manager";
+import AppointmentManager from "@/components/library/appointments/appointment-manager";
 import { Appointment } from "@prisma/client";
-import AnamnesiRecap from "@/components/library/anamnesi-recap";
+import AnamnesiRecap from "@/components/library/users/client-anamnesi";
 import {
   Accordion,
   AccordionContent,

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { AppointmentsTable } from "../appointments.table";
+import { AppointmentsTable } from "./appointments.table";
 
 const AppointmentManager = ({ ...props }) => {
   const {

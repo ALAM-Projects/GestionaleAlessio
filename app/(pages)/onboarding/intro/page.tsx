@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { createUser } from "@/app/actions/user/createUser";
 import OnboardingLayout from "@/app/(layouts)/onboarding";
 import Link from "next/link";
-import { AdminModal } from "@/components/library/admin-modal";
+import { AdminModal } from "@/components/library/common/admin-modal";
 import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Loader2 } from "lucide-react";

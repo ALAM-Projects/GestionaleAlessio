@@ -10,8 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
+import { Label } from "../../ui/label";
+import { Input } from "../../ui/input";
 import { upsertAppointment } from "@/app/actions/appointments/upsertAppointment";
 import {
   Select,
@@ -19,10 +19,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Button } from "../ui/button";
+} from "../../ui/select";
+import { Button } from "../../ui/button";
 import { Loader2 } from "lucide-react";
-import SuperButton from "./common/super-button";
+import SuperButton from "../common/super-button";
 
 export const AppointmentModal = ({ ...props }) => {
   const {

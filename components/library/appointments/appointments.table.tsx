@@ -33,9 +33,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Appointment, User } from "@prisma/client";
-import { Badge } from "../ui/badge";
+
 import { editAppointment } from "@/app/actions/appointments/editAppointment";
 import { deleteAppointment } from "@/app/actions/appointments/deleteAppointment";
+import { Badge } from "@/components/ui/badge";
 
 export const columns: ColumnDef<Appointment>[] = [
   {

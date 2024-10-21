@@ -2,7 +2,7 @@
 
 import { withAuth } from "@/app/(hocs)/with-auth";
 import { getStats } from "@/app/actions/dashboard/getStats";
-import { UsersTable } from "@/components/library/users.table";
+import { UsersTable } from "@/components/library/users/users.table";
 import {
   Card,
   CardContent,
@@ -17,12 +17,12 @@ import { Appointment } from "@prisma/client";
 import { getUsers } from "@/app/actions/user/getUsers";
 import { getAppointments } from "@/app/actions/appointments/getAppointments";
 import DashboardLayout from "@/app/(layouts)/dashboard";
-import { AppointmentModal } from "@/components/library/appointment-modal";
+import { AppointmentModal } from "@/components/library/appointments/appointment-modal";
 import {
   extendArrayOfUsersWithFullName,
   UserWithFullName,
 } from "@/prisma/user-extension";
-import AppointmentManager from "@/components/library/appointment-manager";
+import AppointmentManager from "@/components/library/appointments/appointment-manager";
 
 function Dashboard({ searchParams }: SearchParamProps) {
   const [stats, setStats] = useState<DashboardStats>();
