@@ -55,15 +55,25 @@ const isClientPage = ({ params }: SearchParamProps) => {
     users && setAllUsers(users);
   };
 
-  const paidAppointmentsNumber = useMemo(() => {
-    return (
-      user?.appointments?.filter((appointment) => appointment.paid).length || 0
+  const confirmedAppointments = useMemo(() => {
+    return user?.appointments?.filter(
+      (appointment) => appointment.status === "Confermato"
     );
   }, [user?.appointments]);
 
-  const allPaid = paidAppointmentsNumber === user?.appointments.length;
+  console.log(confirmedAppointments);
+
+  const paidAppointmentsNumber = useMemo(() => {
+    return (
+      confirmedAppointments?.filter((appointment) => appointment.paid).length ||
+      0
+    );
+  }, [user?.appointments]);
+
+  const allPaid = paidAppointmentsNumber === confirmedAppointments?.length;
   const appointmentsToPay =
-    user?.appointments && user?.appointments?.length - paidAppointmentsNumber;
+    confirmedAppointments &&
+    confirmedAppointments?.length - paidAppointmentsNumber;
 
   return (
     <DashboardLayout linkText={"Torna alla dashboard"} link={"/dashboard"}>
