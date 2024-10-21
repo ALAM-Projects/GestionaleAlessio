@@ -35,6 +35,7 @@ import {
 import { Appointment, User } from "@prisma/client";
 import { Badge } from "../ui/badge";
 import { editAppointment } from "@/app/actions/appointments/editAppointment";
+import { deleteAppointment } from "@/app/actions/appointments/deleteAppointment";
 
 export const columns: ColumnDef<Appointment>[] = [
   {
@@ -238,6 +239,14 @@ export function AppointmentsTable({ ...props }) {
     }
   };
 
+  const handleDeleteAppointment = async (appointmentId: string) => {
+    const deleted = await deleteAppointment(appointmentId);
+
+    if (deleted) {
+      props.getPageInfo();
+    }
+  };
+
   return (
     <div className="w-full mt-5">
       <div className="flex justify-between items-center pb-4">
@@ -376,6 +385,18 @@ export function AppointmentsTable({ ...props }) {
                               ? "Segna come DA PAGARE"
                               : "Segna come PAGATO"}
                           </DropdownMenuItem>
+                          <DropdownMenuLabel>
+                            Azioni irreversibili
+                          </DropdownMenuLabel>
+                          {row.original.status === "Annullato" ? (
+                            <DropdownMenuItem
+                              onClick={() => {
+                                handleDeleteAppointment(row.original.id);
+                              }}
+                            >
+                              Elimina appuntamento
+                            </DropdownMenuItem>
+                          ) : null}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
