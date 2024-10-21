@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,6 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { Button } from "../ui/button";
+import { Loader2 } from "lucide-react";
+import SuperButton from "./common/super-button";
 
 export const AppointmentModal = ({ ...props }) => {
   const {
@@ -32,19 +35,21 @@ export const AppointmentModal = ({ ...props }) => {
   } = props;
 
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   // const [coupleTraining, setCoupleTraining] = useState(false);
   // const [openPopover, setOpenPopover] = useState(false);
   // const [popoverValue, setPopoverValue] = useState<string>();
 
   const closeModal = () => {
     setModalOpen(false);
-    setAppointmentData(null);
+    setAppointmentData({});
   };
 
   const handleUpsertAppointment = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     e.preventDefault();
+    setIsLoading(true);
 
     const created = await upsertAppointment(
       clientId,
@@ -56,10 +61,22 @@ export const AppointmentModal = ({ ...props }) => {
     );
 
     if (created) {
-      setModalOpen(false);
+      setIsLoading(false);
+      closeModal();
       reloadPageData();
     }
   };
+
+  const buttonDisabled = useMemo(() => {
+    if (
+      !appointmentData?.date ||
+      !appointmentData?.time ||
+      !appointmentData?.price ||
+      !appointmentData?.location
+    )
+      return true;
+    return false;
+  }, [appointmentData]);
 
   return (
     <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
@@ -96,7 +113,7 @@ export const AppointmentModal = ({ ...props }) => {
         </div>
         <div className="gap-1.5">
           <Label className="text-neutral-400 font-bold text-md" htmlFor="email">
-            Data
+            Ora
           </Label>
           <Input
             type="time"
@@ -230,14 +247,13 @@ export const AppointmentModal = ({ ...props }) => {
             </p>
           )}
         </div>
-        <AlertDialogFooter className="z-30">
-          <AlertDialogAction
-            onClick={(e) => handleUpsertAppointment(e)}
-            className="bg-brand hover:bg-brand w-full"
-          >
-            Salva
-          </AlertDialogAction>
-        </AlertDialogFooter>
+
+        <SuperButton
+          disabled={buttonDisabled}
+          onClick={(e) => handleUpsertAppointment(e)}
+          text="Salva"
+          isLoading={isLoading}
+        />
       </AlertDialogContent>
     </AlertDialog>
   );

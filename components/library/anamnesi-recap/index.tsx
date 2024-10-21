@@ -6,9 +6,6 @@ const AnamnesiRecap = (props: any) => {
   const { user } = props;
   return (
     <>
-      <h3 className="text-3xl lg:text-4xl font-bold text-white mt-16">
-        Scheda di anamnesi
-      </h3>
       <div className="grid grid-cols-12 gap-2 mt-2">
         <div className="col-span-12 items-center gap-1.5 mt-1">
           <Label

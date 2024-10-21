@@ -24,6 +24,12 @@ import { getUsers } from "@/app/actions/user/getUsers";
 import AppointmentManager from "@/components/library/appointment-manager";
 import { Appointment } from "@prisma/client";
 import AnamnesiRecap from "@/components/library/anamnesi-recap";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const isClientPage = ({ params }: SearchParamProps) => {
   const clientId = params.clientId;
@@ -57,16 +63,15 @@ const isClientPage = ({ params }: SearchParamProps) => {
 
   const confirmedAppointments = useMemo(() => {
     return user?.appointments?.filter(
-      (appointment) => appointment.status === "Confermato"
+      (appointment: Appointment) => appointment.status === "Confermato"
     );
   }, [user?.appointments]);
 
-  console.log(confirmedAppointments);
-
   const paidAppointmentsNumber = useMemo(() => {
     return (
-      confirmedAppointments?.filter((appointment) => appointment.paid).length ||
-      0
+      confirmedAppointments?.filter(
+        (appointment: Appointment) => appointment.paid
+      ).length || 0
     );
   }, [user?.appointments]);
 
@@ -151,7 +156,18 @@ const isClientPage = ({ params }: SearchParamProps) => {
           </div>
 
           {/* ANAMNESI */}
-          <AnamnesiRecap user={user} />
+          <Accordion type="single" className="mt-16" collapsible>
+            <AccordionItem value="anamnesi">
+              <AccordionTrigger>
+                <h3 className="inline text-3xl lg:text-4xl font-bold text-white">
+                  Scheda di anamnesi
+                </h3>
+              </AccordionTrigger>
+              <AccordionContent>
+                <AnamnesiRecap user={user} />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
           {/* ANAMNESI */}
 
           <AppointmentManager

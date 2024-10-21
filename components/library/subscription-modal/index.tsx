@@ -16,7 +16,7 @@ import { upsertAppointment } from "@/app/actions/appointments/upsertAppointment"
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-export const AppointmentModal = ({ ...props }) => {
+export const SubscriptionModal = ({ ...props }) => {
   const [open, setOpen] = useState(false);
   const [appointmentData, setAppointmentData] = useState<any>({});
   const [error, setError] = useState("");
@@ -71,7 +71,7 @@ export const AppointmentModal = ({ ...props }) => {
       <AlertDialogContent className="border-0 bg-primary">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-white flex items-start justify-between">
-            <span className="text-3xl">Nuovo appuntamento</span>
+            <span className="text-3xl">Nuovo abbonamento</span>
             <div
               className="text-white text-md cursor-pointer"
               onClick={() => closeModal()}
@@ -80,7 +80,7 @@ export const AppointmentModal = ({ ...props }) => {
             </div>
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Inserisci data ed ora del nuovo appuntamento
+            Inserisci le informazioni richieste
           </AlertDialogDescription>
         </AlertDialogHeader>
 

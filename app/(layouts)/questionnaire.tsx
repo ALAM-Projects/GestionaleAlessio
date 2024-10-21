@@ -1,6 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import Image from "next/image";
+import SuperButton from "@/components/library/common/super-button";
 import Link from "next/link";
 import React, { ReactNode } from "react";
 
@@ -23,19 +21,13 @@ const QuestionnaireLayout = (props: DashboardLayoutProps) => {
       <p className="text-neutral-400 mt-3 text-center">{props.subtitle}</p>
       {props.children}
       <div className="text-center mt-5">
-        <Button
-          disabled={props.isLoading || props.buttonDisabled}
-          className="mt-5 w-full max-w-sm bg-brand hover:bg-brand text-md font-bold"
+        <SuperButton
+          disabled={props.buttonDisabled}
+          isLoading={props.isLoading}
           onClick={props.onAction}
-        >
-          {props.isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Attendi
-            </>
-          ) : (
-            "Continua"
-          )}
-        </Button>
+          text="Continua"
+          classNames="mt-5 max-w-sm text-md font-bold"
+        />
       </div>
       {props.withAdminAccess ? (
         <div className="text-center mt-5">
