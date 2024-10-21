@@ -27,6 +27,7 @@ async function updateUser(
       problems: clientData.problems,
       injuries: clientData.injuries,
       surgeries: clientData.surgeries,
+      goalReason: clientData.goalReason,
     },
   });
 

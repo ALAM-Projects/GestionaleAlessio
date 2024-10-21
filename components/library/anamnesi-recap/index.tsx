@@ -245,7 +245,7 @@ const AnamnesiRecap = (props: any) => {
             // }
           />
         </div>
-        <div className="col-span-12 xl:col-span-3 items-center gap-1.5 ">
+        <div className="col-span-12 xl:col-span-3 items-center gap-1.5 mt-2 ">
           <Label
             className="text-neutral-400 font-bold text-md"
             htmlFor="surgeries"
