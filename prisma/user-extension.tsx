@@ -1,4 +1,4 @@
-import { Prisma, User, Appointment } from "@prisma/client";
+import { Prisma, User, Appointment, Subscription } from "@prisma/client";
 
 const userSelect = {
   id: true,
@@ -21,36 +21,43 @@ const userSelect = {
   problems: true,
   goalReason: true,
   appointments: true,
+  subscriptions: true,
 };
 
-export type UserWithFullName = Prisma.UserGetPayload<{
+export type SuperUser = Prisma.UserGetPayload<{
   select: typeof userSelect;
 }> & {
   fullName: string;
+  hasActiveSubscription: boolean;
 };
 
-// export type UserWithFullName = Prisma.UserGetPayload<
-//   typeof UserWithFullName
-// > & {
-//   fullName: string;
-// };
-
-export function extendUserWithFullName(
-  user: User & { appointments?: Appointment[] }
-): UserWithFullName {
+export function extendSuperUser(
+  user: User & { appointments?: Appointment[]; subscriptions?: Subscription[] }
+): SuperUser {
   return {
     ...user,
     fullName: `${user.name} ${user.surname}`,
+    hasActiveSubscription: !!user.subscriptions?.find(
+      (sub) => sub.completed === false
+    ),
     appointments: user.appointments || [],
+    subscriptions: user.subscriptions || [],
   };
 }
 
-export function extendArrayOfUsersWithFullName(
-  users: (User & { appointments?: Appointment[] })[]
-): UserWithFullName[] {
+export function extendArrayOfSuperUsers(
+  users: (User & {
+    appointments?: Appointment[];
+    subscriptions?: Subscription[];
+  })[]
+): SuperUser[] {
   return users.map((user) => ({
     ...user,
     fullName: `${user.name} ${user.surname}`,
+    hasActiveSubscription: !!user.subscriptions?.find(
+      (sub) => sub.completed === false
+    ),
     appointments: user.appointments || [],
+    subscriptions: user.subscriptions || [],
   }));
 }

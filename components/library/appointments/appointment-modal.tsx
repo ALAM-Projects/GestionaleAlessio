@@ -199,7 +199,7 @@ export const AppointmentModal = ({ ...props }) => {
                 >
                   {popoverValue
                     ? allUsers.find(
-                        (user: UserWithFullName) => user.id === popoverValue
+                        (user: SuperUser) => user.id === popoverValue
                       )?.fullName
                     : "Select framework..."}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -211,7 +211,7 @@ export const AppointmentModal = ({ ...props }) => {
                   <CommandList>
                     <CommandEmpty>Nessun cliente trovato.</CommandEmpty>
                     <CommandGroup className="z-50">
-                      {allUsers.map((user: UserWithFullName) => (
+                      {allUsers.map((user: SuperUser) => (
                         <CommandItem
                           key={user.fullName}
                           value={user.fullName}

@@ -14,10 +14,9 @@ datasource db {
 }
 
 model User {
-  id                  String          @id @default(cuid())
+  id                  String         @id @default(cuid())
   name                String
   surname             String
-  // fullName     String        @default("concat(name, ' ', surname)")
   sex                 String
   currentlyTraining   String
   currentTrainingRate String?
@@ -25,9 +24,9 @@ model User {
   personalTraining    String?
   inactivityPeriod    String?
   inactivityReason    String?
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
-  phone               BigInt          @unique
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  phone               BigInt         @unique
   weight              Int
   height              Int
   goal                String
@@ -37,7 +36,7 @@ model User {
   problems            String?
   goalReason          String?
   appointments        Appointment[]
-  subscriptions       Subscriptions[]
+  subscriptions       Subscription[]
 }
 
 model Appointment {
@@ -57,17 +56,18 @@ model Appointment {
   @@index([userId])
 }
 
-model Subscriptions {
-  id                 String   @id @default(cuid())
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  completed          Boolean
-  totalPrice         Int
-  advance            Int
-  appointmentsNumber Int
+model Subscription {
+  id                   String   @id @default(cuid())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  completed            Boolean
+  totalPrice           Int
+  totalPaid            Int
+  appointmentsIncluded Int
+  doneAppointments     Int
   // relation to client table
-  user               User     @relation(fields: [userId], references: [id])
-  userId             String
+  user                 User     @relation(fields: [userId], references: [id])
+  userId               String
 
   @@index([userId])
 }

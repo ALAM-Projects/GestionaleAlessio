@@ -7,8 +7,10 @@ const AppointmentManager = ({ ...props }) => {
     clientId,
     isClientPage = true,
     showButton = true,
+    showSubscriptionButton,
     getPageInfo,
-    setModalOpen,
+    setAppointmentModalOpen,
+    setSubscriptionModalOpen,
     setAppointmentData,
   } = props;
 
@@ -19,20 +21,32 @@ const AppointmentManager = ({ ...props }) => {
           Allenamenti
         </h2>
         {showButton && (
-          <Button
-            variant={"brand"}
-            size={"lg"}
-            onClick={() => setModalOpen(true)}
-            className="text-lg"
-          >
-            Crea nuovo appuntamento
-          </Button>
+          <div>
+            {showSubscriptionButton && (
+              <Button
+                variant={"outline"}
+                size={"lg"}
+                onClick={() => setSubscriptionModalOpen(true)}
+                className="text-lg"
+              >
+                Crea nuovo abbonamento
+              </Button>
+            )}
+            <Button
+              variant={"brand"}
+              size={"lg"}
+              onClick={() => setAppointmentModalOpen(true)}
+              className="text-lg ms-5"
+            >
+              Crea nuovo appuntamento
+            </Button>
+          </div>
         )}
       </div>
       <AppointmentsTable
         appointments={appointments}
         isClientPage={isClientPage}
-        setModalOpen={setModalOpen}
+        setModalOpen={setAppointmentModalOpen}
         clientId={clientId}
         getPageInfo={() => getPageInfo()}
         setAppointmentData={setAppointmentData}

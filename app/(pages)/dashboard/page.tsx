@@ -18,15 +18,12 @@ import { getUsers } from "@/app/actions/user/getUsers";
 import { getAppointments } from "@/app/actions/appointments/getAppointments";
 import DashboardLayout from "@/app/(layouts)/dashboard";
 import { AppointmentModal } from "@/components/library/appointments/appointment-modal";
-import {
-  extendArrayOfUsersWithFullName,
-  UserWithFullName,
-} from "@/prisma/user-extension";
+import { extendArrayOfSuperUsers, SuperUser } from "@/prisma/user-extension";
 import AppointmentManager from "@/components/library/appointments/appointment-manager";
 
 function Dashboard({ searchParams }: SearchParamProps) {
   const [stats, setStats] = useState<DashboardStats>();
-  const [users, setUsers] = useState<UserWithFullName[]>();
+  const [users, setUsers] = useState<SuperUser[]>();
   const [appointments, setAppointments] = useState<Appointment[]>();
   const [modalOpen, setModalOpen] = useState(false);
   const [appointmentData, setAppointmentData] = useState<Appointment>();
@@ -38,7 +35,7 @@ function Dashboard({ searchParams }: SearchParamProps) {
   const getDashboardInfo = async () => {
     const stats = await getStats();
     const partialUsers = await getUsers();
-    const users = extendArrayOfUsersWithFullName(partialUsers);
+    const users = extendArrayOfSuperUsers(partialUsers);
     const appointments = await getAppointments();
 
     stats && setStats(stats);

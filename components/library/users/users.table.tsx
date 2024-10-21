@@ -34,9 +34,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { clientsColumns } from "@/data/index";
-import { UserWithFullName } from "@/prisma/user-extension";
+import { SuperUser } from "@/prisma/user-extension";
 
-export const columns: ColumnDef<UserWithFullName>[] = [
+export const columns: ColumnDef<SuperUser>[] = [
   {
     accessorKey: "fullName",
     header: ({ column }) => {
