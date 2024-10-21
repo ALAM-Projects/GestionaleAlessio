@@ -28,7 +28,6 @@ export const AppointmentModal = ({ ...props }) => {
     clientId,
     modalOpen,
     setModalOpen,
-    allUsers,
     reloadPageData,
   } = props;
 
@@ -39,6 +38,7 @@ export const AppointmentModal = ({ ...props }) => {
 
   const closeModal = () => {
     setModalOpen(false);
+    setAppointmentData(null);
   };
 
   const handleUpsertAppointment = async (

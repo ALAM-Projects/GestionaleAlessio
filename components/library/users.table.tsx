@@ -77,9 +77,13 @@ export const columns: ColumnDef<UserWithFullName>[] = [
         return acc;
       }, 0);
       const totalUnpaid = (
-        row.getValue("appointments") as { price: number; paid: boolean }[]
-      )?.reduce((acc, { price, paid }) => {
-        if (!paid) return acc + price;
+        row.getValue("appointments") as {
+          price: number;
+          paid: boolean;
+          status: string;
+        }[]
+      )?.reduce((acc, { price, paid, status }) => {
+        if (!paid && status === "Confermato") return acc + price;
         return acc;
       }, 0);
       const paidAmount = parseFloat(totalPaid?.toString());
