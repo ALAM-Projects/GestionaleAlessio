@@ -1,7 +1,7 @@
 "use server";
 
 import { PrismaClient, User } from "@prisma/client";
-import { extendSuperUser, SuperUser } from "@/prisma/user-extension";
+import { extendUser, SuperUser } from "@/prisma/user-extension";
 
 const prisma = new PrismaClient();
 
@@ -16,7 +16,7 @@ async function getUserById(clientId: string): Promise<SuperUser | null> {
     },
   });
 
-  if (user) return extendSuperUser(user);
+  if (user) return extendUser(user);
   return null;
 }
 

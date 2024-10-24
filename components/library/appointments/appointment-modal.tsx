@@ -3,10 +3,8 @@
 import { useMemo, useState } from "react";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
@@ -20,8 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../ui/select";
-import { Button } from "../../ui/button";
-import { Loader2 } from "lucide-react";
 import SuperButton from "../common/super-button";
 
 export const AppointmentModal = ({ ...props }) => {

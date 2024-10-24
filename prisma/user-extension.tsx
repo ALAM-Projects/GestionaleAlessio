@@ -31,7 +31,8 @@ export type SuperUser = Prisma.UserGetPayload<{
   hasActiveSubscription: boolean;
 };
 
-export function extendSuperUser(
+/// Extend the user object with additional properties
+export function extendUser(
   user: User & { appointments?: Appointment[]; subscriptions?: Subscription[] }
 ): SuperUser {
   return {
@@ -45,7 +46,8 @@ export function extendSuperUser(
   };
 }
 
-export function extendArrayOfSuperUsers(
+/// Extend an array of users with additional properties
+export function extendArrayOfUsers(
   users: (User & {
     appointments?: Appointment[];
     subscriptions?: Subscription[];

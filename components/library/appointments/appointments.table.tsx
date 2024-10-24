@@ -186,6 +186,19 @@ export const columns: ColumnDef<Appointment>[] = [
       );
     },
   },
+  {
+    accessorKey: "paidBySubscription",
+    header: () => <div className="text-left">Abbonamento</div>,
+    cell: ({ row }) => {
+      const isSubscriptionAppointment = row.getValue("paidBySubscription");
+      if (!isSubscriptionAppointment) return null;
+      return (
+        <Badge className="" variant={"online"}>
+          Incluso
+        </Badge>
+      );
+    },
+  },
 ];
 
 export function AppointmentsTable({ ...props }) {
