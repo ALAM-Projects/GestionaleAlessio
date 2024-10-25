@@ -14,6 +14,7 @@ async function upsertAppointment(
   appointmentId?: string
 ): Promise<boolean> {
   // recupera l'utente
+
   const user = await prisma.user.findUnique({
     where: { id: clientId },
     include: { subscriptions: true },
@@ -21,6 +22,7 @@ async function upsertAppointment(
   let superUser;
   if (user) superUser = extendUser(user);
 
+  // SE E' UN UPDATE
   if (appointmentId) {
     const updated = await prisma.appointment.update({
       where: { id: appointmentId },

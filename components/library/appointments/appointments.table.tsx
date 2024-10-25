@@ -34,9 +34,9 @@ import {
 } from "@/components/ui/table";
 import { Appointment, User } from "@prisma/client";
 
-import { editAppointment } from "@/app/actions/appointments/editAppointment";
 import { deleteAppointment } from "@/app/actions/appointments/deleteAppointment";
 import { Badge } from "@/components/ui/badge";
+import { editAppointmentStatusOrPaid } from "@/app/actions/appointments/editAppointmentStatusOrPaid";
 
 export const columns: ColumnDef<Appointment>[] = [
   {
@@ -231,7 +231,7 @@ export function AppointmentsTable({ ...props }) {
     },
   });
 
-  const handleEditAppointment = async (
+  const handleEditAppointmentStatusOrPaid = async (
     appointmentId: string,
     date?: string,
     status?: string,
@@ -239,13 +239,10 @@ export function AppointmentsTable({ ...props }) {
     price?: number,
     time?: string
   ) => {
-    const updatedAppointment = await editAppointment(
+    const updatedAppointment = await editAppointmentStatusOrPaid(
       appointmentId,
-      date,
       status,
-      paid,
-      price,
-      time
+      paid
     );
 
     if (updatedAppointment) {
@@ -371,7 +368,7 @@ export function AppointmentsTable({ ...props }) {
                                 row.original.status === "Confermato"
                                   ? "Annullato"
                                   : "Confermato";
-                              handleEditAppointment(
+                              handleEditAppointmentStatusOrPaid(
                                 row.original.id,
                                 undefined,
                                 newStatus,
@@ -386,7 +383,7 @@ export function AppointmentsTable({ ...props }) {
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() =>
-                              handleEditAppointment(
+                              handleEditAppointmentStatusOrPaid(
                                 row.original.id,
                                 undefined,
                                 undefined,
