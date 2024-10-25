@@ -399,17 +399,19 @@ export function AppointmentsTable({ ...props }) {
                               ? "Segna come DA PAGARE"
                               : "Segna come PAGATO"}
                           </DropdownMenuItem>
-                          <DropdownMenuLabel>
-                            Azioni irreversibili
-                          </DropdownMenuLabel>
                           {row.original.status === "Annullato" ? (
-                            <DropdownMenuItem
-                              onClick={() => {
-                                handleDeleteAppointment(row.original.id);
-                              }}
-                            >
-                              Elimina appuntamento
-                            </DropdownMenuItem>
+                            <>
+                              <DropdownMenuLabel>
+                                Azioni irreversibili
+                              </DropdownMenuLabel>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  handleDeleteAppointment(row.original.id);
+                                }}
+                              >
+                                Elimina appuntamento
+                              </DropdownMenuItem>
+                            </>
                           ) : null}
                         </DropdownMenuContent>
                       </DropdownMenu>
