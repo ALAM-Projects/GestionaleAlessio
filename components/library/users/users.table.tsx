@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/table";
 import { clientsColumns } from "@/data/index";
 import { SuperUser } from "@/prisma/user-extension";
+import { AppointmentStatus } from "@/types/db_types";
 
 export const columns: ColumnDef<SuperUser>[] = [
   {
@@ -83,7 +84,8 @@ export const columns: ColumnDef<SuperUser>[] = [
           status: string;
         }[]
       )?.reduce((acc, { price, paid, status }) => {
-        if (!paid && status === "Confermato") return acc + price;
+        if (!paid && status === AppointmentStatus.Confermato)
+          return acc + price;
         return acc;
       }, 0);
       const paidAmount = parseFloat(totalPaid?.toString());

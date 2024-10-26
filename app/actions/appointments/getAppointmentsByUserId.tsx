@@ -14,6 +14,9 @@ async function getAppointmentsByUserId(
     include: {
       user: true,
     },
+    orderBy: {
+      date: "asc",
+    },
   });
 
   return appointments || null;

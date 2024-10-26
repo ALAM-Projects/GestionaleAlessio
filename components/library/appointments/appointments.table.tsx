@@ -37,6 +37,7 @@ import { Appointment, User } from "@prisma/client";
 import { deleteAppointment } from "@/app/actions/appointments/deleteAppointment";
 import { Badge } from "@/components/ui/badge";
 import { editAppointmentStatusOrPaid } from "@/app/actions/appointments/editAppointmentStatusOrPaid";
+import { AppointmentStatus } from "@/types/db_types";
 
 export const columns: ColumnDef<Appointment>[] = [
   {
@@ -136,7 +137,8 @@ export const columns: ColumnDef<Appointment>[] = [
       );
     },
     cell: ({ row }) => {
-      const isConfirmed = row.getValue("status") === "Confermato";
+      const isConfirmed =
+        row.getValue("status") === AppointmentStatus.Confermato;
       return (
         <Badge
           className=""
@@ -233,11 +235,8 @@ export function AppointmentsTable({ ...props }) {
 
   const handleEditAppointmentStatusOrPaid = async (
     appointmentId: string,
-    date?: string,
     status?: string,
-    paid?: boolean,
-    price?: number,
-    time?: string
+    paid?: boolean
   ) => {
     const updatedAppointment = await editAppointmentStatusOrPaid(
       appointmentId,
@@ -365,38 +364,40 @@ export function AppointmentsTable({ ...props }) {
                           <DropdownMenuItem
                             onClick={() => {
                               const newStatus =
-                                row.original.status === "Confermato"
+                                row.original.status ===
+                                AppointmentStatus.Confermato
                                   ? "Annullato"
                                   : "Confermato";
                               handleEditAppointmentStatusOrPaid(
                                 row.original.id,
-                                undefined,
                                 newStatus,
-                                false,
-                                undefined
+                                false
                               );
                             }}
                           >
-                            {row.original.status === "Confermato"
+                            {row.original.status ===
+                            AppointmentStatus.Confermato
                               ? "Annulla appuntamento"
                               : "Conferma appuntamento"}
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleEditAppointmentStatusOrPaid(
-                                row.original.id,
-                                undefined,
-                                undefined,
-                                !row.original.paid,
-                                undefined
-                              )
-                            }
-                          >
-                            {row.original.paid
-                              ? "Segna come DA PAGARE"
-                              : "Segna come PAGATO"}
-                          </DropdownMenuItem>
-                          {row.original.status === "Annullato" ? (
+                          {row.original.status ===
+                          AppointmentStatus.Confermato ? (
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleEditAppointmentStatusOrPaid(
+                                  row.original.id,
+                                  undefined,
+                                  !row.original.paid
+                                )
+                              }
+                            >
+                              {row.original.paid
+                                ? "Segna come DA PAGARE"
+                                : "Segna come PAGATO"}
+                            </DropdownMenuItem>
+                          ) : null}
+                          {row.original.status ===
+                          AppointmentStatus.Annullato ? (
                             <>
                               <DropdownMenuLabel>
                                 Azioni irreversibili

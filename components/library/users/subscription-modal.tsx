@@ -37,7 +37,7 @@ export const SubscriptionModal = ({ ...props }) => {
     e.preventDefault();
     setIsLoading(true);
 
-    console.log("USER ID", clientId);
+    console.log("SUB ID", subscriptionData?.id);
 
     const created = await upsertSubscription(
       clientId,
@@ -105,7 +105,7 @@ export const SubscriptionModal = ({ ...props }) => {
         </div>
         <div className="gap-1.5">
           <Label className="text-neutral-400 font-bold text-md" htmlFor="email">
-            Anticipo
+            Già pagati
           </Label>
           <Input
             type="number"

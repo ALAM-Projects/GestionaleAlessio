@@ -1,5 +1,6 @@
 "use server";
 
+import { AppointmentStatus } from "@/types/db_types";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -16,13 +17,13 @@ async function getClientStats(clientId: string): Promise<DashboardStats> {
 
   if (user) {
     const earnings = await user.appointments.reduce((acc, training) => {
-      if (training.paid && training.status === "Confermato")
+      if (training.paid && training.status === AppointmentStatus.Confermato)
         return acc + training.price;
       return acc;
     }, 0);
     return {
       trainingCount: user.appointments.filter(
-        (app) => app.status === "Confermato"
+        (app) => app.status === AppointmentStatus.Confermato
       ).length,
       earnings: earnings + "€",
     };

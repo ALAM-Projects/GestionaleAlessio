@@ -29,6 +29,7 @@ import {
 import { SubscriptionModal } from "@/components/library/users/subscription-modal";
 import { Edit } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { AppointmentStatus } from "@/types/db_types";
 
 type ClientPagePropsTypes = {
   serverStats: DashboardStats;
@@ -63,7 +64,8 @@ const ClientPage = (props: ClientPagePropsTypes) => {
 
   const confirmedAppointments = useMemo(() => {
     return user?.appointments?.filter(
-      (appointment: Appointment) => appointment.status === "Confermato"
+      (appointment: Appointment) =>
+        appointment.status === AppointmentStatus.Confermato
     );
   }, [user?.appointments]);
 
