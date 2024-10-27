@@ -2,6 +2,7 @@
 
 import { extendUser } from "@/prisma/user-extension";
 import { PrismaClient } from "@prisma/client";
+import { upsertSubscription } from "../subscriptions/upsertSubscription";
 
 const prisma = new PrismaClient();
 
@@ -41,31 +42,44 @@ async function upsertAppointment(
   let paidBySubscription = false;
 
   if (superUser?.hasActiveSubscription) {
-    const subscription = superUser.subscriptions[0];
-    const hasLeftAppointments =
-      subscription.appointmentsIncluded - subscription.doneAppointments > 0;
-    if (hasLeftAppointments) {
-      // aggiorna l'abbonamento incrementando il numero di appuntamenti fatti
-      const updatedSub = await prisma.subscription.update({
-        where: { id: subscription.id },
-        data: {
-          doneAppointments: {
-            increment: 1,
-          },
-          completed:
-            subscription.doneAppointments + 1 ===
-            subscription.appointmentsIncluded,
-        },
-      });
-      if (!updatedSub) {
-        throw new Error("Errore nell'aggiornamento dell'abbonamento");
-      }
+    const activeSubscription = superUser.subscriptions.find(
+      (sub) => !sub.completed || sub.totalPaid < sub.totalPrice
+    );
+    if (activeSubscription) {
+      const hasLeftAppointments =
+        activeSubscription.appointmentsIncluded -
+          activeSubscription.doneAppointments >
+        0;
+      if (hasLeftAppointments) {
+        const completed =
+          activeSubscription.doneAppointments + 1 ===
+          activeSubscription.appointmentsIncluded;
+        // aggiorna l'abbonamento incrementando il numero di appuntamenti fatti
+        const updatedSub = await upsertSubscription(
+          activeSubscription.totalPrice,
+          activeSubscription.totalPaid,
+          activeSubscription.appointmentsIncluded,
+          completed,
+          clientId,
+          activeSubscription.doneAppointments + 1,
+          activeSubscription.id
+        );
 
-      newAppointmentIsPaid = true;
-      paidBySubscription = true;
-      price = updatedSub.totalPrice / updatedSub.appointmentsIncluded;
+        if (!updatedSub) {
+          throw new Error("Errore nell'aggiornamento dell'abbonamento");
+        }
+
+        newAppointmentIsPaid = true;
+        paidBySubscription = true;
+        price = Number(
+          activeSubscription.totalPrice /
+            activeSubscription.appointmentsIncluded
+        );
+      }
     }
   }
+
+  console.log("PRICE", price);
 
   const created = await prisma.appointment.create({
     data: {

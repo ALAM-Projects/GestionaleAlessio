@@ -5,10 +5,11 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function upsertSubscription(
-  clientId: string,
   totalPrice: number,
   totalPaid: number,
   appointmentsIncluded: number,
+  completed: boolean,
+  clientId: string,
   doneAppointments?: number,
   subscriptionId?: string
 ): Promise<boolean> {
@@ -20,24 +21,27 @@ async function upsertSubscription(
         totalPaid,
         appointmentsIncluded,
         doneAppointments,
-        completed: doneAppointments === appointmentsIncluded,
+        completed,
       },
     });
 
     return !!updated;
   }
-  const created = await prisma.subscription.create({
-    data: {
-      totalPrice,
-      totalPaid,
-      appointmentsIncluded,
-      completed: false,
-      doneAppointments: 0,
-      userId: clientId,
-    },
-  });
+  if (!subscriptionId && clientId) {
+    const created = await prisma.subscription.create({
+      data: {
+        totalPrice,
+        totalPaid,
+        appointmentsIncluded,
+        completed: false,
+        doneAppointments: 0,
+        userId: clientId,
+      },
+    });
 
-  return !!created;
+    return !!created;
+  }
+  return false;
 }
 
 export { upsertSubscription };

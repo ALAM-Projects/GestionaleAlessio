@@ -38,11 +38,13 @@ export const SubscriptionModal = ({ ...props }) => {
     setIsLoading(true);
 
     const created = await upsertSubscription(
-      clientId,
       Number(subscriptionData?.totalPrice),
       Number(subscriptionData?.totalPaid),
       Number(subscriptionData?.appointmentsIncluded),
-      subscriptionData?.id || null
+      subscriptionData?.completed,
+      clientId,
+      Number(subscriptionData?.doneAppointments),
+      subscriptionData?.id
     );
 
     if (created) {
@@ -88,6 +90,7 @@ export const SubscriptionModal = ({ ...props }) => {
             type="number"
             id="appointmentsIncluded"
             name="appointmentsIncluded"
+            disabled={subscriptionData?.id ? true : false}
             placeholder="eg. 10"
             value={subscriptionData?.appointmentsIncluded || ""}
             className="text-primary text-md"
@@ -127,6 +130,7 @@ export const SubscriptionModal = ({ ...props }) => {
             id="totalPrice"
             name="totalPrice"
             className="text-primary text-md"
+            disabled={subscriptionData?.id ? true : false}
             placeholder="eg. 200€"
             value={subscriptionData?.totalPrice || ""}
             onChange={(e) =>

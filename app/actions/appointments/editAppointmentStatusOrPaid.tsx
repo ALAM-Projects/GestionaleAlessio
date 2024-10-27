@@ -3,6 +3,7 @@
 import { extendUser } from "@/prisma/user-extension";
 import { PrismaClient } from "@prisma/client";
 import { AppointmentStatus } from "@/types/db_types";
+import { upsertSubscription } from "../subscriptions/upsertSubscription";
 
 const prisma = new PrismaClient();
 
@@ -51,40 +52,39 @@ async function editAppointmentStatusOrPaid(
             activeSubscription.doneAppointments > 0 &&
             appointment.paidBySubscription
           ) {
-            updatedSubscription = await prisma.subscription.update({
-              where: {
-                id: activeSubscription.id,
-              },
-              data: {
-                doneAppointments: {
-                  decrement: 1,
-                },
-                // se l'abbonamento era stato completato, lo riporto a false
-                completed: activeSubscription.completed
-                  ? false
-                  : activeSubscription.completed,
-              },
-            });
+            const completed = activeSubscription.completed
+              ? false
+              : activeSubscription.completed;
+
+            updatedSubscription = await upsertSubscription(
+              activeSubscription.totalPrice,
+              activeSubscription.totalPaid,
+              activeSubscription.appointmentsIncluded,
+              completed,
+              user.id,
+              activeSubscription.doneAppointments - 1,
+              activeSubscription.id
+            );
 
             if (updatedSubscription) {
               appointment.paidBySubscription = false;
             }
           }
           if (status === AppointmentStatus.Confermato) {
-            updatedSubscription = await prisma.subscription.update({
-              where: {
-                id: activeSubscription.id,
-              },
-              data: {
-                doneAppointments: {
-                  increment: 1,
-                },
-                // se l'abbonamento era stato completato, lo riporto a false
-                completed:
-                  activeSubscription.doneAppointments + 1 ===
-                  activeSubscription.appointmentsIncluded,
-              },
-            });
+            const completed =
+              activeSubscription.doneAppointments + 1 ===
+              activeSubscription.appointmentsIncluded;
+
+            updatedSubscription = await upsertSubscription(
+              activeSubscription.totalPrice,
+              activeSubscription.totalPaid,
+              activeSubscription.appointmentsIncluded,
+              completed,
+              user.id,
+              activeSubscription.doneAppointments + 1,
+              activeSubscription.id
+            );
+
             if (updatedSubscription) {
               appointment.paidBySubscription = true;
               paid = true;
