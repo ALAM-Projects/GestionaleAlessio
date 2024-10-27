@@ -30,6 +30,7 @@ import { SubscriptionModal } from "@/components/library/users/subscription-modal
 import { Edit } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { AppointmentStatus } from "@/types/db_types";
+import SubscriptionsManager from "@/components/library/subscriptions/subscriptions-manager";
 
 type ClientPagePropsTypes = {
   serverStats: DashboardStats;
@@ -211,6 +212,16 @@ const ClientPage = (props: ClientPagePropsTypes) => {
               setSubscriptionModalOpen={setSubscriptionModalOpen}
               setAppointmentData={setAppointmentData}
               showSubscriptionButton={!user.hasActiveSubscription}
+            />
+
+            <SubscriptionsManager
+              subscriptions={user.subscriptions}
+              clientId={clientId}
+              withClient={false}
+              getPageInfo={getClientPageInfo}
+              setAppointmentModalOpen={setAppointmentModalOpen}
+              setSubscriptionModalOpen={setSubscriptionModalOpen}
+              setAppointmentData={setAppointmentData}
             />
           </>
         ) : (

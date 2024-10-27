@@ -13,23 +13,27 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import Spinner from "@/components/ui/spinner";
 import { dashboardCardStats } from "@/data/index";
-import { Appointment } from "@prisma/client";
+import { Appointment, Subscription } from "@prisma/client";
 import { getUsers } from "@/app/actions/user/getUsers";
 import { getAppointments } from "@/app/actions/appointments/getAppointments";
 import DashboardLayout from "@/app/(layouts)/dashboard";
 import { AppointmentModal } from "@/components/library/appointments/appointment-modal";
-import { extendArrayOfUsers, SuperUser } from "@/prisma/user-extension";
+import { SuperUser } from "@/prisma/user-extension";
 import AppointmentManager from "@/components/library/appointments/appointment-manager";
+import SubscriptionsManager from "@/components/library/subscriptions/subscriptions-manager";
+import { getSubscriptions } from "@/app/actions/subscriptions/getSubscriptions";
 
 type DashboardPropsTypes = {
   serverStats: DashboardStats;
   serverUsers: SuperUser[];
   serverAppointments: Appointment[];
+  // serverSubscriptions: Subscription[];
 };
 
 function Dashboard(props: DashboardPropsTypes) {
   const [stats, setStats] = useState<DashboardStats>();
   const [users, setUsers] = useState<SuperUser[]>();
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>();
   const [appointments, setAppointments] = useState<Appointment[]>();
   const [modalOpen, setModalOpen] = useState(false);
   const [appointmentData, setAppointmentData] = useState<Appointment>();
@@ -40,16 +44,19 @@ function Dashboard(props: DashboardPropsTypes) {
     serverStats && setStats(serverStats);
     serverAppointments && setAppointments(serverAppointments);
     serverUsers && setUsers(serverUsers);
+    // subscriptions && setSubscriptions(subscriptions);
   }, []);
 
   const getDashboardInfo = async () => {
     const stats = await getStats();
     const users = await getUsers();
     const appointments = await getAppointments();
+    // const subscriptions = await getSubscriptions();
 
     stats && setStats(stats);
     appointments && setAppointments(appointments);
     users && setUsers(users);
+    // subscriptions && setSubscriptions(subscriptions);
   };
 
   const dashboardReady = useMemo(() => {
