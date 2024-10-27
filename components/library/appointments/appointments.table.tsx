@@ -235,7 +235,7 @@ export function AppointmentsTable({ ...props }) {
 
   const handleEditAppointmentStatusOrPaid = async (
     appointmentId: string,
-    status?: string,
+    status?: AppointmentStatus,
     paid?: boolean
   ) => {
     const updatedAppointment = await editAppointmentStatusOrPaid(
@@ -366,8 +366,8 @@ export function AppointmentsTable({ ...props }) {
                               const newStatus =
                                 row.original.status ===
                                 AppointmentStatus.Confermato
-                                  ? "Annullato"
-                                  : "Confermato";
+                                  ? AppointmentStatus.Annullato
+                                  : AppointmentStatus.Confermato;
                               handleEditAppointmentStatusOrPaid(
                                 row.original.id,
                                 newStatus,

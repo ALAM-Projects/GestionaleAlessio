@@ -45,22 +45,25 @@ async function upsertAppointment(
     const hasLeftAppointments =
       subscription.appointmentsIncluded - subscription.doneAppointments > 0;
     if (hasLeftAppointments) {
-      // aggiorna l'abbonamento decrementando il numero di appuntamenti rimanenti
-      const updated = await prisma.subscription.update({
+      // aggiorna l'abbonamento incrementando il numero di appuntamenti fatti
+      const updatedSub = await prisma.subscription.update({
         where: { id: subscription.id },
         data: {
-          doneAppointments: subscription.doneAppointments + 1,
+          doneAppointments: {
+            increment: 1,
+          },
           completed:
             subscription.doneAppointments + 1 ===
             subscription.appointmentsIncluded,
         },
       });
-      if (!updated) {
+      if (!updatedSub) {
         throw new Error("Errore nell'aggiornamento dell'abbonamento");
       }
 
       newAppointmentIsPaid = true;
       paidBySubscription = true;
+      price = updatedSub.totalPrice / updatedSub.appointmentsIncluded;
     }
   }
 

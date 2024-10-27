@@ -28,6 +28,7 @@ export const AppointmentModal = ({ ...props }) => {
     modalOpen,
     setModalOpen,
     reloadPageData,
+    hasAvailableSubscriptionTrainings,
   } = props;
 
   const [error, setError] = useState("");
@@ -67,8 +68,8 @@ export const AppointmentModal = ({ ...props }) => {
     if (
       !appointmentData?.date ||
       !appointmentData?.time ||
-      !appointmentData?.price ||
-      !appointmentData?.location
+      !appointmentData?.location ||
+      (!hasAvailableSubscriptionTrainings && !appointmentData?.price)
     )
       return true;
     return false;
@@ -149,22 +150,30 @@ export const AppointmentModal = ({ ...props }) => {
             </SelectContent>
           </Select>
         </div>
-        <div className="gap-1.5">
-          <Label className="text-neutral-400 font-bold text-md" htmlFor="email">
-            Guadagno
-          </Label>
-          <Input
-            type="number"
-            id="price"
-            name="price"
-            className="text-primary text-md"
-            placeholder="eg. 20€"
-            value={appointmentData?.price || ""}
-            onChange={(e) =>
-              setAppointmentData({ ...appointmentData, price: e.target.value })
-            }
-          />
-        </div>
+        {!hasAvailableSubscriptionTrainings && (
+          <div className="gap-1.5">
+            <Label
+              className="text-neutral-400 font-bold text-md"
+              htmlFor="email"
+            >
+              Guadagno
+            </Label>
+            <Input
+              type="number"
+              id="price"
+              name="price"
+              className="text-primary text-md"
+              placeholder="eg. 20€"
+              value={appointmentData?.price || ""}
+              onChange={(e) =>
+                setAppointmentData({
+                  ...appointmentData,
+                  price: e.target.value,
+                })
+              }
+            />
+          </div>
+        )}
         {/* <div className="items-top flex space-x-2">
           <Checkbox
             id="coupleTraining"

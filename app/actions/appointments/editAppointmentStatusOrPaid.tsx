@@ -13,7 +13,7 @@ interface EditAppointmentStatusOrPaid {
 
 async function editAppointmentStatusOrPaid(
   appointmentId: string,
-  status?: string,
+  status?: AppointmentStatus,
   paid?: boolean
 ): Promise<EditAppointmentStatusOrPaid> {
   try {
@@ -39,38 +39,60 @@ async function editAppointmentStatusOrPaid(
     if (appointment) {
       user = extendUser(appointment.user);
 
-      // SE L'UTENTE HA UN ABBONAMENTO ATTIVO E STO ANNULLANDO L'ABBONAMENTO GLI RENDO INDIETRO UN ALLENAMENTO
-      // console.log("SUBSCRIPT", user?.hasActiveSubscription);
-
-      if (
-        user?.hasActiveSubscription &&
-        status === AppointmentStatus.Annullato
-      ) {
-        // trovo l'abbonamento attivo
+      // SE L'UTENTE HA UN ABBONAMENTO ATTIVO
+      if (user.hasActiveSubscription) {
         activeSubscription = user.subscriptions.find(
-          (sub) => sub.completed === false
+          (sub) => sub.completed === false || sub.totalPaid < sub.totalPrice
         );
         if (activeSubscription) {
-          updatedSubscription = await prisma.subscription.update({
-            where: {
-              id: activeSubscription.id,
-            },
-            data: {
-              doneAppointments: {
-                decrement: 1,
+          // SE STO ANNULLANDO L'APPUNTAMENTO E L'APPUNTAMENTO ERA STATO PAGATO CON L'ABBONAMENTO
+          if (
+            status === AppointmentStatus.Annullato &&
+            activeSubscription.doneAppointments > 0 &&
+            appointment.paidBySubscription
+          ) {
+            updatedSubscription = await prisma.subscription.update({
+              where: {
+                id: activeSubscription.id,
               },
-              // se l'abbonamento era stato completato, lo riporto a false
-              completed: activeSubscription.completed
-                ? false
-                : activeSubscription.completed,
-            },
-          });
+              data: {
+                doneAppointments: {
+                  decrement: 1,
+                },
+                // se l'abbonamento era stato completato, lo riporto a false
+                completed: activeSubscription.completed
+                  ? false
+                  : activeSubscription.completed,
+              },
+            });
 
-          if (updatedSubscription) {
-            appointment.paidBySubscription = false;
+            if (updatedSubscription) {
+              appointment.paidBySubscription = false;
+            }
+          }
+          if (status === AppointmentStatus.Confermato) {
+            updatedSubscription = await prisma.subscription.update({
+              where: {
+                id: activeSubscription.id,
+              },
+              data: {
+                doneAppointments: {
+                  increment: 1,
+                },
+                // se l'abbonamento era stato completato, lo riporto a false
+                completed:
+                  activeSubscription.doneAppointments + 1 ===
+                  activeSubscription.appointmentsIncluded,
+              },
+            });
+            if (updatedSubscription) {
+              appointment.paidBySubscription = true;
+              paid = true;
+            }
           }
         }
       }
+
       const updatedAppointment = await prisma.appointment.update({
         where: {
           id: appointmentId,

@@ -37,8 +37,6 @@ export const SubscriptionModal = ({ ...props }) => {
     e.preventDefault();
     setIsLoading(true);
 
-    console.log("SUB ID", subscriptionData?.id);
-
     const created = await upsertSubscription(
       clientId,
       Number(subscriptionData?.totalPrice),
@@ -63,8 +61,6 @@ export const SubscriptionModal = ({ ...props }) => {
       return true;
     return false;
   }, [subscriptionData]);
-
-  console.log(subscriptionData);
 
   return (
     <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>

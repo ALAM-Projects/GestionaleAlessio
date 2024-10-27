@@ -83,8 +83,10 @@ const ClientPage = (props: ClientPagePropsTypes) => {
     confirmedAppointments?.length - paidappointmentsIncluded;
 
   const activeSubscription = user?.subscriptions?.find(
-    (sub) => sub.completed === false
+    (sub) => sub.completed === false || sub.totalPaid < sub.totalPrice
   );
+
+  console.log("activeSubscription", activeSubscription);
 
   return (
     <>
@@ -153,7 +155,7 @@ const ClientPage = (props: ClientPagePropsTypes) => {
               </Card>
             </div>
 
-            {user.hasActiveSubscription && (
+            {activeSubscription && (
               <Card className="px-3 md:px-4 py-5 mt-10 bg-green-600 text-white">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
@@ -225,6 +227,9 @@ const ClientPage = (props: ClientPagePropsTypes) => {
         reloadPageData={getClientPageInfo}
         appointmentData={appointmentData}
         setAppointmentData={setAppointmentData}
+        hasAvailableSubscriptionTrainings={
+          user?.hasAvailableSubscriptionTrainings
+        }
       />
       <SubscriptionModal
         clientId={clientId}

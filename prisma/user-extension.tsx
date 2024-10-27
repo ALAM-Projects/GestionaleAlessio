@@ -29,6 +29,7 @@ export type SuperUser = Prisma.UserGetPayload<{
 }> & {
   fullName: string;
   hasActiveSubscription: boolean;
+  hasAvailableSubscriptionTrainings: boolean;
 };
 
 /// Extend the user object with additional properties
@@ -39,6 +40,9 @@ export function extendUser(
     ...user,
     fullName: `${user.name} ${user.surname}`,
     hasActiveSubscription: !!user.subscriptions?.find(
+      (sub) => sub.completed === false || sub.totalPaid < sub.totalPrice
+    ),
+    hasAvailableSubscriptionTrainings: !!user.subscriptions?.find(
       (sub) => sub.completed === false
     ),
     appointments: user.appointments || [],
@@ -57,6 +61,9 @@ export function extendArrayOfUsers(
     ...user,
     fullName: `${user.name} ${user.surname}`,
     hasActiveSubscription: !!user.subscriptions?.find(
+      (sub) => sub.completed === false || sub.totalPaid < sub.totalPrice
+    ),
+    hasAvailableSubscriptionTrainings: !!user.subscriptions?.find(
       (sub) => sub.completed === false
     ),
     appointments: user.appointments || [],

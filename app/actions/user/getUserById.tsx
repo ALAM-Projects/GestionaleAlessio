@@ -16,7 +16,12 @@ async function getUserById(clientId: string): Promise<SuperUser | null> {
     },
   });
 
-  if (user) return extendUser(user);
+  if (user) {
+    user.appointments.sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+    return extendUser(user);
+  }
   return null;
 }
 
