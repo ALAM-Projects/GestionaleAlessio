@@ -36,6 +36,7 @@ import {
 import { clientsColumns } from "@/data/index";
 import { SuperUser } from "@/prisma/user-extension";
 import { AppointmentStatus } from "@/types/db_types";
+import { Badge } from "@/components/ui/badge";
 
 export const columns: ColumnDef<SuperUser>[] = [
   {
@@ -69,7 +70,7 @@ export const columns: ColumnDef<SuperUser>[] = [
   },
   {
     accessorKey: "appointments",
-    header: () => <div className="text-left">Pagati / Da pagare</div>,
+    header: () => <div className="text-left">Pagati</div>,
     cell: ({ row }) => {
       const totalPaid = (
         row.getValue("appointments") as { price: number; paid: boolean }[]
@@ -77,6 +78,47 @@ export const columns: ColumnDef<SuperUser>[] = [
         if (paid) return acc + price;
         return acc;
       }, 0);
+      // const totalUnpaid = (
+      //   row.getValue("appointments") as {
+      //     price: number;
+      //     paid: boolean;
+      //     status: string;
+      //   }[]
+      // )?.reduce((acc, { price, paid, status }) => {
+      //   if (!paid && status === AppointmentStatus.Confermato)
+      //     return acc + price;
+      //   return acc;
+      // }, 0);
+      const paidAmount = parseFloat(totalPaid?.toString());
+      // const unpaidAmount = parseFloat(totalUnpaid?.toString());
+
+      // Format the amount as a dollar amount
+      const formattedPaidAmount = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "EUR",
+      }).format(paidAmount);
+
+      // const formattedUnpaidAmount = new Intl.NumberFormat("en-US", {
+      //   style: "currency",
+      //   currency: "EUR",
+      // }).format(unpaidAmount);
+
+      return (
+        <Badge
+          variant={
+            formattedPaidAmount === "€0.00" ? "dangerOutline" : "successOutline"
+          }
+          className="text-left font-medium"
+        >
+          {formattedPaidAmount}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "appointments",
+    header: () => <div className="text-left">Da pagare</div>,
+    cell: ({ row }) => {
       const totalUnpaid = (
         row.getValue("appointments") as {
           price: number;
@@ -88,14 +130,10 @@ export const columns: ColumnDef<SuperUser>[] = [
           return acc + price;
         return acc;
       }, 0);
-      const paidAmount = parseFloat(totalPaid?.toString());
+
       const unpaidAmount = parseFloat(totalUnpaid?.toString());
 
       // Format the amount as a dollar amount
-      const formattedPaidAmount = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "EUR",
-      }).format(paidAmount);
 
       const formattedUnpaidAmount = new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -103,9 +141,16 @@ export const columns: ColumnDef<SuperUser>[] = [
       }).format(unpaidAmount);
 
       return (
-        <div className="text-left font-medium">
-          {formattedPaidAmount + " / " + formattedUnpaidAmount}
-        </div>
+        <Badge
+          variant={
+            formattedUnpaidAmount === "€0.00"
+              ? "successOutline"
+              : "dangerOutline"
+          }
+          className="text-left font-medium"
+        >
+          {formattedUnpaidAmount}
+        </Badge>
       );
     },
   },

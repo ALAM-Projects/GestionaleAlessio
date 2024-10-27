@@ -8,6 +8,9 @@ async function getStats(): Promise<DashboardStats> {
   const users = await prisma.user.findMany();
 
   const trainings = await prisma.appointment.findMany({
+    include: {
+      user: true,
+    },
     where: {
       status: "Confermato",
     },
