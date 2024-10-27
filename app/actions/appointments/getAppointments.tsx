@@ -10,7 +10,7 @@ async function getAppointments(): Promise<Appointment[]> {
       user: true,
     },
     orderBy: {
-      date: "asc",
+      date: "desc",
     },
   });
 
