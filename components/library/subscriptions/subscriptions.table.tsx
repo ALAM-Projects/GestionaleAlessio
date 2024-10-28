@@ -291,7 +291,7 @@ export function SubscriptionsTable({ ...props }) {
                           </TableCell>
                         );
                     })}
-                    <TableCell className="text-white">
+                    {/* <TableCell className="text-white">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className=" h-8 w-8 p-0">
@@ -362,7 +362,7 @@ export function SubscriptionsTable({ ...props }) {
                           ) : null}
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 </>
               ))
