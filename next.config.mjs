@@ -2,7 +2,7 @@
 const nextConfig = {
   headers: () => [
     {
-      source: "/dashboard/client/:path*",
+      source: "/:path*",
       headers: [
         {
           key: "Cache-Control",
