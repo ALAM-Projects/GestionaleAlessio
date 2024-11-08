@@ -87,8 +87,6 @@ const ClientPage = (props: ClientPagePropsTypes) => {
     (sub) => sub.completed === false || sub.totalPaid < sub.totalPrice
   );
 
-  console.log("activeSubscription", activeSubscription);
-
   return (
     <>
       <DashboardLayout linkText={"Torna alla dashboard"} link={"/dashboard"}>

@@ -78,9 +78,6 @@ async function upsertAppointment(
       }
     }
   }
-
-  console.log("PRICE", price);
-
   const created = await prisma.appointment.create({
     data: {
       date,

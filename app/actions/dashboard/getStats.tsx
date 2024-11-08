@@ -16,16 +16,23 @@ async function getStats(): Promise<DashboardStats> {
     },
   });
 
+  const subscriptions = await prisma.subscription.findMany();
+
   const earnings = await trainings.reduce((acc, training) => {
-    if (training.paid) return acc + training.price;
+    if (training.paid && !training.paidBySubscription)
+      return acc + training.price;
     return acc;
+  }, 0);
+
+  const subscriptionsEarning = subscriptions.reduce((acc, sub) => {
+    return acc + sub.totalPaid;
   }, 0);
 
   if (users) {
     return {
       usersCount: users.length,
       trainingCount: trainings.length,
-      earnings: earnings + "€",
+      earnings: earnings + subscriptionsEarning + "€",
       workedHours: trainings.length.toString() + "h",
     };
   }

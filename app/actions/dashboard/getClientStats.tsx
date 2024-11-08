@@ -12,20 +12,29 @@ async function getClientStats(clientId: string): Promise<DashboardStats> {
     },
     include: {
       appointments: true,
+      subscriptions: true,
     },
   });
 
   if (user) {
-    const earnings = await user.appointments.reduce((acc, training) => {
-      if (training.paid && training.status === AppointmentStatus.Confermato)
+    const earnings = user.appointments.reduce((acc, training) => {
+      if (
+        training.paid &&
+        training.status === AppointmentStatus.Confermato &&
+        !training.paidBySubscription
+      )
         return acc + training.price;
       return acc;
+    }, 0);
+
+    const subscriptionsEarning = user.subscriptions.reduce((acc, sub) => {
+      return acc + sub.totalPaid;
     }, 0);
     return {
       trainingCount: user.appointments.filter(
         (app) => app.status === AppointmentStatus.Confermato
       ).length,
-      earnings: earnings + "€",
+      earnings: earnings + subscriptionsEarning + "€",
     };
   }
   return {
