@@ -22,6 +22,7 @@ async function editAppointmentStatusOrPaid(
     let activeSubscription;
     let appointment;
     let updatedSubscription;
+
     // TROVO L'APPUNTAMENTO E LO AGGIORNO
     appointment = await prisma.appointment.findUnique({
       where: {
@@ -52,15 +53,11 @@ async function editAppointmentStatusOrPaid(
             activeSubscription.doneAppointments > 0 &&
             appointment.paidBySubscription
           ) {
-            const completed = activeSubscription.completed
-              ? false
-              : activeSubscription.completed;
-
             updatedSubscription = await upsertSubscription(
               activeSubscription.totalPrice,
               activeSubscription.totalPaid,
               activeSubscription.appointmentsIncluded,
-              completed,
+              activeSubscription.completed,
               user.id,
               activeSubscription.doneAppointments - 1,
               activeSubscription.id
@@ -87,9 +84,34 @@ async function editAppointmentStatusOrPaid(
 
             if (updatedSubscription) {
               appointment.paidBySubscription = true;
+              appointment.price = Number(
+                activeSubscription.totalPrice /
+                  activeSubscription.appointmentsIncluded
+              );
               paid = true;
             }
           }
+        }
+        // se sto annullanbdo l'ultimo appuntamewnto incluso nella sub con sub già completata
+      }
+      if (appointment.paidBySubscription && !activeSubscription) {
+        // prendo l'ultima sub completata
+        const lastCompletedSubscription =
+          user.subscriptions[user.subscriptions.length - 1];
+
+        // tolgo l'ultimo appuntamento fatto e la riattivo
+        updatedSubscription = await upsertSubscription(
+          lastCompletedSubscription.totalPrice,
+          lastCompletedSubscription.totalPaid,
+          lastCompletedSubscription.appointmentsIncluded,
+          false,
+          user.id,
+          lastCompletedSubscription.doneAppointments - 1,
+          lastCompletedSubscription.id
+        );
+
+        if (updatedSubscription) {
+          appointment.paidBySubscription = false;
         }
       }
 
@@ -100,6 +122,7 @@ async function editAppointmentStatusOrPaid(
         data: {
           status,
           paid,
+          price: appointment.price,
           paidBySubscription: appointment.paidBySubscription,
         },
         include: {

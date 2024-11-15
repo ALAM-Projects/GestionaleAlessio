@@ -70,7 +70,7 @@ const ClientPage = (props: ClientPagePropsTypes) => {
     );
   }, [user?.appointments]);
 
-  const paidappointmentsIncluded = useMemo(() => {
+  const paidAppointmentsIncluded = useMemo(() => {
     return (
       confirmedAppointments?.filter(
         (appointment: Appointment) => appointment.paid
@@ -78,10 +78,10 @@ const ClientPage = (props: ClientPagePropsTypes) => {
     );
   }, [user?.appointments]);
 
-  const allPaid = paidappointmentsIncluded === confirmedAppointments?.length;
+  const allPaid = paidAppointmentsIncluded === confirmedAppointments?.length;
   const appointmentsToPay =
     confirmedAppointments &&
-    confirmedAppointments?.length - paidappointmentsIncluded;
+    confirmedAppointments?.length - paidAppointmentsIncluded;
 
   const activeSubscription = user?.subscriptions?.find(
     (sub) => sub.completed === false || sub.totalPaid < sub.totalPrice

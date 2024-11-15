@@ -10,7 +10,7 @@ async function getSubscriptions(): Promise<Subscription[]> {
       user: true,
     },
     orderBy: {
-      createdAt: "asc",
+      createdAt: "desc",
     },
   });
 

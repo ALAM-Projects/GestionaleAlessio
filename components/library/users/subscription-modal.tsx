@@ -58,7 +58,8 @@ export const SubscriptionModal = ({ ...props }) => {
     if (
       !subscriptionData?.totalPrice ||
       !subscriptionData?.totalPaid ||
-      !subscriptionData?.appointmentsIncluded
+      !subscriptionData?.appointmentsIncluded ||
+      subscriptionData?.totalPrice < subscriptionData?.totalPaid
     )
       return true;
     return false;
