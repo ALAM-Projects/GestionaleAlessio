@@ -1,6 +1,6 @@
-"use server";
+import { PrismaClient } from "@prisma/client";
 
-import prisma from "@/lib/prisma";
+const prisma = new PrismaClient();
 
 async function upsertSubscription(
   totalPrice: number,
@@ -9,7 +9,7 @@ async function upsertSubscription(
   completed: boolean,
   clientId: string,
   doneAppointments?: number,
-  subscriptionId?: string
+  subscriptionId?: string,
 ): Promise<boolean> {
   if (subscriptionId) {
     const updated = await prisma.subscription.update({

@@ -1,6 +1,6 @@
-"use server";
+import { PrismaClient } from "@prisma/client";
 
-import prisma from "@/lib/prisma";
+const prisma = new PrismaClient();
 
 async function getStats(): Promise<DashboardStats> {
   const users = await prisma.user.findMany();

@@ -11,7 +11,7 @@ import {
 import { Label } from "../../ui/label";
 import { Input } from "../../ui/input";
 import SuperButton from "../common/super-button";
-import { upsertSubscription } from "@/app/actions/subscriptions/upsertSubscription";
+import { upsertSubscription } from "@/app/api/subscriptions/upsertSubscription";
 
 export const SubscriptionModal = ({ ...props }) => {
   const {
@@ -32,7 +32,7 @@ export const SubscriptionModal = ({ ...props }) => {
   };
 
   const handleUpsertSubscription = async (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     e.preventDefault();
     setIsLoading(true);
@@ -44,7 +44,7 @@ export const SubscriptionModal = ({ ...props }) => {
       subscriptionData?.completed,
       clientId,
       Number(subscriptionData?.doneAppointments),
-      subscriptionData?.id
+      subscriptionData?.id,
     );
 
     if (created) {

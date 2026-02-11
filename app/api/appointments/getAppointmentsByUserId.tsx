@@ -1,10 +1,9 @@
-"use server";
+import { Appointment, PrismaClient } from "@prisma/client";
 
-import { Appointment } from "@prisma/client";
-import prisma from "@/lib/prisma";
+const prisma = new PrismaClient();
 
 async function getAppointmentsByUserId(
-  clientId: string
+  clientId: string,
 ): Promise<Appointment[] | null> {
   const appointments = await prisma.appointment.findMany({
     where: {

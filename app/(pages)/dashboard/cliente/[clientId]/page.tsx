@@ -1,11 +1,11 @@
 "use server";
 
-import { getClientStats } from "@/app/actions/dashboard/getClientStats";
-import { getUserById } from "@/app/actions/user/getUserById";
+import { getClientStats } from "@/app/api/dashboard/getClientStats";
+import { getUserById } from "@/app/api/user/getUserById";
 import { SuperUser } from "@/prisma/user-extension";
 
 import ClientPage from ".";
-import { getUsersList, GroupUser } from "@/app/actions/user/getUsersList";
+import { getUsersList, GroupUser } from "@/app/api/user/getUsersList";
 
 const Page = async ({ params }: SearchParamProps) => {
   const clientId = params.clientId;

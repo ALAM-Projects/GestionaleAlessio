@@ -34,9 +34,9 @@ import {
 } from "@/components/ui/table";
 import { Appointment, User } from "@prisma/client";
 
-import { deleteAppointment } from "@/app/actions/appointments/deleteAppointment";
+import { deleteAppointment } from "@/app/api/appointments/deleteAppointment";
 import { Badge } from "@/components/ui/badge";
-import { editAppointmentStatusOrPaid } from "@/app/actions/appointments/editAppointmentStatusOrPaid";
+import { editAppointmentStatusOrPaid } from "@/app/api/appointments/editAppointmentStatusOrPaid";
 import { AppointmentStatus } from "@/types/db_types";
 
 export const columns: ColumnDef<Appointment>[] = [
@@ -236,12 +236,12 @@ export function AppointmentsTable({ ...props }) {
   const handleEditAppointmentStatusOrPaid = async (
     appointmentId: string,
     status?: AppointmentStatus,
-    paid?: boolean
+    paid?: boolean,
   ) => {
     const updatedAppointment = await editAppointmentStatusOrPaid(
       appointmentId,
       status,
-      paid
+      paid,
     );
 
     if (updatedAppointment) {
@@ -313,7 +313,7 @@ export function AppointmentsTable({ ...props }) {
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </TableHead>
                     );
@@ -337,7 +337,7 @@ export function AppointmentsTable({ ...props }) {
                           <TableCell key={cell.id}>
                             {flexRender(
                               cell.column.columnDef.cell,
-                              cell.getContext()
+                              cell.getContext(),
                             )}
                           </TableCell>
                         );
@@ -371,7 +371,7 @@ export function AppointmentsTable({ ...props }) {
                               handleEditAppointmentStatusOrPaid(
                                 row.original.id,
                                 newStatus,
-                                false
+                                false,
                               );
                             }}
                           >
@@ -387,7 +387,7 @@ export function AppointmentsTable({ ...props }) {
                                 handleEditAppointmentStatusOrPaid(
                                   row.original.id,
                                   undefined,
-                                  !row.original.paid
+                                  !row.original.paid,
                                 )
                               }
                             >

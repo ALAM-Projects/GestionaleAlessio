@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createUser } from "@/app/actions/user/createUser";
+import { createUser } from "@/app/api/user/createUser";
 import OnboardingLayout from "@/app/(layouts)/onboarding";
 import Link from "next/link";
 import { AdminModal } from "@/components/library/common/admin-modal";

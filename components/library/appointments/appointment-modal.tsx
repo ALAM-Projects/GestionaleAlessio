@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "../../ui/label";
 import { Input } from "../../ui/input";
-import { upsertAppointment } from "@/app/actions/appointments/upsertAppointment";
+import { upsertAppointment } from "@/app/api/appointments/upsertAppointment";
 import {
   Select,
   SelectContent,
@@ -26,7 +26,7 @@ import {
   ComboboxOption,
   ComboboxOptions,
 } from "@headlessui/react";
-import { GroupUser } from "@/app/actions/user/getUsersList";
+import { GroupUser } from "@/app/api/user/getUsersList";
 
 export const AppointmentModal = ({ ...props }) => {
   const {
@@ -52,7 +52,7 @@ export const AppointmentModal = ({ ...props }) => {
   };
 
   const handleUpsertAppointment = async (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     e.preventDefault();
     setIsLoading(true);
@@ -63,7 +63,7 @@ export const AppointmentModal = ({ ...props }) => {
       appointmentData?.time,
       Number(appointmentData?.price),
       appointmentData?.location,
-      appointmentData?.id || null
+      appointmentData?.id || null,
     );
 
     if (created) {

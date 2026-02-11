@@ -1,5 +1,3 @@
-"use server";
-
 import { extendArrayOfUsers, SuperUser } from "@/prisma/user-extension";
 import prisma from "@/lib/prisma";
 

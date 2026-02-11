@@ -1,5 +1,3 @@
-"use server";
-
 import { extendUser } from "@/prisma/user-extension";
 import { upsertSubscription } from "../subscriptions/upsertSubscription";
 import prisma from "@/lib/prisma";
@@ -10,7 +8,7 @@ async function upsertAppointment(
   time: string,
   price: number,
   location: string,
-  appointmentId?: string
+  appointmentId?: string,
 ): Promise<boolean> {
   // recupera l'utente
 
@@ -41,7 +39,7 @@ async function upsertAppointment(
 
   if (superUser?.hasActiveSubscription) {
     const activeSubscription = superUser.subscriptions.find(
-      (sub) => !sub.completed || sub.totalPaid < sub.totalPrice
+      (sub) => !sub.completed || sub.totalPaid < sub.totalPrice,
     );
     if (activeSubscription) {
       const hasLeftAppointments =
@@ -60,7 +58,7 @@ async function upsertAppointment(
           completed,
           clientId,
           activeSubscription.doneAppointments + 1,
-          activeSubscription.id
+          activeSubscription.id,
         );
 
         if (!updatedSub) {
@@ -71,7 +69,7 @@ async function upsertAppointment(
         paidBySubscription = true;
         price = Number(
           activeSubscription.totalPrice /
-            activeSubscription.appointmentsIncluded
+            activeSubscription.appointmentsIncluded,
         );
       }
     }

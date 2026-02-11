@@ -1,13 +1,13 @@
 "use client";
 
 import DashboardLayout from "@/app/(layouts)/dashboard";
-import { getUserById } from "@/app/actions/user/getUserById";
+import { getUserById } from "@/app/api/user/getUserById";
 import Spinner from "@/components/ui/spinner";
 import { SuperUser } from "@/prisma/user-extension";
 import { useEffect, useMemo, useState } from "react";
 import { AppointmentModal } from "@/components/library/appointments/appointment-modal";
 
-import { getClientStats } from "@/app/actions/dashboard/getClientStats";
+import { getClientStats } from "@/app/api/dashboard/getClientStats";
 import { clientCardStats } from "@/data";
 import {
   Card,
@@ -31,7 +31,7 @@ import { Edit } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { AppointmentStatus } from "@/types/db_types";
 import SubscriptionsManager from "@/components/library/subscriptions/subscriptions-manager";
-import { getUsersList, GroupUser } from "@/app/actions/user/getUsersList";
+import { getUsersList, GroupUser } from "@/app/api/user/getUsersList";
 
 type ClientPagePropsTypes = {
   serverStats: DashboardStats;
@@ -70,14 +70,14 @@ const ClientPage = (props: ClientPagePropsTypes) => {
   const confirmedAppointments = useMemo(() => {
     return user?.appointments?.filter(
       (appointment: Appointment) =>
-        appointment.status === AppointmentStatus.Confermato
+        appointment.status === AppointmentStatus.Confermato,
     );
   }, [user?.appointments]);
 
   const paidAppointmentsIncluded = useMemo(() => {
     return (
       confirmedAppointments?.filter(
-        (appointment: Appointment) => appointment.paid
+        (appointment: Appointment) => appointment.paid,
       ).length || 0
     );
   }, [user?.appointments]);
@@ -88,7 +88,7 @@ const ClientPage = (props: ClientPagePropsTypes) => {
     confirmedAppointments?.length - paidAppointmentsIncluded;
 
   const activeSubscription = user?.subscriptions?.find(
-    (sub) => sub.completed === false || sub.totalPaid < sub.totalPrice
+    (sub) => sub.completed === false || sub.totalPaid < sub.totalPrice,
   );
 
   return (

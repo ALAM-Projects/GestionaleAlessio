@@ -1,5 +1,3 @@
-"use server";
-
 import { AppointmentStatus } from "@/types/db_types";
 import prisma from "@/lib/prisma";
 
@@ -30,7 +28,7 @@ async function getClientStats(clientId: string): Promise<DashboardStats> {
     }, 0);
     return {
       trainingCount: user.appointments.filter(
-        (app) => app.status === AppointmentStatus.Confermato
+        (app) => app.status === AppointmentStatus.Confermato,
       ).length,
       earnings: earnings + subscriptionsEarning + "€",
     };

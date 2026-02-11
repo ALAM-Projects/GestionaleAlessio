@@ -1,6 +1,6 @@
-"use server";
+import { PrismaClient } from "@prisma/client";
 
-import prisma from "@/lib/prisma";
+const prisma = new PrismaClient();
 
 async function deleteAppointment(appointmentId: string): Promise<boolean> {
   const deleted = await prisma.appointment.delete({

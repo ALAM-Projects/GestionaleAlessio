@@ -1,5 +1,3 @@
-"use server";
-
 import { extendUser } from "@/prisma/user-extension";
 import { AppointmentStatus } from "@/types/db_types";
 import { upsertSubscription } from "../subscriptions/upsertSubscription";
@@ -13,7 +11,7 @@ interface EditAppointmentStatusOrPaid {
 async function editAppointmentStatusOrPaid(
   appointmentId: string,
   status?: AppointmentStatus,
-  paid?: boolean
+  paid?: boolean,
 ): Promise<EditAppointmentStatusOrPaid> {
   try {
     let user;
@@ -42,7 +40,7 @@ async function editAppointmentStatusOrPaid(
       // SE L'UTENTE HA UN ABBONAMENTO ATTIVO
       if (user.hasActiveSubscription) {
         activeSubscription = user.subscriptions.find(
-          (sub) => sub.completed === false || sub.totalPaid < sub.totalPrice
+          (sub) => sub.completed === false || sub.totalPaid < sub.totalPrice,
         );
         if (activeSubscription) {
           // SE STO ANNULLANDO L'APPUNTAMENTO E L'APPUNTAMENTO ERA STATO PAGATO CON L'ABBONAMENTO
@@ -58,7 +56,7 @@ async function editAppointmentStatusOrPaid(
               activeSubscription.completed,
               user.id,
               activeSubscription.doneAppointments - 1,
-              activeSubscription.id
+              activeSubscription.id,
             );
 
             if (updatedSubscription) {
@@ -77,14 +75,14 @@ async function editAppointmentStatusOrPaid(
               completed,
               user.id,
               activeSubscription.doneAppointments + 1,
-              activeSubscription.id
+              activeSubscription.id,
             );
 
             if (updatedSubscription) {
               appointment.paidBySubscription = true;
               appointment.price = Number(
                 activeSubscription.totalPrice /
-                  activeSubscription.appointmentsIncluded
+                  activeSubscription.appointmentsIncluded,
               );
               paid = true;
             }
@@ -105,7 +103,7 @@ async function editAppointmentStatusOrPaid(
           false,
           user.id,
           lastCompletedSubscription.doneAppointments - 1,
-          lastCompletedSubscription.id
+          lastCompletedSubscription.id,
         );
 
         if (updatedSubscription) {

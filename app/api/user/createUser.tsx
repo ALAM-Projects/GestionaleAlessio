@@ -1,7 +1,6 @@
-"use server";
+import { PrismaClient, Prisma, User } from "@prisma/client";
 
-import { Prisma, User } from "@prisma/client";
-import prisma from "@/lib/prisma";
+const prisma = new PrismaClient();
 
 async function createUser(clientData: ClientDataProps): Promise<User | any> {
   try {

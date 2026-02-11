@@ -1,7 +1,7 @@
 "use client";
 
 import { withAuth } from "@/app/(hocs)/with-auth";
-import { getStats } from "@/app/actions/dashboard/getStats";
+import { getStats } from "@/app/api/dashboard/getStats";
 import { UsersTable } from "@/components/library/users/users.table";
 import {
   Card,
@@ -14,14 +14,14 @@ import { useEffect, useMemo, useState } from "react";
 import Spinner from "@/components/ui/spinner";
 import { dashboardCardStats } from "@/data/index";
 import { Appointment, Subscription } from "@prisma/client";
-import { getUsers } from "@/app/actions/user/getUsers";
-import { getAppointments } from "@/app/actions/appointments/getAppointments";
+import { getUsers } from "@/app/api/user/getUsers";
+import { getAppointments } from "@/app/api/appointments/getAppointments";
 import DashboardLayout from "@/app/(layouts)/dashboard";
 import { AppointmentModal } from "@/components/library/appointments/appointment-modal";
 import { SuperUser } from "@/prisma/user-extension";
 import AppointmentManager from "@/components/library/appointments/appointment-manager";
 import SubscriptionsManager from "@/components/library/subscriptions/subscriptions-manager";
-import { getSubscriptions } from "@/app/actions/subscriptions/getSubscriptions";
+import { getSubscriptions } from "@/app/api/subscriptions/getSubscriptions";
 
 type DashboardPropsTypes = {
   serverStats: DashboardStats;

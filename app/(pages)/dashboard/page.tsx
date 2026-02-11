@@ -1,10 +1,10 @@
 "use server";
 
 import Dashboard from ".";
-import { getStats } from "@/app/actions/dashboard/getStats";
-import { getUsers } from "@/app/actions/user/getUsers";
-import { getAppointments } from "@/app/actions/appointments/getAppointments";
-import { getSubscriptions } from "@/app/actions/subscriptions/getSubscriptions";
+import { getStats } from "@/app/api/dashboard/getStats";
+import { getUsers } from "@/app/api/user/getUsers";
+import { getAppointments } from "@/app/api/appointments/getAppointments";
+import { getSubscriptions } from "@/app/api/subscriptions/getSubscriptions";
 
 const Page = async () => {
   const serverStats = await getStats();

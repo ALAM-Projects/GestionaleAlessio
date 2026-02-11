@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { updateUser } from "@/app/actions/user/updateUser";
+import { updateUser } from "@/app/api/user/updateUser";
 import OnboardingLayout from "@/app/(layouts)/onboarding";
 import { Textarea } from "@/components/ui/textarea";
 import QuestionnaireLayout from "@/app/(layouts)/questionnaire";
