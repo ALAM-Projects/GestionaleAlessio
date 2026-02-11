@@ -1,18 +1,16 @@
-import { PrismaClient, Subscription } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { Subscription } from "@prisma/client";
 
 async function getSubscriptions(): Promise<Subscription[]> {
-  const subscriptions = await prisma.subscription.findMany({
-    include: {
-      user: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
+  const res = await fetch("/api/subscriptions/getSubscriptions", {
+    method: "GET",
+    cache: "no-store",
   });
 
-  return subscriptions;
+  if (!res.ok) {
+    throw new Error("Failed to fetch subscriptions");
+  }
+
+  return res.json();
 }
 
 export { getSubscriptions };

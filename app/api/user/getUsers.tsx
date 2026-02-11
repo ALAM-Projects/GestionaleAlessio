@@ -1,16 +1,16 @@
-import { extendArrayOfUsers, SuperUser } from "@/prisma/user-extension";
-import prisma from "@/lib/prisma";
+import type { SuperUser } from "@/prisma/user-extension";
 
 async function getUsers(): Promise<SuperUser[]> {
-  const initialUsers = await prisma.user.findMany({
-    include: {
-      appointments: true,
-    },
+  const res = await fetch("/api/user/getUsers", {
+    method: "GET",
+    cache: "no-store",
   });
 
-  const users = extendArrayOfUsers(initialUsers);
+  if (!res.ok) {
+    throw new Error("Failed to fetch users");
+  }
 
-  return users;
+  return res.json();
 }
 
 export { getUsers };

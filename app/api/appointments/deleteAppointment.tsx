@@ -1,17 +1,18 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
 async function deleteAppointment(appointmentId: string): Promise<boolean> {
-  const deleted = await prisma.appointment.delete({
-    where: {
-      id: appointmentId,
+  const res = await fetch("/api/appointments/deleteAppointment", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
     },
+    body: JSON.stringify({ appointmentId }),
   });
 
-  console.log("DELETED", deleted);
+  if (!res.ok) {
+    return false;
+  }
 
-  return true;
+  const data = await res.json();
+  return !!data?.success;
 }
 
 export { deleteAppointment };

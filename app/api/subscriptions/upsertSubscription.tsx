@@ -1,7 +1,3 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
 async function upsertSubscription(
   totalPrice: number,
   totalPaid: number,
@@ -11,35 +7,28 @@ async function upsertSubscription(
   doneAppointments?: number,
   subscriptionId?: string,
 ): Promise<boolean> {
-  if (subscriptionId) {
-    const updated = await prisma.subscription.update({
-      where: { id: subscriptionId },
-      data: {
-        totalPrice,
-        totalPaid,
-        appointmentsIncluded,
-        doneAppointments,
-        completed,
-      },
-    });
+  const res = await fetch("/api/subscriptions/upsertSubscription", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      totalPrice,
+      totalPaid,
+      appointmentsIncluded,
+      completed,
+      clientId,
+      doneAppointments,
+      subscriptionId,
+    }),
+  });
 
-    return !!updated;
+  if (!res.ok) {
+    return false;
   }
-  if (!subscriptionId && clientId) {
-    const created = await prisma.subscription.create({
-      data: {
-        totalPrice,
-        totalPaid,
-        appointmentsIncluded,
-        completed: false,
-        doneAppointments: 0,
-        userId: clientId,
-      },
-    });
 
-    return !!created;
-  }
-  return false;
+  const data = await res.json();
+  return !!data?.success;
 }
 
 export { upsertSubscription };
