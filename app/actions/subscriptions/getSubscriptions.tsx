@@ -1,8 +1,7 @@
 "use server";
 
-import { PrismaClient, Subscription } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { Subscription } from "@prisma/client";
+import prisma from "@/lib/prisma";
 
 async function getSubscriptions(): Promise<Subscription[]> {
   const subscriptions = await prisma.subscription.findMany({

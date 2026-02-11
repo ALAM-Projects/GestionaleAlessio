@@ -1,10 +1,8 @@
 "use server";
 
 import { extendUser } from "@/prisma/user-extension";
-import { PrismaClient } from "@prisma/client";
 import { upsertSubscription } from "../subscriptions/upsertSubscription";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 async function upsertAppointment(
   clientId: string,

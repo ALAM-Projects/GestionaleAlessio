@@ -1,8 +1,7 @@
 "use server";
 
-import { PrismaClient, User } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { User } from "@prisma/client";
+import prisma from "@/lib/prisma";
 
 async function updateUser(
   clientData: ClientDataProps,

@@ -1,9 +1,7 @@
 "use server";
 
-import { PrismaClient, User } from "@prisma/client";
 import { extendUser, SuperUser } from "@/prisma/user-extension";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 async function getUserById(clientId: string): Promise<SuperUser | null> {
   let user;
