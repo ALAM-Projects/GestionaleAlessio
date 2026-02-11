@@ -31,15 +31,18 @@ import { Edit } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { AppointmentStatus } from "@/types/db_types";
 import SubscriptionsManager from "@/components/library/subscriptions/subscriptions-manager";
+import { getUsersList, GroupUser } from "@/app/actions/user/getUsersList";
 
 type ClientPagePropsTypes = {
   serverStats: DashboardStats;
   serverUser: SuperUser;
+  serverUsersList: GroupUser[];
   clientId: string;
 };
 
 const ClientPage = (props: ClientPagePropsTypes) => {
   const [user, setUser] = useState<SuperUser>();
+  const [usersList, setUsersList] = useState<GroupUser[]>();
   const [stats, setStats] = useState<DashboardStats>();
   const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
   const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false);
@@ -47,12 +50,13 @@ const ClientPage = (props: ClientPagePropsTypes) => {
   const [appointmentData, setAppointmentData] = useState<Appointment>();
   const [subscriptionData, setSubscriptionData] = useState<Subscription>();
 
-  const { serverStats, serverUser, clientId } = props;
+  const { serverStats, serverUser, serverUsersList, clientId } = props;
 
   useEffect(() => {
     // getClientPageInfo();
     serverStats && setStats(serverStats);
     serverUser && setUser(serverUser);
+    serverUsersList && setUsersList(serverUsersList);
   }, []);
 
   const getClientPageInfo = async () => {
@@ -236,6 +240,7 @@ const ClientPage = (props: ClientPagePropsTypes) => {
         reloadPageData={getClientPageInfo}
         appointmentData={appointmentData}
         setAppointmentData={setAppointmentData}
+        usersList={usersList}
         hasAvailableSubscriptionTrainings={
           user?.hasAvailableSubscriptionTrainings
         }

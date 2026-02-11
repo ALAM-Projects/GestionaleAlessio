@@ -19,6 +19,14 @@ import {
   SelectValue,
 } from "../../ui/select";
 import SuperButton from "../common/super-button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxOption,
+  ComboboxOptions,
+} from "@headlessui/react";
+import { GroupUser } from "@/app/actions/user/getUsersList";
 
 export const AppointmentModal = ({ ...props }) => {
   const {
@@ -29,13 +37,14 @@ export const AppointmentModal = ({ ...props }) => {
     setModalOpen,
     reloadPageData,
     hasAvailableSubscriptionTrainings,
+    usersList,
   } = props;
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  // const [coupleTraining, setCoupleTraining] = useState(false);
-  // const [openPopover, setOpenPopover] = useState(false);
-  // const [popoverValue, setPopoverValue] = useState<string>();
+  const [groupTraining, setGroupTraining] = useState(false);
+  const [selectedPersons, setSelectedPersons] = useState<string[]>([]);
+  const [query, setQuery] = useState<string>("");
 
   const closeModal = () => {
     setModalOpen(false);
@@ -74,6 +83,10 @@ export const AppointmentModal = ({ ...props }) => {
       return true;
     return false;
   }, [appointmentData]);
+
+  const handleGroupPeople = (user: GroupUser) => {
+    setSelectedPersons([...selectedPersons, user.id]);
+  };
 
   return (
     <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
@@ -151,100 +164,82 @@ export const AppointmentModal = ({ ...props }) => {
           </Select>
         </div>
         {!hasAvailableSubscriptionTrainings && (
-          <div className="gap-1.5">
-            <Label
-              className="text-neutral-400 font-bold text-md"
-              htmlFor="email"
-            >
-              Guadagno
-            </Label>
-            <Input
-              type="number"
-              id="price"
-              name="price"
-              className="text-primary text-md"
-              placeholder="eg. 20€"
-              value={appointmentData?.price || ""}
-              onChange={(e) =>
-                setAppointmentData({
-                  ...appointmentData,
-                  price: e.target.value,
-                })
-              }
-            />
-          </div>
-        )}
-        {/* <div className="items-top flex space-x-2">
-          <Checkbox
-            id="coupleTraining"
-            className="border-white border-2"
-            onClick={() => setCoupleTraining(!coupleTraining)}
-          />
-          <div className="grid gap-1.5 leading-none">
-            <label
-              htmlFor="coupleTraining"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white"
-            >
-              Allenamento di coppia
-            </label>
-            <p className="text-sm text-muted-foreground">
-              Seleziona se l'allenamento è di coppia
-            </p>
-          </div>
-        </div>
-        {coupleTraining && (
-          <div className="z-50">
-            <Popover open={openPopover} onOpenChange={setOpenPopover}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={openPopover}
-                  className="w-full justify-between"
+          <>
+            <div className="gap-1.5">
+              <Label
+                className="text-neutral-400 font-bold text-md"
+                htmlFor="email"
+              >
+                Guadagno
+              </Label>
+              <Input
+                type="number"
+                id="price"
+                name="price"
+                className="text-primary text-md"
+                placeholder="eg. 20€"
+                value={appointmentData?.price || ""}
+                onChange={(e) =>
+                  setAppointmentData({
+                    ...appointmentData,
+                    price: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="items-top flex space-x-2">
+              <Checkbox
+                id="coupleTraining"
+                className="border-white border-2"
+                onClick={() => setGroupTraining(!groupTraining)}
+              />
+              <div className="grid leading-none">
+                <label
+                  htmlFor="coupleTraining"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white"
                 >
-                  {popoverValue
-                    ? allUsers.find(
-                        (user: SuperUser) => user.id === popoverValue
-                      )?.fullName
-                    : "Select framework..."}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0 ">
-                <Command>
-                  <CommandInput placeholder="Cerca cliente..." />
-                  <CommandList>
-                    <CommandEmpty>Nessun cliente trovato.</CommandEmpty>
-                    <CommandGroup className="z-50">
-                      {allUsers.map((user: SuperUser) => (
-                        <CommandItem
-                          key={user.fullName}
-                          value={user.fullName}
-                          onSelect={(currentValue) => {
-                            setPopoverValue(
-                              currentValue === user.id ? "" : currentValue
-                            );
-                            setOpenPopover(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              popoverValue === user.id
-                                ? "opacity-100"
-                                : "opacity-0"
-                            )}
-                          />
-                          {user.fullName}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
-        )} */}
+                  Allenamento di gruppo
+                </label>
+                <p className="text-sm text-muted-foreground">
+                  Seleziona se l'allenamento è di gruppo
+                </p>
+              </div>
+            </div>
+          </>
+        )}
+        {groupTraining && (
+          <>
+            <Label className="text-white">Altri partecipanti:</Label>
+            <Combobox
+              value={selectedPersons}
+              onChange={(selected: string[]) => setSelectedPersons(selected)}
+              onClose={() => setQuery("")}
+              multiple={true}
+            >
+              <ComboboxInput
+                aria-label="Assignee"
+                displayValue={(selectedPersons: string[]) =>
+                  selectedPersons.length + " selezionati"
+                }
+                onChange={(event) => setQuery(event.target.value)}
+              />
+              <ComboboxOptions
+                anchor="bottom"
+                className="border empty:invisible"
+              >
+                {usersList?.map((user: GroupUser) => (
+                  <ComboboxOption
+                    key={user.id}
+                    value={user}
+                    className="data-[focus]:bg-blue-100"
+                  >
+                    {user.fullName}
+                  </ComboboxOption>
+                ))}
+              </ComboboxOptions>
+            </Combobox>
+          </>
+        )}
         <div className="mx-auto mb-5">
           {error && (
             <p className="shad-error text-14-regular mt-4 flex justify-center text-white">
