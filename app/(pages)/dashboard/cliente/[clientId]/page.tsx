@@ -1,5 +1,3 @@
-"use server";
-
 import { getClientStats } from "@/app/api/dashboard/getClientStats";
 import { getUserById } from "@/app/api/user/getUserById";
 import { SuperUser } from "@/prisma/user-extension";

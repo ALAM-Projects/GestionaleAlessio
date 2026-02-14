@@ -1,10 +1,8 @@
-"use server";
-
 import Dashboard from ".";
 import { getStats } from "@/app/api/dashboard/getStats";
 import { getUsers } from "@/app/api/user/getUsers";
 import { getAppointments } from "@/app/api/appointments/getAppointments";
-import { getSubscriptions } from "@/app/api/subscriptions/getSubscriptions";
+// import { getSubscriptions } from "@/app/api/subscriptions/getSubscriptions";
 
 export const dynamic = "force-dynamic";
 
