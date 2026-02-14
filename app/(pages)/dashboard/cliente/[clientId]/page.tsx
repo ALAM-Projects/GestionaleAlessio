@@ -1,25 +1,46 @@
+"use client";
+
 import { getClientStats } from "@/app/api/dashboard/getClientStats";
 import { getUserById } from "@/app/api/user/getUserById";
 import { SuperUser } from "@/prisma/user-extension";
-
 import ClientPage from ".";
 import { getUsersList, GroupUser } from "@/app/api/user/getUsersList";
+import { useEffect, useState } from "react";
 
-export const dynamic = "force-dynamic";
+const Page = ({ params }: { params: { clientId: string } }) => {
+  const { clientId } = params;
+  const [stats, setStats] = useState<DashboardStats>();
+  const [user, setUser] = useState<SuperUser>();
+  const [usersList, setUsersList] = useState<GroupUser[]>();
 
-const Page = async ({ params }: SearchParamProps) => {
-  const clientId = params.clientId;
+  const fetchStats = async () => {
+    const stats = await getClientStats(clientId);
+    setStats(stats);
+  };
+  const fetchUser = async () => {
+    const user = await getUserById(clientId);
+    user && setUser(user);
+  };
+  const fetchUsersList = async () => {
+    const usersList = await getUsersList();
+    setUsersList(usersList);
+  };
 
-  const serverStats = await getClientStats(clientId);
-  const serverUser = await getUserById(clientId);
-  const serverUsersList = await getUsersList();
+  useEffect(() => {
+    fetchStats();
+    fetchUser();
+    fetchUsersList();
+  }, [clientId]);
 
   return (
     <ClientPage
-      serverStats={serverStats}
-      serverUser={serverUser as SuperUser}
-      serverUsersList={serverUsersList}
+      stats={stats}
+      user={user as SuperUser}
+      usersList={usersList}
       clientId={clientId}
+      setStats={setStats}
+      setUser={setUser}
+      setUsersList={setUsersList}
     />
   );
 };

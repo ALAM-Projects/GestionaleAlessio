@@ -24,28 +24,23 @@ import SubscriptionsManager from "@/components/library/subscriptions/subscriptio
 import { getSubscriptions } from "@/app/api/subscriptions/getSubscriptions";
 
 type DashboardPropsTypes = {
-  serverStats: DashboardStats;
-  serverUsers: SuperUser[];
-  serverAppointments: Appointment[];
+  stats?: DashboardStats;
+  users?: SuperUser[];
+  appointments?: Appointment[];
+  setStats: (stats: DashboardStats) => void;
+  setUsers: (users: SuperUser[]) => void;
+  setAppointments: (appointments: Appointment[]) => void;
+  serverAppointments?: Appointment[];
   // serverSubscriptions: Subscription[];
 };
 
 function Dashboard(props: DashboardPropsTypes) {
-  const [stats, setStats] = useState<DashboardStats>();
-  const [users, setUsers] = useState<SuperUser[]>();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>();
-  const [appointments, setAppointments] = useState<Appointment[]>();
   const [modalOpen, setModalOpen] = useState(false);
   const [appointmentData, setAppointmentData] = useState<Appointment>();
 
-  const { serverStats, serverUsers, serverAppointments } = props;
-
-  useEffect(() => {
-    serverStats && setStats(serverStats);
-    serverAppointments && setAppointments(serverAppointments);
-    serverUsers && setUsers(serverUsers);
-    // subscriptions && setSubscriptions(subscriptions);
-  }, []);
+  const { stats, users, appointments, setStats, setUsers, setAppointments } =
+    props;
 
   const getDashboardInfo = async () => {
     const stats = await getStats();

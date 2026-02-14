@@ -34,30 +34,24 @@ import SubscriptionsManager from "@/components/library/subscriptions/subscriptio
 import { getUsersList, GroupUser } from "@/app/api/user/getUsersList";
 
 type ClientPagePropsTypes = {
-  serverStats: DashboardStats;
-  serverUser: SuperUser;
-  serverUsersList: GroupUser[];
+  stats?: DashboardStats;
+  user?: SuperUser;
+  usersList?: GroupUser[];
+  setStats: (stats: DashboardStats) => void;
+  setUser: (user: SuperUser) => void;
+  setUsersList: (usersList: GroupUser[]) => void;
   clientId: string;
 };
 
 const ClientPage = (props: ClientPagePropsTypes) => {
-  const [user, setUser] = useState<SuperUser>();
-  const [usersList, setUsersList] = useState<GroupUser[]>();
-  const [stats, setStats] = useState<DashboardStats>();
   const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
   const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false);
   const [allUsers, setAllUsers] = useState<SuperUser[]>();
   const [appointmentData, setAppointmentData] = useState<Appointment>();
   const [subscriptionData, setSubscriptionData] = useState<Subscription>();
 
-  const { serverStats, serverUser, serverUsersList, clientId } = props;
-
-  useEffect(() => {
-    // getClientPageInfo();
-    serverStats && setStats(serverStats);
-    serverUser && setUser(serverUser);
-    serverUsersList && setUsersList(serverUsersList);
-  }, []);
+  const { clientId, stats, user, usersList, setStats, setUser, setUsersList } =
+    props;
 
   const getClientPageInfo = async () => {
     const stats = await getClientStats(clientId);
