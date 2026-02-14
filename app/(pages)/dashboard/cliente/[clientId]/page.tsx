@@ -7,6 +7,8 @@ import { SuperUser } from "@/prisma/user-extension";
 import ClientPage from ".";
 import { getUsersList, GroupUser } from "@/app/api/user/getUsersList";
 
+export const dynamic = "force-dynamic";
+
 const Page = async ({ params }: SearchParamProps) => {
   const clientId = params.clientId;
 

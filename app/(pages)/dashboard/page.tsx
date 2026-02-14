@@ -6,6 +6,8 @@ import { getUsers } from "@/app/api/user/getUsers";
 import { getAppointments } from "@/app/api/appointments/getAppointments";
 import { getSubscriptions } from "@/app/api/subscriptions/getSubscriptions";
 
+export const dynamic = "force-dynamic";
+
 const Page = async () => {
   const serverStats = await getStats();
   const serverUsers = await getUsers();
