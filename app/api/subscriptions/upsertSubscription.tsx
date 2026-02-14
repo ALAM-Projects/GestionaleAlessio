@@ -9,7 +9,7 @@ async function upsertSubscription(
   completed: boolean,
   clientId: string,
   doneAppointments?: number,
-  subscriptionId?: string,
+  subscriptionId?: number,
 ): Promise<boolean> {
   if (subscriptionId) {
     const updated = await prisma.subscription.update({

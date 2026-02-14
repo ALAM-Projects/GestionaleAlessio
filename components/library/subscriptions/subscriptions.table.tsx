@@ -40,6 +40,26 @@ import { AppointmentStatus } from "@/types/db_types";
 
 export const columns: ColumnDef<Appointment>[] = [
   {
+    accessorKey: "id",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          className="px-0 hover:bg-trasparent hover:text-white"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          ID
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const id = row.getValue("id");
+
+      return <div className="text-left font-medium">{id as string}</div>;
+    },
+  },
+  {
     accessorKey: "user",
     header: ({ column }) => {
       return (

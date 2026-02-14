@@ -38,6 +38,7 @@ import { deleteAppointment } from "@/app/api/appointments/deleteAppointment";
 import { Badge } from "@/components/ui/badge";
 import { editAppointmentStatusOrPaid } from "@/app/api/appointments/editAppointmentStatusOrPaid";
 import { AppointmentStatus } from "@/types/db_types";
+import { log } from "util";
 
 export const columns: ColumnDef<Appointment>[] = [
   {
@@ -193,10 +194,12 @@ export const columns: ColumnDef<Appointment>[] = [
     header: () => <div className="text-left">Abbonamento</div>,
     cell: ({ row }) => {
       const isSubscriptionAppointment = row.getValue("paidBySubscription");
+      const subscriptionId = row.original.subscriptionId;
+
       if (!isSubscriptionAppointment) return null;
       return (
         <Badge className="" variant={"online"}>
-          Incluso
+          Incluso nell'abbonamento {subscriptionId || null}
         </Badge>
       );
     },

@@ -49,6 +49,7 @@ model Appointment {
   paid               Boolean
   location           String
   paidBySubscription Boolean  @default(false)
+  subscriptionId     Int?
   partecipants       String[]
   // relation to client table
   user               User     @relation(fields: [userId], references: [id])
@@ -58,7 +59,7 @@ model Appointment {
 }
 
 model Subscription {
-  id                   String   @id @default(cuid())
+  id                   Int      @id @default(autoincrement())
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
   completed            Boolean
@@ -69,6 +70,5 @@ model Subscription {
   // relation to client table
   user                 User     @relation(fields: [userId], references: [id])
   userId               String
-
   @@index([userId])
 }

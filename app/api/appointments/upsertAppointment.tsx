@@ -37,6 +37,7 @@ async function upsertAppointment(
   let newAppointmentIsPaid = false;
   let paidBySubscription = false;
   let finalPrice = price;
+  let subscriptionId: number | undefined;
 
   if (superUser?.hasActiveSubscription) {
     const activeSubscription = superUser.subscriptions.find(
@@ -68,8 +69,10 @@ async function upsertAppointment(
         newAppointmentIsPaid = true;
         paidBySubscription = true;
         finalPrice = Number(
-          activeSubscription.totalPrice / activeSubscription.appointmentsIncluded,
+          activeSubscription.totalPrice /
+            activeSubscription.appointmentsIncluded,
         );
+        subscriptionId = activeSubscription.id;
       }
     }
   }
@@ -84,6 +87,7 @@ async function upsertAppointment(
       paid: newAppointmentIsPaid,
       paidBySubscription,
       location,
+      subscriptionId,
     },
   });
 
