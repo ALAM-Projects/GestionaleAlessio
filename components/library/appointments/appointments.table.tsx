@@ -105,24 +105,24 @@ export const columns: ColumnDef<Appointment>[] = [
     },
     enableHiding: false,
   },
-  {
-    accessorKey: "location",
-    header: () => {
-      return <div className="text-left">Luogo</div>;
-    },
-    cell: ({ row }) => {
-      const location = row.getValue("location");
-      let badgeVariant: "home" | "online" | "residence" = "home";
-      if (location === "Online") badgeVariant = "online";
-      if (location === "Domicilio") badgeVariant = "residence";
+  // {
+  //   accessorKey: "location",
+  //   header: () => {
+  //     return <div className="text-left">Luogo</div>;
+  //   },
+  //   cell: ({ row }) => {
+  //     const location = row.getValue("location");
+  //     let badgeVariant: "home" | "online" | "residence" = "home";
+  //     if (location === "Online") badgeVariant = "online";
+  //     if (location === "Domicilio") badgeVariant = "residence";
 
-      return (
-        <Badge className="" variant={badgeVariant}>
-          {location as string}
-        </Badge>
-      );
-    },
-  },
+  //     return (
+  //       <Badge className="" variant={badgeVariant}>
+  //         {location as string}
+  //       </Badge>
+  //     );
+  //   },
+  // },
   {
     accessorKey: "status",
     header: ({ column }) => {
@@ -357,8 +357,8 @@ export function AppointmentsTable({ ...props }) {
                           <DropdownMenuLabel>Azioni</DropdownMenuLabel>
                           <DropdownMenuItem
                             onClick={() => {
-                              setModalOpen(true);
                               setAppointmentData(row.original);
+                              setModalOpen(true);
                             }}
                           >
                             Modifica appuntamento

@@ -12,15 +12,15 @@ type DashboardLayoutProps = {
 const DashboardLayout = (props: DashboardLayoutProps) => {
   return (
     <div className="p-10 min-h-screen">
-      <div className="flex justify-between items-center">
+      {/* <div className="flex justify-between items-center">
         <Image
-          src="/onboarding-banner.svg"
-          height={400}
-          width={500}
+          src="/full-kairos-info.jpeg"
+          height={300}
+          width={400}
           alt="logo-banner"
           className="mr-auto mb-5"
         />
-      </div>
+      </div> */}
       <Link
         href={props.link}
         className="text-white underline text-lg flex items-center"

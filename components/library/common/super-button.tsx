@@ -7,14 +7,17 @@ type SuperButtonProps = {
   isLoading?: boolean;
   text: string;
   classNames?: string;
+  variant?: "outline" | "default" | "brand";
 };
 
 const SuperButton = (props: SuperButtonProps) => {
+  const { variant = "outline" } = props;
   return (
     <Button
       disabled={props.disabled || props.isLoading}
       onClick={(e) => props.onClick(e)}
-      className={`bg-brand hover:bg-brand w-full ${props.classNames}`}
+      variant={variant}
+      className={`w-full ${props.classNames}`}
     >
       {props.isLoading ? (
         <>

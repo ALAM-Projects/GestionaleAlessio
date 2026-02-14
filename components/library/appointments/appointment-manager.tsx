@@ -10,9 +10,13 @@ const AppointmentManager = ({ ...props }) => {
     showSubscriptionButton,
     getPageInfo,
     setAppointmentModalOpen,
+    setModalOpen,
     setSubscriptionModalOpen,
     setAppointmentData,
   } = props;
+
+  const openAppointmentModal =
+    setAppointmentModalOpen ?? setModalOpen;
 
   return (
     <>
@@ -35,7 +39,7 @@ const AppointmentManager = ({ ...props }) => {
             <Button
               variant={"brand"}
               size={"lg"}
-              onClick={() => setAppointmentModalOpen(true)}
+              onClick={() => openAppointmentModal(true)}
               className="text-lg ms-5"
             >
               Crea nuovo appuntamento
@@ -46,7 +50,7 @@ const AppointmentManager = ({ ...props }) => {
       <AppointmentsTable
         appointments={appointments}
         isClientPage={isClientPage}
-        setModalOpen={setAppointmentModalOpen}
+        setModalOpen={openAppointmentModal}
         clientId={clientId}
         getPageInfo={() => getPageInfo()}
         setAppointmentData={setAppointmentData}

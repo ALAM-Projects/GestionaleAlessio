@@ -11,21 +11,8 @@ import {
 import { Label } from "../../ui/label";
 import { Input } from "../../ui/input";
 import { upsertAppointment } from "@/app/api/appointments/upsertAppointment";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../ui/select";
 import SuperButton from "../common/super-button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Combobox,
-  ComboboxInput,
-  ComboboxOption,
-  ComboboxOptions,
-} from "@headlessui/react";
 import { GroupUser } from "@/app/api/user/getUsersList";
 
 export const AppointmentModal = ({ ...props }) => {
@@ -62,7 +49,6 @@ export const AppointmentModal = ({ ...props }) => {
       appointmentData?.date,
       appointmentData?.time,
       Number(appointmentData?.price),
-      appointmentData?.location,
       appointmentData?.id || null,
     );
 
@@ -77,7 +63,6 @@ export const AppointmentModal = ({ ...props }) => {
     if (
       !appointmentData?.date ||
       !appointmentData?.time ||
-      !appointmentData?.location ||
       (!hasAvailableSubscriptionTrainings && !appointmentData?.price)
     )
       return true;
@@ -137,7 +122,7 @@ export const AppointmentModal = ({ ...props }) => {
             }
           />
         </div>
-        <div className="gap-1.5">
+        {/* <div className="gap-1.5">
           <Label
             className="text-neutral-400 font-bold text-md"
             htmlFor="location"
@@ -162,7 +147,7 @@ export const AppointmentModal = ({ ...props }) => {
               <SelectItem value="Domicilio">Domicilio</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </div> */}
         {!hasAvailableSubscriptionTrainings && (
           <>
             <div className="gap-1.5">
@@ -187,7 +172,7 @@ export const AppointmentModal = ({ ...props }) => {
                 }
               />
             </div>
-            <div className="items-top flex space-x-2">
+            {/* <div className="items-top flex space-x-2">
               <Checkbox
                 id="coupleTraining"
                 className="border-white border-2"
@@ -204,10 +189,10 @@ export const AppointmentModal = ({ ...props }) => {
                   Seleziona se l'allenamento è di gruppo
                 </p>
               </div>
-            </div>
+            </div> */}
           </>
         )}
-        {groupTraining && (
+        {/* {groupTraining && (
           <>
             <Label className="text-white">Altri partecipanti:</Label>
             <Combobox
@@ -239,7 +224,7 @@ export const AppointmentModal = ({ ...props }) => {
               </ComboboxOptions>
             </Combobox>
           </>
-        )}
+        )} */}
         <div className="mx-auto mb-5">
           {error && (
             <p className="shad-error text-14-regular mt-4 flex justify-center text-white">
@@ -253,6 +238,7 @@ export const AppointmentModal = ({ ...props }) => {
           onClick={(e) => handleUpsertAppointment(e)}
           text="Salva"
           isLoading={isLoading}
+          variant="brand"
         />
       </AlertDialogContent>
     </AlertDialog>

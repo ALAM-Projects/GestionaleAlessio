@@ -9,14 +9,12 @@ export async function POST(request: Request) {
     date,
     time,
     price,
-    location,
     appointmentId,
   }: {
     clientId: string;
     date: string;
     time: string;
     price: number;
-    location: string;
     appointmentId?: string;
   } = body;
 
@@ -25,10 +23,8 @@ export async function POST(request: Request) {
     date,
     time,
     price,
-    location,
     appointmentId,
   );
 
   return NextResponse.json({ success });
 }
-

@@ -12,7 +12,7 @@ const OnboardingLayout = ({ children }: OnboardingLayoutProps) => {
       {/* Background image for mobile */}
       <div className="absolute inset-0 z-0 lg:hidden">
         <Image
-          src="/onboarding.jpg"
+          src="/studio.jpeg"
           layout="fill"
           objectFit="cover"
           alt="onboarding-background"
@@ -21,16 +21,16 @@ const OnboardingLayout = ({ children }: OnboardingLayoutProps) => {
       </div>
 
       {/* Left side (form) */}
-      <div className="relative z-10 w-full lg:w-1/2 py-10 lg:bg-primary">
+      <div className="relative z-10 w-full lg:w-1/2 py-10 lg:bg-[#d7dbbf]">
         <div className="max-w-[90%] lg:max-w-[70%] mx-auto">
           <Image
-            src="/logo.svg"
-            height={120}
-            width={120}
+            src="/logo-kairos-3.svg"
+            height={150}
+            width={150}
             alt="logo"
             className="mx-auto"
           />
-          <Card className="p-10 mt-10 bg-neutral-800 border-none">
+          <Card className="p-10 mt-10 bg-[#83865b] border-none">
             {children}
           </Card>
         </div>
@@ -39,7 +39,7 @@ const OnboardingLayout = ({ children }: OnboardingLayoutProps) => {
       {/* Right side (image) - hidden on mobile */}
       <div className="hidden lg:block lg:w-1/2 relative">
         <Image
-          src="/onboarding.jpg"
+          src="/studio.jpeg"
           layout="fill"
           objectFit="cover"
           alt="onboarding-pic"

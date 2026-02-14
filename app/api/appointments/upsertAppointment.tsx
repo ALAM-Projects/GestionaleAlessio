@@ -9,7 +9,6 @@ async function upsertAppointment(
   date: string,
   time: string,
   price: number,
-  location: string,
   appointmentId?: string,
 ): Promise<boolean> {
   const user = await prisma.user.findUnique({
@@ -27,7 +26,7 @@ async function upsertAppointment(
         date,
         time,
         price,
-        location,
+        location: "Studio",
       },
     });
 
@@ -86,7 +85,7 @@ async function upsertAppointment(
       status: "Confermato",
       paid: newAppointmentIsPaid,
       paidBySubscription,
-      location,
+      location: "Studio",
       subscriptionId,
     },
   });

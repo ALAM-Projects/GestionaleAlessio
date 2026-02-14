@@ -18,7 +18,7 @@ const QuestionnaireLayout = (props: DashboardLayoutProps) => {
       <h1 className="text-4xl text-white text-center font-bold">
         {props.title}
       </h1>
-      <p className="text-neutral-400 mt-3 text-center">{props.subtitle}</p>
+      <p className="text-neutral-200 mt-3 text-center">{props.subtitle}</p>
       {props.children}
       <div className="text-center mt-5">
         <SuperButton

@@ -14,8 +14,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Alessio Quattrotto | Personal Trainer",
-  description: "Gestionale amministrativo",
+  title: "Kairos Studio",
+  description: "Gestionale per la gestione dei clienti e delle prenotazioni",
 };
 
 export default function RootLayout({

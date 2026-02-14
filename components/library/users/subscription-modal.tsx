@@ -155,6 +155,7 @@ export const SubscriptionModal = ({ ...props }) => {
           onClick={(e) => handleUpsertSubscription(e)}
           text="Salva"
           isLoading={isLoading}
+          variant="brand"
         />
       </AlertDialogContent>
     </AlertDialog>
