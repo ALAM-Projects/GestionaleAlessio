@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     completed,
     clientId,
     doneAppointments,
-    subscriptionId,
+    subscriptionId != null ? Number(subscriptionId) : undefined,
   );
 
   if (!success) {
