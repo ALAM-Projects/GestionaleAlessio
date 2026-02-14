@@ -1,6 +1,5 @@
-import { Appointment, PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import type { Appointment } from "@prisma/client";
+import prisma from "@/lib/prisma";
 
 async function getAppointmentsByUserId(
   clientId: string,

@@ -1,16 +1,27 @@
-import { Appointment } from "@prisma/client";
+"use server";
+
+import type { Appointment } from "@prisma/client";
+import prisma from "@/lib/prisma";
+
+function toSerializable<T>(data: T): T {
+  return JSON.parse(
+    JSON.stringify(data, (_, value) =>
+      typeof value === "bigint" ? Number(value) : value,
+    ),
+  );
+}
 
 async function getAppointments(): Promise<Appointment[]> {
-  const res = await fetch("/api/appointments/getAppointments", {
-    method: "GET",
-    cache: "no-store",
+  const appointments = await prisma.appointment.findMany({
+    include: {
+      user: true,
+    },
+    orderBy: {
+      date: "desc",
+    },
   });
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch appointments");
-  }
-
-  return res.json();
+  return toSerializable(appointments);
 }
 
 export { getAppointments };

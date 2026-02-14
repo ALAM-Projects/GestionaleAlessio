@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { deleteAppointment } from "@/app/api/appointments/deleteAppointment";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -12,12 +12,8 @@ export async function POST(request: Request) {
     );
   }
 
-  await prisma.appointment.delete({
-    where: {
-      id: appointmentId,
-    },
-  });
+  const success = await deleteAppointment(appointmentId);
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success });
 }
 

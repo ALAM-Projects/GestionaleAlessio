@@ -1,16 +1,26 @@
+"use server";
+
 import type { SuperUser } from "@/prisma/user-extension";
+import { extendArrayOfUsers } from "@/prisma/user-extension";
+import prisma from "@/lib/prisma";
+
+function toSerializable<T>(data: T): T {
+  return JSON.parse(
+    JSON.stringify(data, (_, value) =>
+      typeof value === "bigint" ? Number(value) : value,
+    ),
+  );
+}
 
 async function getUsers(): Promise<SuperUser[]> {
-  const res = await fetch("/api/user/getUsers", {
-    method: "GET",
-    cache: "no-store",
+  const initialUsers = await prisma.user.findMany({
+    include: {
+      appointments: true,
+    },
   });
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch users");
-  }
-
-  return res.json();
+  const users = extendArrayOfUsers(initialUsers);
+  return toSerializable(users);
 }
 
 export { getUsers };

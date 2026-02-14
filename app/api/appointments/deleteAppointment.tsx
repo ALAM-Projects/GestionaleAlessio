@@ -1,18 +1,19 @@
-async function deleteAppointment(appointmentId: string): Promise<boolean> {
-  const res = await fetch("/api/appointments/deleteAppointment", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ appointmentId }),
-  });
+"use server";
 
-  if (!res.ok) {
+import prisma from "@/lib/prisma";
+
+async function deleteAppointment(appointmentId: string): Promise<boolean> {
+  if (!appointmentId) {
     return false;
   }
 
-  const data = await res.json();
-  return !!data?.success;
+  await prisma.appointment.delete({
+    where: {
+      id: appointmentId,
+    },
+  });
+
+  return true;
 }
 
 export { deleteAppointment };

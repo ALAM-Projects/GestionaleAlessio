@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { upsertSubscription } from "@/app/api/subscriptions/upsertSubscription";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -22,36 +22,20 @@ export async function POST(request: Request) {
     subscriptionId?: string;
   } = body;
 
-  if (subscriptionId) {
-    const updated = await prisma.subscription.update({
-      where: { id: subscriptionId },
-      data: {
-        totalPrice,
-        totalPaid,
-        appointmentsIncluded,
-        doneAppointments,
-        completed,
-      },
-    });
+  const success = await upsertSubscription(
+    totalPrice,
+    totalPaid,
+    appointmentsIncluded,
+    completed,
+    clientId,
+    doneAppointments,
+    subscriptionId,
+  );
 
-    return NextResponse.json({ success: !!updated });
+  if (!success) {
+    return NextResponse.json({ success: false }, { status: 400 });
   }
 
-  if (!subscriptionId && clientId) {
-    const created = await prisma.subscription.create({
-      data: {
-        totalPrice,
-        totalPaid,
-        appointmentsIncluded,
-        completed: false,
-        doneAppointments: 0,
-        userId: clientId,
-      },
-    });
-
-    return NextResponse.json({ success: !!created });
-  }
-
-  return NextResponse.json({ success: false }, { status: 400 });
+  return NextResponse.json({ success: true });
 }
 

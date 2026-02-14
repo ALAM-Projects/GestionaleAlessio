@@ -1,29 +1,8 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-
-function jsonBigIntSafe(data: unknown) {
-  return new NextResponse(
-    JSON.stringify(data, (_, value) =>
-      typeof value === "bigint" ? Number(value) : value,
-    ),
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    },
-  );
-}
+import { getSubscriptions } from "@/app/api/subscriptions/getSubscriptions";
 
 export async function GET() {
-  const subscriptions = await prisma.subscription.findMany({
-    include: {
-      user: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
-  return jsonBigIntSafe(subscriptions);
+  const subscriptions = await getSubscriptions();
+  return NextResponse.json(subscriptions);
 }
 

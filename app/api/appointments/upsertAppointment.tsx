@@ -1,3 +1,9 @@
+"use server";
+
+import prisma from "@/lib/prisma";
+import { extendUser } from "@/prisma/user-extension";
+import { upsertSubscription } from "@/app/api/subscriptions/upsertSubscription";
+
 async function upsertAppointment(
   clientId: string,
   date: string,
@@ -6,27 +12,82 @@ async function upsertAppointment(
   location: string,
   appointmentId?: string,
 ): Promise<boolean> {
-  const res = await fetch("/api/appointments/upsert", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      clientId,
-      date,
-      time,
-      price,
-      location,
-      appointmentId,
-    }),
+  const user = await prisma.user.findUnique({
+    where: { id: clientId },
+    include: { subscriptions: true },
   });
 
-  if (!res.ok) {
-    return false;
+  let superUser;
+  if (user) superUser = extendUser(user);
+
+  if (appointmentId) {
+    const updated = await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: {
+        date,
+        time,
+        price,
+        location,
+      },
+    });
+
+    return !!updated;
   }
 
-  const data = await res.json();
-  return !!data?.success;
+  let newAppointmentIsPaid = false;
+  let paidBySubscription = false;
+  let finalPrice = price;
+
+  if (superUser?.hasActiveSubscription) {
+    const activeSubscription = superUser.subscriptions.find(
+      (sub) => !sub.completed || sub.totalPaid < sub.totalPrice,
+    );
+    if (activeSubscription) {
+      const hasLeftAppointments =
+        activeSubscription.appointmentsIncluded -
+          activeSubscription.doneAppointments >
+        0;
+      if (hasLeftAppointments) {
+        const completed =
+          activeSubscription.doneAppointments + 1 ===
+          activeSubscription.appointmentsIncluded;
+        const updatedSub = await upsertSubscription(
+          activeSubscription.totalPrice,
+          activeSubscription.totalPaid,
+          activeSubscription.appointmentsIncluded,
+          completed,
+          clientId,
+          activeSubscription.doneAppointments + 1,
+          activeSubscription.id,
+        );
+
+        if (!updatedSub) {
+          return false;
+        }
+
+        newAppointmentIsPaid = true;
+        paidBySubscription = true;
+        finalPrice = Number(
+          activeSubscription.totalPrice / activeSubscription.appointmentsIncluded,
+        );
+      }
+    }
+  }
+
+  const created = await prisma.appointment.create({
+    data: {
+      date,
+      time,
+      price: finalPrice,
+      userId: clientId,
+      status: "Confermato",
+      paid: newAppointmentIsPaid,
+      paidBySubscription,
+      location,
+    },
+  });
+
+  return !!created;
 }
 
 export { upsertAppointment };

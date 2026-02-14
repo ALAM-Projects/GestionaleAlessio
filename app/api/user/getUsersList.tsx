@@ -1,19 +1,21 @@
+"use server";
+
+import { extendArrayOfUsers } from "@/prisma/user-extension";
+import prisma from "@/lib/prisma";
+
 export type GroupUser = {
   id: string;
   fullName: string;
 };
 
 async function getUsersList(): Promise<GroupUser[]> {
-  const res = await fetch("/api/user/get-users-list", {
-    method: "GET",
-    cache: "no-store",
-  });
+  const initialUsers = await prisma.user.findMany();
+  const users = extendArrayOfUsers(initialUsers);
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch users list");
-  }
-
-  return res.json();
+  return users.map((user) => ({
+    id: user.id,
+    fullName: user.fullName,
+  }));
 }
 
 export { getUsersList };
