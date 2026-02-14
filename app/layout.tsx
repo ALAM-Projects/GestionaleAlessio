@@ -16,6 +16,9 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Kairos Studio",
   description: "Gestionale per la gestione dei clienti e delle prenotazioni",
+  icons: {
+    icon: "/favicon.ico?v=2",
+  },
 };
 
 export default function RootLayout({
