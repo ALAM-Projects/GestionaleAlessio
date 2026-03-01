@@ -68,6 +68,7 @@ function Dashboard(props: DashboardPropsTypes) {
             reloadPageData={getDashboardInfo}
             appointmentData={appointmentData}
             setAppointmentData={setAppointmentData}
+            clientId={appointmentData?.userId ?? null}
           />
           <div className="flex gap-5 lg:gap-3 flex-wrap justify-between md:flex-row mt-5">
             {stats &&
