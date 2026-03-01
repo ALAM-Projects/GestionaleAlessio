@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -105,24 +105,6 @@ export const columns: ColumnDef<Appointment>[] = [
     },
     enableHiding: false,
   },
-  // {
-  //   accessorKey: "location",
-  //   header: () => {
-  //     return <div className="text-left">Luogo</div>;
-  //   },
-  //   cell: ({ row }) => {
-  //     const location = row.getValue("location");
-  //     let badgeVariant: "home" | "online" | "residence" = "home";
-  //     if (location === "Online") badgeVariant = "online";
-  //     if (location === "Domicilio") badgeVariant = "residence";
-
-  //     return (
-  //       <Badge className="" variant={badgeVariant}>
-  //         {location as string}
-  //       </Badge>
-  //     );
-  //   },
-  // },
   {
     accessorKey: "status",
     header: ({ column }) => {
@@ -220,6 +202,11 @@ export function AppointmentsTable({ ...props }) {
   const table = useReactTable({
     data,
     columns,
+    initialState: {
+      pagination: {
+        pageSize: 15,
+      },
+    },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -259,6 +246,17 @@ export function AppointmentsTable({ ...props }) {
       props.getPageInfo();
     }
   };
+
+  useEffect(() => {
+    if (!isClientPage) {
+      table
+        .getColumn("date")
+        ?.setFilterValue(new Date().toISOString().split("T")[0]);
+      setSorting((prev) => [...prev, { id: "time", desc: false }]);
+    } else {
+      setSorting((prev) => [...prev, { id: "date", desc: true }]);
+    }
+  }, []);
 
   return (
     <div className="w-full mt-5">
