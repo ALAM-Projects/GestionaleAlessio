@@ -1,8 +1,8 @@
 export const dashboardCardStats = [
   {
-    id: "trainingCount",
-    title: "Allenamenti",
-    description: "Il numero totale degli allenamenti effettuati",
+    id: "workedHours",
+    title: "Ore lavorate",
+    description: "Il numero totale delle ore lavorate",
   },
   {
     id: "usersCount",
@@ -10,14 +10,15 @@ export const dashboardCardStats = [
     description: "Il numero totale dei clienti registrati",
   },
   {
-    id: "workedHours",
-    title: "Ore lavorate",
-    description: "Il numero totale delle ore lavorate",
-  },
-  {
     id: "earnings",
     title: "Guadagni",
     description: "Il numero totale dei guadagni realizzati",
+  },
+  {
+    id: "unpaid",
+    title: "Da guadagnare",
+    description:
+      "Importo da pagare (appuntamenti non pagati + residuo subscription)",
   },
 ];
 

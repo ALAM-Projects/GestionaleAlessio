@@ -16,6 +16,7 @@ async function getUsers(): Promise<SuperUser[]> {
   const initialUsers = await prisma.user.findMany({
     include: {
       appointments: true,
+      subscriptions: true,
     },
   });
 

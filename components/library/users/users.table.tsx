@@ -70,70 +70,28 @@ export const columns: ColumnDef<SuperUser>[] = [
   },
   {
     accessorKey: "appointments",
-    header: () => <div className="text-left">Pagati</div>,
-    cell: ({ row }) => {
-      const totalPaid = (
-        row.getValue("appointments") as { price: number; paid: boolean }[]
-      )?.reduce((acc, { price, paid }) => {
-        if (paid) return acc + price;
-        return acc;
-      }, 0);
-      // const totalUnpaid = (
-      //   row.getValue("appointments") as {
-      //     price: number;
-      //     paid: boolean;
-      //     status: string;
-      //   }[]
-      // )?.reduce((acc, { price, paid, status }) => {
-      //   if (!paid && status === AppointmentStatus.Confermato)
-      //     return acc + price;
-      //   return acc;
-      // }, 0);
-      const paidAmount = parseFloat(totalPaid?.toString());
-      // const unpaidAmount = parseFloat(totalUnpaid?.toString());
-
-      // Format the amount as a dollar amount
-      const formattedPaidAmount = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "EUR",
-      }).format(paidAmount);
-
-      // const formattedUnpaidAmount = new Intl.NumberFormat("en-US", {
-      //   style: "currency",
-      //   currency: "EUR",
-      // }).format(unpaidAmount);
-
-      return (
-        <Badge
-          variant={
-            formattedPaidAmount === "€0.00" ? "dangerOutline" : "successOutline"
-          }
-          className="text-left font-medium"
-        >
-          {formattedPaidAmount}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "appointments",
     header: () => <div className="text-left">Da pagare</div>,
     cell: ({ row }) => {
-      const totalUnpaid = (
-        row.getValue("appointments") as {
-          price: number;
-          paid: boolean;
-          status: string;
-        }[]
-      )?.reduce((acc, { price, paid, status }) => {
-        if (!paid && status === AppointmentStatus.Confermato)
-          return acc + price;
-        return acc;
-      }, 0);
+      const appointments = row.getValue("appointments") as {
+        price: number;
+        paid: boolean;
+        status: string;
+      }[];
 
-      const unpaidAmount = parseFloat(totalUnpaid?.toString());
+      const unpaidFromAppointments =
+        appointments?.reduce((acc, { price, paid, status }) => {
+          if (!paid && status === AppointmentStatus.Confermato)
+            return acc + price;
+          return acc;
+        }, 0) ?? 0;
 
-      // Format the amount as a dollar amount
+      const subscriptions = (row.original as SuperUser).subscriptions ?? [];
+      const unpaidFromSubscriptions = subscriptions
+        .filter((sub) => !sub.completed)
+        .reduce((acc, sub) => acc + (sub.totalPrice - sub.totalPaid), 0);
+
+      const totalUnpaid = unpaidFromAppointments + unpaidFromSubscriptions;
+      const unpaidAmount = parseFloat(totalUnpaid.toString());
 
       const formattedUnpaidAmount = new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -202,7 +160,7 @@ export function UsersTable({ ...props }) {
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -285,7 +243,7 @@ export function UsersTable({ ...props }) {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -305,7 +263,7 @@ export function UsersTable({ ...props }) {
                     <TableCell key={cell.id} className="text-white">
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
