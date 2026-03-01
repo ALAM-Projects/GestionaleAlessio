@@ -38,7 +38,7 @@ import { deleteAppointment } from "@/app/api/appointments/deleteAppointment";
 import { Badge } from "@/components/ui/badge";
 import { editAppointmentStatusOrPaid } from "@/app/api/appointments/editAppointmentStatusOrPaid";
 import { AppointmentStatus } from "@/types/db_types";
-import { log } from "util";
+import { useRouter } from "next/navigation";
 
 export const columns: ColumnDef<Appointment>[] = [
   {
@@ -247,6 +247,8 @@ export function AppointmentsTable({ ...props }) {
     }
   };
 
+  const router = useRouter();
+
   useEffect(() => {
     if (!isClientPage) {
       table
@@ -353,6 +355,15 @@ export function AppointmentsTable({ ...props }) {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Azioni</DropdownMenuLabel>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              router.push(
+                                `/dashboard/cliente/${row.original.userId}`,
+                              );
+                            }}
+                          >
+                            Vai al cliente
+                          </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => {
                               setAppointmentData(row.original);

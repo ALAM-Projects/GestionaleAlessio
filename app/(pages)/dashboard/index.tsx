@@ -69,6 +69,8 @@ function Dashboard(props: DashboardPropsTypes) {
             appointmentData={appointmentData}
             setAppointmentData={setAppointmentData}
             clientId={appointmentData?.userId ?? null}
+            addUsersSelect={true}
+            usersList={users}
           />
           <div className="flex gap-5 lg:gap-3 flex-wrap justify-between md:flex-row mt-5">
             {stats &&
@@ -97,7 +99,7 @@ function Dashboard(props: DashboardPropsTypes) {
 
           <AppointmentManager
             isClientPage={false}
-            showButton={false}
+            showButton={true}
             appointments={appointments}
             getPageInfo={getDashboardInfo}
             setModalOpen={setModalOpen}

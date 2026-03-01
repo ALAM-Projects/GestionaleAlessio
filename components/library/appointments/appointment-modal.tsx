@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -12,8 +12,12 @@ import { Label } from "../../ui/label";
 import { Input } from "../../ui/input";
 import { upsertAppointment } from "@/app/api/appointments/upsertAppointment";
 import SuperButton from "../common/super-button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { GroupUser } from "@/app/api/user/getUsersList";
+import { Select } from "@/components/ui/select";
+import { SelectTrigger } from "@/components/ui/select";
+import { SelectValue } from "@/components/ui/select";
+import { SelectContent } from "@/components/ui/select";
+import { SelectItem } from "@/components/ui/select";
 
 export const AppointmentModal = ({ ...props }) => {
   const {
@@ -25,13 +29,11 @@ export const AppointmentModal = ({ ...props }) => {
     reloadPageData,
     hasAvailableSubscriptionTrainings,
     usersList,
+    addUsersSelect,
   } = props;
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [groupTraining, setGroupTraining] = useState(false);
-  const [selectedPersons, setSelectedPersons] = useState<string[]>([]);
-  const [query, setQuery] = useState<string>("");
 
   const closeModal = () => {
     setModalOpen(false);
@@ -43,35 +45,44 @@ export const AppointmentModal = ({ ...props }) => {
   ) => {
     e.preventDefault();
     setIsLoading(true);
+    try {
+      const created = await upsertAppointment(
+        appointmentData?.userId ? appointmentData?.userId : clientId,
+        appointmentData?.date,
+        appointmentData?.time,
+        Number(appointmentData?.price),
+        appointmentData?.id || null,
+      );
 
-    const created = await upsertAppointment(
-      clientId,
-      appointmentData?.date,
-      appointmentData?.time,
-      Number(appointmentData?.price),
-      appointmentData?.id || null,
-    );
-
-    if (created) {
+      if (created) {
+        setIsLoading(false);
+        closeModal();
+        reloadPageData();
+      }
+    } catch (error) {
+      setError("Inserire guadagno, il cliente non ha un abbonamento attivo.");
       setIsLoading(false);
-      closeModal();
-      reloadPageData();
     }
   };
 
   const buttonDisabled = useMemo(() => {
+    if (!appointmentData?.date || !appointmentData?.time) return true;
+    if (addUsersSelect && !appointmentData?.userId) return true;
     if (
-      !appointmentData?.date ||
-      !appointmentData?.time ||
-      (!hasAvailableSubscriptionTrainings && !appointmentData?.price)
+      !addUsersSelect &&
+      !hasAvailableSubscriptionTrainings &&
+      !appointmentData?.price
     )
       return true;
     return false;
-  }, [appointmentData]);
+  }, [appointmentData, addUsersSelect, hasAvailableSubscriptionTrainings]);
 
-  const handleGroupPeople = (user: GroupUser) => {
-    setSelectedPersons([...selectedPersons, user.id]);
-  };
+  useEffect(() => {
+    setAppointmentData({
+      ...appointmentData,
+      date: new Date().toISOString().split("T")[0],
+    });
+  }, [appointmentData?.userId]);
 
   return (
     <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
@@ -122,32 +133,33 @@ export const AppointmentModal = ({ ...props }) => {
             }
           />
         </div>
-        {/* <div className="gap-1.5">
-          <Label
-            className="text-neutral-400 font-bold text-md"
-            htmlFor="location"
-          >
-            Luogo
-          </Label>
-          <Select
-            value={appointmentData?.location || ""}
-            onValueChange={(value) => {
-              setAppointmentData({
-                ...appointmentData,
-                location: value,
-              });
-            }}
-          >
-            <SelectTrigger className="bg-white text-black">
-              <SelectValue placeholder="Seleziona una risposta" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Casa">Casa</SelectItem>
-              <SelectItem value="Online">Online</SelectItem>
-              <SelectItem value="Domicilio">Domicilio</SelectItem>
-            </SelectContent>
-          </Select>
-        </div> */}
+        {addUsersSelect && (
+          <div className="gap-1.5">
+            <Label
+              className="text-neutral-400 font-bold text-md"
+              htmlFor="email"
+            >
+              Cliente
+            </Label>
+            <Select
+              value={appointmentData?.userId || ""}
+              onValueChange={(value) => {
+                setAppointmentData({ ...appointmentData, userId: value });
+              }}
+            >
+              <SelectTrigger className="bg-white text-black">
+                <SelectValue placeholder="Seleziona un cliente" />
+              </SelectTrigger>
+              <SelectContent>
+                {usersList?.map((user: GroupUser) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    {user.fullName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
         {!hasAvailableSubscriptionTrainings && (
           <>
             <div className="gap-1.5">
@@ -171,63 +183,18 @@ export const AppointmentModal = ({ ...props }) => {
                   })
                 }
               />
-            </div>
-            {/* <div className="items-top flex space-x-2">
-              <Checkbox
-                id="coupleTraining"
-                className="border-white border-2"
-                onClick={() => setGroupTraining(!groupTraining)}
-              />
-              <div className="grid leading-none">
-                <label
-                  htmlFor="coupleTraining"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white"
-                >
-                  Allenamento di gruppo
-                </label>
-                <p className="text-sm text-muted-foreground">
-                  Seleziona se l'allenamento è di gruppo
+              {addUsersSelect && (
+                <p className="text-neutral-400 text-sm">
+                  Se il cliente ha un abbonamento attivo, lasciare vuoto.
                 </p>
-              </div>
-            </div> */}
+              )}
+            </div>
           </>
         )}
-        {/* {groupTraining && (
-          <>
-            <Label className="text-white">Altri partecipanti:</Label>
-            <Combobox
-              value={selectedPersons}
-              onChange={(selected: string[]) => setSelectedPersons(selected)}
-              onClose={() => setQuery("")}
-              multiple={true}
-            >
-              <ComboboxInput
-                aria-label="Assignee"
-                displayValue={(selectedPersons: string[]) =>
-                  selectedPersons.length + " selezionati"
-                }
-                onChange={(event) => setQuery(event.target.value)}
-              />
-              <ComboboxOptions
-                anchor="bottom"
-                className="border empty:invisible"
-              >
-                {usersList?.map((user: GroupUser) => (
-                  <ComboboxOption
-                    key={user.id}
-                    value={user}
-                    className="data-[focus]:bg-blue-100"
-                  >
-                    {user.fullName}
-                  </ComboboxOption>
-                ))}
-              </ComboboxOptions>
-            </Combobox>
-          </>
-        )} */}
+
         <div className="mx-auto mb-5">
           {error && (
-            <p className="shad-error text-14-regular mt-4 flex justify-center text-white">
+            <p className="text-red-500 mt-4 bg-red-500/10 p-2 px-3 rounded-md">
               {error}
             </p>
           )}

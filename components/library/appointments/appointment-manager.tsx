@@ -15,8 +15,7 @@ const AppointmentManager = ({ ...props }) => {
     setAppointmentData,
   } = props;
 
-  const openAppointmentModal =
-    setAppointmentModalOpen ?? setModalOpen;
+  const openAppointmentModal = setAppointmentModalOpen ?? setModalOpen;
 
   return (
     <>
