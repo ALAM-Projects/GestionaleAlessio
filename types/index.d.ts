@@ -26,6 +26,7 @@ declare type ClientDataProps = {
 
 declare type DashboardStats = {
   usersCount?: Number;
+  trainingCount?: Number;
   earnings: String;
   workedHours?: String;
   unpaid?: String;
