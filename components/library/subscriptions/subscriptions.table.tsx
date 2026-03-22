@@ -31,14 +31,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Appointment, User } from "@prisma/client";
+import { Subscription, User } from "@prisma/client";
 
 import { deleteAppointment } from "@/app/api/appointments/deleteAppointment";
 import { Badge } from "@/components/ui/badge";
 import { editAppointmentStatusOrPaid } from "@/app/api/appointments/editAppointmentStatusOrPaid";
 import { AppointmentStatus } from "@/types/db_types";
 
-export const columns: ColumnDef<Appointment>[] = [
+export const columns: ColumnDef<Subscription>[] = [
   {
     accessorKey: "id",
     header: ({ column }) => {
