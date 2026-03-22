@@ -173,8 +173,14 @@ export const columns: ColumnDef<Appointment>[] = [
 ];
 
 export function SubscriptionsTable({ ...props }) {
-  const { subscriptions, isClientPage, setModalOpen, setAppointmentData } =
-    props;
+  const {
+    subscriptions,
+    isClientPage,
+    setModalOpen,
+    setAppointmentData,
+    setSubscriptionModalOpen,
+    setSubscriptionData,
+  } = props;
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -311,10 +317,11 @@ export function SubscriptionsTable({ ...props }) {
                           </TableCell>
                         );
                     })}
-                    {/* <TableCell className="text-white">
+                    {!(row.original.completed && row.original.totalPaid === row.original.totalPrice) && (
+                    <TableCell className="text-white">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className=" h-8 w-8 p-0">
+                          <Button variant="ghost" className="h-8 w-8 p-0">
                             <span className="sr-only">Apri menù</span>
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
@@ -323,66 +330,16 @@ export function SubscriptionsTable({ ...props }) {
                           <DropdownMenuLabel>Azioni</DropdownMenuLabel>
                           <DropdownMenuItem
                             onClick={() => {
-                              setModalOpen(true);
-                              setAppointmentData(row.original);
+                              setSubscriptionData(row.original);
+                              setSubscriptionModalOpen(true);
                             }}
                           >
-                            Modifica appuntamento
+                            Modifica abbonamento
                           </DropdownMenuItem>
-                          <DropdownMenuLabel>Azioni rapide</DropdownMenuLabel>
-                          <DropdownMenuItem
-                            onClick={() => {
-                              const newStatus =
-                                row.original.status ===
-                                AppointmentStatus.Confermato
-                                  ? AppointmentStatus.Annullato
-                                  : AppointmentStatus.Confermato;
-                              handleEditAppointmentStatusOrPaid(
-                                row.original.id,
-                                newStatus,
-                                false
-                              );
-                            }}
-                          >
-                            {row.original.status ===
-                            AppointmentStatus.Confermato
-                              ? "Annulla appuntamento"
-                              : "Conferma appuntamento"}
-                          </DropdownMenuItem>
-                          {row.original.status ===
-                          AppointmentStatus.Confermato ? (
-                            <DropdownMenuItem
-                              onClick={() =>
-                                handleEditAppointmentStatusOrPaid(
-                                  row.original.id,
-                                  undefined,
-                                  !row.original.paid
-                                )
-                              }
-                            >
-                              {row.original.paid
-                                ? "Segna come DA PAGARE"
-                                : "Segna come PAGATO"}
-                            </DropdownMenuItem>
-                          ) : null}
-                          {row.original.status ===
-                          AppointmentStatus.Annullato ? (
-                            <>
-                              <DropdownMenuLabel>
-                                Azioni irreversibili
-                              </DropdownMenuLabel>
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  handleDeleteAppointment(row.original.id);
-                                }}
-                              >
-                                Elimina appuntamento
-                              </DropdownMenuItem>
-                            </>
-                          ) : null}
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </TableCell> */}
+                    </TableCell>
+                    )}
                   </TableRow>
                 </>
               ))

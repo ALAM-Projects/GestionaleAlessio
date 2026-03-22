@@ -40,7 +40,7 @@ export function extendUser(
     ...user,
     fullName: `${user.name} ${user.surname}`,
     hasActiveSubscription: !!user.subscriptions?.find(
-      (sub) => sub.completed === false || sub.totalPaid < sub.totalPrice
+      (sub) => sub.completed === false
     ),
     hasAvailableSubscriptionTrainings: !!user.subscriptions?.find(
       (sub) => sub.completed === false
@@ -61,7 +61,7 @@ export function extendArrayOfUsers(
     ...user,
     fullName: `${user.name} ${user.surname}`,
     hasActiveSubscription: !!user.subscriptions?.find(
-      (sub) => sub.completed === false || sub.totalPaid < sub.totalPrice
+      (sub) => sub.completed === false
     ),
     hasAvailableSubscriptionTrainings: !!user.subscriptions?.find(
       (sub) => sub.completed === false

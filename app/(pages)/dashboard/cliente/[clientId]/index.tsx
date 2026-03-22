@@ -82,7 +82,7 @@ const ClientPage = (props: ClientPagePropsTypes) => {
     confirmedAppointments?.length - paidAppointmentsIncluded;
 
   const activeSubscription = user?.subscriptions?.find(
-    (sub) => sub.completed === false || sub.totalPaid < sub.totalPrice,
+    (sub) => sub.completed === false,
   );
 
   return (
@@ -218,6 +218,7 @@ const ClientPage = (props: ClientPagePropsTypes) => {
               setAppointmentModalOpen={setAppointmentModalOpen}
               setSubscriptionModalOpen={setSubscriptionModalOpen}
               setAppointmentData={setAppointmentData}
+              setSubscriptionData={setSubscriptionData}
             />
           </>
         ) : (

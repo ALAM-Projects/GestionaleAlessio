@@ -35,6 +35,12 @@ async function upsertSubscription(
   }
 
   if (!subscriptionId && clientId) {
+    const existingActive = await prisma.subscription.findFirst({
+      where: { userId: clientId, completed: false },
+    });
+
+    if (existingActive) return false;
+
     const created = await prisma.subscription.create({
       data: {
         totalPrice,
