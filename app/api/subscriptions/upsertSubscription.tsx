@@ -12,21 +12,35 @@ async function upsertSubscription(
   subscriptionId?: number,
 ): Promise<boolean> {
   if (subscriptionId) {
-    const updated = await prisma.subscription.update({
-      where: { id: subscriptionId },
-      data: {
-        totalPrice,
-        totalPaid,
-        appointmentsIncluded,
-        doneAppointments,
-        completed,
-      },
-    });
+    const pricePerAppointment = Math.round(totalPrice / appointmentsIncluded);
+
+    const [updated] = await prisma.$transaction([
+      prisma.subscription.update({
+        where: { id: subscriptionId },
+        data: {
+          totalPrice,
+          totalPaid,
+          appointmentsIncluded,
+          doneAppointments,
+          completed,
+        },
+      }),
+      prisma.appointment.updateMany({
+        where: { subscriptionId },
+        data: { price: pricePerAppointment },
+      }),
+    ]);
 
     return !!updated;
   }
 
   if (!subscriptionId && clientId) {
+    const existingActive = await prisma.subscription.findFirst({
+      where: { userId: clientId, completed: false },
+    });
+
+    if (existingActive) return false;
+
     const created = await prisma.subscription.create({
       data: {
         totalPrice,

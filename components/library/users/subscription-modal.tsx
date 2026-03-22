@@ -55,13 +55,11 @@ export const SubscriptionModal = ({ ...props }) => {
   };
 
   const buttonDisabled = useMemo(() => {
-    if (
-      !subscriptionData?.totalPrice ||
-      !subscriptionData?.totalPaid ||
-      !subscriptionData?.appointmentsIncluded ||
-      subscriptionData?.totalPrice < subscriptionData?.totalPaid
-    )
-      return true;
+    const price = Number(subscriptionData?.totalPrice);
+    const paid = Number(subscriptionData?.totalPaid ?? 0);
+    const included = Number(subscriptionData?.appointmentsIncluded);
+
+    if (!price || !included || price < paid) return true;
     return false;
   }, [subscriptionData]);
 
@@ -70,7 +68,11 @@ export const SubscriptionModal = ({ ...props }) => {
       <AlertDialogContent className="border-0 bg-primary">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-white flex items-start justify-between">
-            <span className="text-3xl">Nuovo abbonamento</span>
+            <span className="text-3xl">
+              {subscriptionData?.id
+                ? `Modifica abbonamento #${subscriptionData.id}`
+                : "Nuovo abbonamento"}
+            </span>
             <div
               className="text-white text-md cursor-pointer"
               onClick={() => closeModal()}
@@ -91,7 +93,6 @@ export const SubscriptionModal = ({ ...props }) => {
             type="number"
             id="appointmentsIncluded"
             name="appointmentsIncluded"
-            disabled={subscriptionData?.id ? true : false}
             placeholder="eg. 10"
             value={subscriptionData?.appointmentsIncluded || ""}
             className="text-primary text-md"
@@ -113,7 +114,7 @@ export const SubscriptionModal = ({ ...props }) => {
             name="totalPaid"
             className="text-primary text-md"
             placeholder="eg. 50€"
-            value={subscriptionData?.totalPaid || ""}
+            value={subscriptionData?.totalPaid ?? 0}
             onChange={(e) =>
               setSubscriptionData({
                 ...subscriptionData,
@@ -131,7 +132,6 @@ export const SubscriptionModal = ({ ...props }) => {
             id="totalPrice"
             name="totalPrice"
             className="text-primary text-md"
-            disabled={subscriptionData?.id ? true : false}
             placeholder="eg. 200€"
             value={subscriptionData?.totalPrice || ""}
             onChange={(e) =>

@@ -12,6 +12,7 @@ const SubscriptionsManager = ({ ...props }) => {
     setAppointmentModalOpen,
     setSubscriptionModalOpen,
     setAppointmentData,
+    setSubscriptionData,
   } = props;
 
   return (
@@ -42,6 +43,8 @@ const SubscriptionsManager = ({ ...props }) => {
         clientId={clientId}
         getPageInfo={() => getPageInfo()}
         setAppointmentData={setAppointmentData}
+        setSubscriptionModalOpen={setSubscriptionModalOpen}
+        setSubscriptionData={setSubscriptionData}
       />
     </>
   );
