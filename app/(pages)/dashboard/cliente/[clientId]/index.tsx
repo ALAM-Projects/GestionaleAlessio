@@ -193,7 +193,7 @@ const ClientPage = (props: ClientPagePropsTypes) => {
                   </h3>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <AnamnesiRecap user={user} />
+                  <AnamnesiRecap user={user} userId={clientId} onSave={getClientPageInfo} />
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
