@@ -13,11 +13,7 @@ import { Input } from "../../ui/input";
 import { upsertAppointment } from "@/app/api/appointments/upsertAppointment";
 import SuperButton from "../common/super-button";
 import { GroupUser } from "@/app/api/user/getUsersList";
-import { Select } from "@/components/ui/select";
-import { SelectTrigger } from "@/components/ui/select";
-import { SelectValue } from "@/components/ui/select";
-import { SelectContent } from "@/components/ui/select";
-import { SelectItem } from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
 
 export const AppointmentModal = ({ ...props }) => {
   const {
@@ -78,10 +74,12 @@ export const AppointmentModal = ({ ...props }) => {
   }, [appointmentData, addUsersSelect, hasAvailableSubscriptionTrainings]);
 
   useEffect(() => {
-    setAppointmentData({
-      ...appointmentData,
-      date: new Date().toISOString().split("T")[0],
-    });
+    if (!appointmentData?.date) {
+      setAppointmentData({
+        ...appointmentData,
+        date: new Date().toISOString().split("T")[0],
+      });
+    }
   }, [appointmentData?.userId]);
 
   return (
@@ -141,23 +139,16 @@ export const AppointmentModal = ({ ...props }) => {
             >
               Cliente
             </Label>
-            <Select
+            <Combobox
+              options={usersList?.map((user: GroupUser) => ({ value: user.id, label: user.fullName })) ?? []}
               value={appointmentData?.userId || ""}
-              onValueChange={(value) => {
-                setAppointmentData({ ...appointmentData, userId: value });
-              }}
-            >
-              <SelectTrigger className="bg-white text-black">
-                <SelectValue placeholder="Seleziona un cliente" />
-              </SelectTrigger>
-              <SelectContent>
-                {usersList?.map((user: GroupUser) => (
-                  <SelectItem key={user.id} value={user.id}>
-                    {user.fullName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              onValueChange={(value) =>
+                setAppointmentData({ ...appointmentData, userId: value })
+              }
+              placeholder="Seleziona un cliente"
+              searchPlaceholder="Cerca cliente..."
+              emptyText="Nessun cliente trovato."
+            />
           </div>
         )}
         {!hasAvailableSubscriptionTrainings && (
