@@ -11,9 +11,21 @@ import {
 import { Label } from "../../ui/label";
 import { Input } from "../../ui/input";
 import { upsertAppointment } from "@/app/api/appointments/upsertAppointment";
+import { createRecurringAppointments } from "@/app/api/appointments/createRecurringAppointments";
 import SuperButton from "../common/super-button";
 import { GroupUser } from "@/app/api/user/getUsersList";
 import { Combobox } from "@/components/ui/combobox";
+
+function generateWeeklyDates(startDate: string, weeks: number): string[] {
+  const dates: string[] = [];
+  const base = new Date(startDate);
+  for (let i = 0; i < weeks; i++) {
+    const d = new Date(base);
+    d.setDate(base.getDate() + i * 7);
+    dates.push(d.toISOString().split("T")[0]);
+  }
+  return dates;
+}
 
 export const AppointmentModal = ({ ...props }) => {
   const {
@@ -30,11 +42,21 @@ export const AppointmentModal = ({ ...props }) => {
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurringWeeks, setRecurringWeeks] = useState(4);
 
   const closeModal = () => {
     setModalOpen(false);
     setAppointmentData({});
+    setIsRecurring(false);
+    setRecurringWeeks(4);
+    setError("");
   };
+
+  const previewDates = useMemo(() => {
+    if (!isRecurring || !appointmentData?.date || recurringWeeks < 1) return [];
+    return generateWeeklyDates(appointmentData.date, recurringWeeks);
+  }, [isRecurring, appointmentData?.date, recurringWeeks]);
 
   const handleUpsertAppointment = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -42,18 +64,32 @@ export const AppointmentModal = ({ ...props }) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const created = await upsertAppointment(
-        appointmentData?.userId ? appointmentData?.userId : clientId,
-        appointmentData?.date,
-        appointmentData?.time,
-        Number(appointmentData?.price),
-        appointmentData?.id || null,
-      );
+      if (isRecurring) {
+        const result = await createRecurringAppointments(
+          appointmentData?.userId ? appointmentData?.userId : clientId,
+          previewDates,
+          appointmentData?.time,
+          Number(appointmentData?.price) || 0,
+        );
+        if (result.created > 0) {
+          setIsLoading(false);
+          closeModal();
+          reloadPageData();
+        }
+      } else {
+        const created = await upsertAppointment(
+          appointmentData?.userId ? appointmentData?.userId : clientId,
+          appointmentData?.date,
+          appointmentData?.time,
+          Number(appointmentData?.price),
+          appointmentData?.id || null,
+        );
 
-      if (created) {
-        setIsLoading(false);
-        closeModal();
-        reloadPageData();
+        if (created) {
+          setIsLoading(false);
+          closeModal();
+          reloadPageData();
+        }
       }
     } catch (error) {
       setError("Inserire guadagno, il cliente non ha un abbonamento attivo.");
@@ -64,6 +100,7 @@ export const AppointmentModal = ({ ...props }) => {
   const buttonDisabled = useMemo(() => {
     if (!appointmentData?.date || !appointmentData?.time) return true;
     if (addUsersSelect && !appointmentData?.userId) return true;
+    if (isRecurring && (recurringWeeks < 1 || previewDates.length === 0)) return true;
     if (
       !addUsersSelect &&
       !hasAvailableSubscriptionTrainings &&
@@ -71,7 +108,7 @@ export const AppointmentModal = ({ ...props }) => {
     )
       return true;
     return false;
-  }, [appointmentData, addUsersSelect, hasAvailableSubscriptionTrainings]);
+  }, [appointmentData, addUsersSelect, hasAvailableSubscriptionTrainings, isRecurring, recurringWeeks, previewDates]);
 
   useEffect(() => {
     if (!appointmentData?.date) {
@@ -82,12 +119,16 @@ export const AppointmentModal = ({ ...props }) => {
     }
   }, [appointmentData?.userId]);
 
+  const isEditMode = !!appointmentData?.id;
+
   return (
     <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
       <AlertDialogContent className="border-0 bg-primary">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-white flex items-start justify-between">
-            <span className="text-3xl">Nuovo appuntamento</span>
+            <span className="text-3xl">
+              {isRecurring ? "Appuntamenti ricorrenti" : "Nuovo appuntamento"}
+            </span>
             <div
               className="text-white text-md cursor-pointer"
               onClick={() => closeModal()}
@@ -100,9 +141,36 @@ export const AppointmentModal = ({ ...props }) => {
           </AlertDialogDescription>
         </AlertDialogHeader>
 
+        {!isEditMode && (
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setIsRecurring(false)}
+              className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${
+                !isRecurring
+                  ? "bg-white text-primary"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              Singolo
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsRecurring(true)}
+              className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${
+                isRecurring
+                  ? "bg-white text-primary"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              Ricorrente
+            </button>
+          </div>
+        )}
+
         <div className="gap-1.5">
           <Label className="text-neutral-400 font-bold text-md" htmlFor="email">
-            Data
+            {isRecurring ? "Data di inizio" : "Data"}
           </Label>
           <Input
             type="date"
@@ -131,6 +199,44 @@ export const AppointmentModal = ({ ...props }) => {
             }
           />
         </div>
+
+        {isRecurring && (
+          <>
+            <div className="gap-1.5">
+              <Label className="text-neutral-400 font-bold text-md">
+                Numero di settimane
+              </Label>
+              <Input
+                type="number"
+                min={1}
+                max={52}
+                className="text-primary text-md"
+                value={recurringWeeks}
+                onChange={(e) => setRecurringWeeks(Number(e.target.value))}
+              />
+            </div>
+            {previewDates.length > 0 && (
+              <div className="gap-1.5">
+                <Label className="text-neutral-400 font-bold text-md">
+                  Anteprima ({previewDates.length} appuntamenti)
+                </Label>
+                <ul className="text-white text-sm max-h-40 overflow-y-auto space-y-1 mt-1">
+                  {previewDates.map((d) => (
+                    <li key={d} className="text-neutral-300">
+                      {new Date(d).toLocaleDateString("it-IT", {
+                        weekday: "long",
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </>
+        )}
+
         {addUsersSelect && (
           <div className="gap-1.5">
             <Label
