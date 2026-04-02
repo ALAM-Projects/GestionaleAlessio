@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/aless/OneDrive/Desktop/Work/GestionaleAlessio/app/api/appointments -type f \\\\\\(-name *.ts -o -name *.tsx \\\\\\))"
+    ]
+  }
+}

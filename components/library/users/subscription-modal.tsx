@@ -39,7 +39,7 @@ export const SubscriptionModal = ({ ...props }) => {
 
     const created = await upsertSubscription(
       Number(subscriptionData?.totalPrice),
-      Number(subscriptionData?.totalPaid),
+      Number(subscriptionData?.totalPaid ?? 0),
       Number(subscriptionData?.appointmentsIncluded),
       subscriptionData?.completed,
       clientId,
