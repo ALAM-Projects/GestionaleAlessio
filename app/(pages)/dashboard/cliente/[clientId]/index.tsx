@@ -85,6 +85,35 @@ const ClientPage = (props: ClientPagePropsTypes) => {
     (sub) => sub.completed === false,
   );
 
+  const lastSubscription = useMemo(() => {
+    if (!user?.subscriptions?.length) return undefined;
+    return user.subscriptions.reduce((latest, sub) =>
+      sub.id > latest.id ? sub : latest,
+    );
+  }, [user?.subscriptions]);
+
+  const { canCreateSubscription, subscriptionBlockReason } = useMemo(() => {
+    if (!lastSubscription) {
+      return { canCreateSubscription: true, subscriptionBlockReason: "" };
+    }
+    const appointmentsDone =
+      lastSubscription.doneAppointments >= lastSubscription.appointmentsIncluded;
+    const fullyPaid = lastSubscription.totalPaid >= lastSubscription.totalPrice;
+
+    if (appointmentsDone && fullyPaid) {
+      return { canCreateSubscription: true, subscriptionBlockReason: "" };
+    }
+
+    const reasons: string[] = [];
+    if (!appointmentsDone) reasons.push("completato a livello di appuntamenti");
+    if (!fullyPaid) reasons.push("pagato per intero");
+
+    return {
+      canCreateSubscription: false,
+      subscriptionBlockReason: `L'ultimo abbonamento non è ${reasons.join(" e ")}`,
+    };
+  }, [lastSubscription]);
+
   return (
     <>
       <DashboardLayout linkText={"Torna alla dashboard"} link={"/dashboard"}>
@@ -207,7 +236,9 @@ const ClientPage = (props: ClientPagePropsTypes) => {
               setAppointmentModalOpen={setAppointmentModalOpen}
               setSubscriptionModalOpen={setSubscriptionModalOpen}
               setAppointmentData={setAppointmentData}
-              showSubscriptionButton={!user.hasActiveSubscription}
+              showSubscriptionButton={true}
+              canCreateSubscription={canCreateSubscription}
+              subscriptionBlockReason={subscriptionBlockReason}
             />
 
             <SubscriptionsManager
