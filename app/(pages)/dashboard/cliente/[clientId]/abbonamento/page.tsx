@@ -128,8 +128,12 @@ export default function SubscriptionPage() {
       link={`/dashboard/cliente/${clientId}`}
     >
       {loading ? (
-        <div className="flex justify-center items-center py-20">
-          <Spinner size="lg" color="border-white" />
+        <div className="flex justify-center items-center py-20 sm:py-28">
+          <Spinner
+            size="lg"
+            text="Caricamento abbonamento"
+            subtitle="Recupero piano e configurazione in corso..."
+          />
         </div>
       ) : (
         <div className="w-full mt-4 pb-16">

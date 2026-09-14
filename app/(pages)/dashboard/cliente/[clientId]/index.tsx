@@ -554,7 +554,13 @@ const ClientPage = (props: ClientPagePropsTypes) => {
             </div>
           </>
         ) : (
-          <Spinner size="lg" color="border-white" />
+          <div className="flex items-center justify-center py-20 sm:py-28">
+            <Spinner
+              size="lg"
+              text="Caricamento cliente"
+              subtitle="Recupero scheda, abbonamenti e storico allenamenti in corso..."
+            />
+          </div>
         )}
       </DashboardLayout>
 

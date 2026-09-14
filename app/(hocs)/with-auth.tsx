@@ -40,8 +40,12 @@ export function withAuth<P extends object>(
     if (isAuthorized === null) {
       // Still checking authorization
       return (
-        <div className="mx-auto p-10">
-          <Spinner size="lg" color="border-primary" />;
+        <div className="min-h-screen flex items-center justify-center p-6 bg-[#262523]">
+          <Spinner
+            size="lg"
+            text="Verifica accesso"
+            subtitle="Controllo credenziali di amministrazione..."
+          />
         </div>
       );
     }

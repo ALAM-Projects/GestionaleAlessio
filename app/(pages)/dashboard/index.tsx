@@ -181,7 +181,13 @@ function Dashboard(props: DashboardPropsTypes) {
           </div>
         </>
       ) : (
-        <Spinner size="lg" color="border-white" />
+        <div className="flex items-center justify-center py-20 sm:py-28">
+          <Spinner
+            size="lg"
+            text="Caricamento dashboard"
+            subtitle="Sincronizzazione statistiche, allenamenti e clienti in corso..."
+          />
+        </div>
       )}
     </DashboardLayout>
   );
