@@ -19,6 +19,8 @@ import {
   parseInstallments,
   PaymentType,
   SubscriptionInstallment,
+  redistributeInstallments,
+  updateInstallmentDates,
 } from "@/lib/subscription-helpers";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Clock } from "lucide-react";
@@ -35,6 +37,7 @@ export const SubscriptionModal = ({ ...props }) => {
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [rawInputAmounts, setRawInputAmounts] = useState<{ [key: number]: string }>({});
 
   const isEdit = !!subscriptionData?.id;
 
@@ -42,6 +45,7 @@ export const SubscriptionModal = ({ ...props }) => {
   useEffect(() => {
     if (modalOpen) {
       setError("");
+      setRawInputAmounts({});
       if (!isEdit) {
         setSubscriptionData((prev: any) => {
           const today = getTodayDateString();
@@ -68,10 +72,12 @@ export const SubscriptionModal = ({ ...props }) => {
   const closeModal = () => {
     setModalOpen(false);
     setSubscriptionData({});
+    setRawInputAmounts({});
     setError("");
   };
 
   const handlePaymentTypeChange = (newType: PaymentType) => {
+    setRawInputAmounts({});
     const price = Number(subscriptionData?.totalPrice || 0);
     const date = subscriptionData?.advancePaymentDate || getTodayDateString();
     const { totalPaid, installments } = calculateInstallments(
@@ -89,6 +95,7 @@ export const SubscriptionModal = ({ ...props }) => {
   };
 
   const handlePriceChange = (priceVal: string) => {
+    setRawInputAmounts({});
     const price = Number(priceVal);
     const currentType: PaymentType = subscriptionData?.paymentType || "FULL";
     const date = subscriptionData?.advancePaymentDate || getTodayDateString();
@@ -107,19 +114,54 @@ export const SubscriptionModal = ({ ...props }) => {
   };
 
   const handleStartDateChange = (newDate: string) => {
-    const price = Number(subscriptionData?.totalPrice || 0);
-    const currentType: PaymentType = subscriptionData?.paymentType || "FULL";
-    const { totalPaid, installments } = calculateInstallments(
-      price,
-      currentType,
-      newDate,
-    );
+    const currentInstallments = subscriptionData?.installments || [];
+    const updated = updateInstallmentDates(currentInstallments, newDate);
 
     setSubscriptionData({
       ...subscriptionData,
       advancePaymentDate: newDate,
-      totalPaid,
-      installments,
+      installments: updated,
+    });
+  };
+
+  const handleInstallmentAmountChange = (instNumber: number, valStr: string) => {
+    const price = Number(subscriptionData?.totalPrice || 0);
+    const paymentType = subscriptionData?.paymentType || "FULL";
+    const currentInstallments = subscriptionData?.installments || [];
+    const advDate = subscriptionData?.advancePaymentDate || getTodayDateString();
+
+    if (instNumber === 1) {
+      setRawInputAmounts((prev) => {
+        const next: Record<number, string> = { ...prev, [1]: valStr };
+        delete next[2];
+        return next;
+      });
+    } else if (instNumber === 2) {
+      setRawInputAmounts((prev) => ({ ...prev, [2]: valStr }));
+    }
+
+    const newAmount = valStr === "" ? 0 : Math.max(0, parseInt(valStr, 10) || 0);
+    const result = redistributeInstallments(
+      price,
+      paymentType,
+      currentInstallments,
+      instNumber,
+      newAmount,
+      advDate,
+    );
+
+    setSubscriptionData({
+      ...subscriptionData,
+      installments: result.installments,
+      totalPaid: result.totalPaid,
+    });
+  };
+
+  const handleInstallmentInputBlur = (instNumber: number) => {
+    setRawInputAmounts((prev) => {
+      const next: Record<number, string> = { ...prev };
+      delete next[instNumber];
+      return next;
     });
   };
 
@@ -175,17 +217,31 @@ export const SubscriptionModal = ({ ...props }) => {
     }
   };
 
+  const currentInstallments: SubscriptionInstallment[] = useMemo(() => {
+    return parseInstallments(subscriptionData?.installments);
+  }, [subscriptionData?.installments]);
+
+  const installmentsSum = useMemo(() => {
+    return currentInstallments.reduce((sum, i) => sum + i.amount, 0);
+  }, [currentInstallments]);
+
+  const hasNegativeInstallment = useMemo(() => {
+    return currentInstallments.some((i) => i.amount < 0 || isNaN(i.amount));
+  }, [currentInstallments]);
+
+  const sumMismatch = useMemo(() => {
+    const price = Number(subscriptionData?.totalPrice || 0);
+    return price > 0 && currentInstallments.length > 0 && installmentsSum !== price;
+  }, [subscriptionData?.totalPrice, currentInstallments, installmentsSum]);
+
   const buttonDisabled = useMemo(() => {
     const price = Number(subscriptionData?.totalPrice);
     const included = Number(subscriptionData?.appointmentsIncluded);
 
     if (!price || price <= 0 || !included || included <= 0) return true;
+    if (hasNegativeInstallment || sumMismatch) return true;
     return false;
-  }, [subscriptionData]);
-
-  const currentInstallments: SubscriptionInstallment[] = useMemo(() => {
-    return parseInstallments(subscriptionData?.installments);
-  }, [subscriptionData?.installments]);
+  }, [subscriptionData, hasNegativeInstallment, sumMismatch]);
 
   const currentPaymentType: PaymentType =
     subscriptionData?.paymentType || "FULL";
@@ -321,40 +377,92 @@ export const SubscriptionModal = ({ ...props }) => {
               </div>
 
               <div className="space-y-2">
-                {currentInstallments.map((inst) => (
-                  <div
-                    key={inst.installmentNumber}
-                    className={`flex items-center justify-between p-2 rounded-md text-xs sm:text-sm ${
-                      inst.paid
-                        ? "bg-emerald-950/40 border border-emerald-600/40 text-emerald-200"
-                        : "bg-amber-950/30 border border-amber-600/30 text-amber-200"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      {inst.paid ? (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-                      ) : (
-                        <Clock className="h-4 w-4 text-amber-400 shrink-0" />
-                      )}
-                      <span className="font-semibold">
-                        Rata {inst.installmentNumber}: €{inst.amount}
-                      </span>
+                {currentInstallments.map((inst) => {
+                  const isEditable =
+                    (currentPaymentType === "INSTALLMENTS_2" && inst.installmentNumber === 1) ||
+                    (currentPaymentType === "INSTALLMENTS_3" &&
+                      (inst.installmentNumber === 1 || inst.installmentNumber === 2));
+
+                  const isRemainder =
+                    (currentPaymentType === "INSTALLMENTS_2" && inst.installmentNumber === 2) ||
+                    (currentPaymentType === "INSTALLMENTS_3" && inst.installmentNumber === 3);
+
+                  return (
+                    <div
+                      key={inst.installmentNumber}
+                      className={`flex items-center justify-between p-2 rounded-md text-xs sm:text-sm ${
+                        inst.paid
+                          ? "bg-emerald-950/40 border border-emerald-600/40 text-emerald-200"
+                          : "bg-amber-950/30 border border-amber-600/30 text-amber-200"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {inst.paid ? (
+                          <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                        ) : (
+                          <Clock className="h-4 w-4 text-amber-400 shrink-0" />
+                        )}
+                        <span className="font-semibold whitespace-nowrap">
+                          Rata {inst.installmentNumber}:
+                        </span>
+                        {isEditable ? (
+                          <div className="relative flex items-center">
+                            <span className="text-neutral-400 text-xs mr-0.5">€</span>
+                            <Input
+                              type="number"
+                              min={0}
+                              step={1}
+                              value={rawInputAmounts[inst.installmentNumber] ?? inst.amount}
+                              onChange={(e) =>
+                                handleInstallmentAmountChange(
+                                  inst.installmentNumber,
+                                  e.target.value,
+                                )
+                              }
+                              onBlur={() =>
+                                handleInstallmentInputBlur(inst.installmentNumber)
+                              }
+                              className="w-20 h-7 px-1.5 py-0 text-xs bg-neutral-900 border-neutral-700 text-white font-bold rounded focus:border-brand"
+                            />
+                          </div>
+                        ) : (
+                          <span className="font-semibold text-neutral-200">
+                            €{inst.amount}
+                            {isRemainder && (
+                              <span className="text-[10px] text-neutral-400 ml-1 font-normal italic">
+                                (Residuo)
+                              </span>
+                            )}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs opacity-80">
+                          {inst.paid
+                            ? `Pagata (${formatDateIT(inst.paidDate || inst.dueDate)})`
+                            : `Scadenza ${formatDateIT(inst.dueDate)}`}
+                        </span>
+                        <Badge
+                          variant={inst.paid ? "success" : "dangerOutline"}
+                          className="text-[10px] px-1.5 py-0"
+                        >
+                          {inst.paid ? "Pagata" : "Da saldare"}
+                        </Badge>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs opacity-80">
-                        {inst.paid
-                          ? `Pagata (${formatDateIT(inst.paidDate || inst.dueDate)})`
-                          : `Scadenza ${formatDateIT(inst.dueDate)}`}
-                      </span>
-                      <Badge
-                        variant={inst.paid ? "success" : "dangerOutline"}
-                        className="text-[10px] px-1.5 py-0"
-                      >
-                        {inst.paid ? "Pagata" : "Da saldare"}
-                      </Badge>
-                    </div>
+                  );
+                })}
+
+                {hasNegativeInstallment && (
+                  <div className="p-2 rounded bg-red-950/60 border border-red-500/50 text-red-200 text-xs">
+                    ⚠️ Gli importi non possono superare il prezzo totale.
                   </div>
-                ))}
+                )}
+                {!hasNegativeInstallment && sumMismatch && (
+                  <div className="p-2 rounded bg-amber-950/60 border border-amber-500/50 text-amber-200 text-xs">
+                    ⚠️ La somma delle rate (€{installmentsSum}) deve corrispondere a €{subscriptionData?.totalPrice}.
+                  </div>
+                )}
               </div>
             </div>
           )}

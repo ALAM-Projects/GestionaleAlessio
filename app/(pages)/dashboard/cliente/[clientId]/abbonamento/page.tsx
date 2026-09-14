@@ -17,6 +17,8 @@ import {
   parseInstallments,
   PaymentType,
   SubscriptionInstallment,
+  redistributeInstallments,
+  updateInstallmentDates,
 } from "@/lib/subscription-helpers";
 import { Badge } from "@/components/ui/badge";
 import Spinner from "@/components/ui/spinner";
@@ -46,6 +48,8 @@ export default function SubscriptionPage() {
   const [paymentType, setPaymentType] = useState<PaymentType>("FULL");
   const [doneAppointments, setDoneAppointments] = useState<number>(0);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
+  const [installments, setInstallments] = useState<SubscriptionInstallment[]>([]);
+  const [rawInputAmounts, setRawInputAmounts] = useState<{ [key: number]: string }>({});
 
   useEffect(() => {
     const fetchUserAndSub = async () => {
@@ -59,11 +63,21 @@ export default function SubscriptionPage() {
         if (sub) {
           setAppointmentsIncluded(String(sub.appointmentsIncluded || ""));
           setTotalPrice(String(sub.totalPrice || ""));
-          setAdvancePaymentDate(sub.advancePaymentDate || getTodayDateString());
+          const advDate = sub.advancePaymentDate || getTodayDateString();
+          setAdvancePaymentDate(advDate);
           setExpirationDate((sub as any).expirationDate || "");
-          setPaymentType(((sub as any).paymentType as PaymentType) || "FULL");
+          const subPaymentType = ((sub as any).paymentType as PaymentType) || "FULL";
+          setPaymentType(subPaymentType);
           setDoneAppointments(sub.doneAppointments || 0);
           setIsCompleted(sub.completed || false);
+
+          if ((sub as any).installments) {
+            const parsed = parseInstallments((sub as any).installments);
+            setInstallments(parsed);
+          } else {
+            const calc = calculateInstallments(sub.totalPrice, subPaymentType, advDate);
+            setInstallments(calc.installments);
+          }
         }
       }
       setLoading(false);
@@ -72,23 +86,97 @@ export default function SubscriptionPage() {
     fetchUserAndSub();
   }, [clientId, subscriptionId]);
 
-  const { totalPaid, calculatedInstallments } = useMemo(() => {
+  const handlePriceChange = (val: string) => {
+    setTotalPrice(val);
+    setRawInputAmounts({});
+    const price = Number(val);
+    if (price > 0) {
+      const calc = calculateInstallments(price, paymentType, advancePaymentDate);
+      setInstallments(calc.installments);
+    } else {
+      setInstallments([]);
+    }
+  };
+
+  const handlePaymentTypeChange = (newType: PaymentType) => {
+    setPaymentType(newType);
+    setRawInputAmounts({});
     const price = Number(totalPrice || 0);
-    const date = advancePaymentDate || getTodayDateString();
-    const { totalPaid: paid, installments } = calculateInstallments(
+    if (price > 0) {
+      const calc = calculateInstallments(price, newType, advancePaymentDate);
+      setInstallments(calc.installments);
+    }
+  };
+
+  const handleAdvancePaymentDateChange = (newDate: string) => {
+    setAdvancePaymentDate(newDate);
+    if (installments.length > 0) {
+      setInstallments(updateInstallmentDates(installments, newDate));
+    }
+  };
+
+  const handleInstallmentAmountChange = (instNumber: number, valStr: string) => {
+    const price = Number(totalPrice || 0);
+    if (instNumber === 1) {
+      setRawInputAmounts((prev) => {
+        const next: Record<number, string> = { ...prev, [1]: valStr };
+        delete next[2];
+        return next;
+      });
+    } else if (instNumber === 2) {
+      setRawInputAmounts((prev) => ({ ...prev, [2]: valStr }));
+    }
+
+    const newAmount = valStr === "" ? 0 : Math.max(0, parseInt(valStr, 10) || 0);
+    const result = redistributeInstallments(
       price,
       paymentType,
-      date,
+      installments,
+      instNumber,
+      newAmount,
+      advancePaymentDate,
     );
-    return { totalPaid: paid, calculatedInstallments: installments };
-  }, [totalPrice, paymentType, advancePaymentDate]);
+    setInstallments(result.installments);
+  };
+
+  const handleInstallmentInputBlur = (instNumber: number) => {
+    setRawInputAmounts((prev) => {
+      const next: Record<number, string> = { ...prev };
+      delete next[instNumber];
+      return next;
+    });
+  };
+
+  const totalPaid = useMemo(() => {
+    return installments
+      .filter((i) => i.paid)
+      .reduce((sum, i) => sum + i.amount, 0);
+  }, [installments]);
+
+  const totalUnpaid = useMemo(() => {
+    return Math.max(0, Number(totalPrice || 0) - totalPaid);
+  }, [totalPrice, totalPaid]);
+
+  const installmentsSum = useMemo(() => {
+    return installments.reduce((sum, i) => sum + i.amount, 0);
+  }, [installments]);
+
+  const hasNegativeInstallment = useMemo(() => {
+    return installments.some((i) => i.amount < 0 || isNaN(i.amount));
+  }, [installments]);
+
+  const sumMismatch = useMemo(() => {
+    const price = Number(totalPrice || 0);
+    return price > 0 && installments.length > 0 && installmentsSum !== price;
+  }, [totalPrice, installments, installmentsSum]);
 
   const buttonDisabled = useMemo(() => {
     const price = Number(totalPrice);
     const included = Number(appointmentsIncluded);
     if (!price || price <= 0 || !included || included <= 0) return true;
+    if (hasNegativeInstallment || sumMismatch) return true;
     return false;
-  }, [totalPrice, appointmentsIncluded]);
+  }, [totalPrice, appointmentsIncluded, hasNegativeInstallment, sumMismatch]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,7 +199,7 @@ export default function SubscriptionPage() {
       advancePaymentDate || getTodayDateString(),
       expirationDate || null,
       paymentType,
-      calculatedInstallments,
+      installments,
     );
 
     if (success) {
@@ -193,7 +281,7 @@ export default function SubscriptionPage() {
                         type="number"
                         placeholder="es. 300"
                         value={totalPrice}
-                        onChange={(e) => setTotalPrice(e.target.value)}
+                        onChange={(e) => handlePriceChange(e.target.value)}
                         className="bg-neutral-800 border-neutral-700 text-white text-base h-11"
                         required
                       />
@@ -207,7 +295,7 @@ export default function SubscriptionPage() {
                     </Label>
                     <DatePicker
                       value={advancePaymentDate}
-                      onChange={(val) => setAdvancePaymentDate(val)}
+                      onChange={(val) => handleAdvancePaymentDateChange(val)}
                       placeholder="Seleziona data inizio"
                       className="w-full h-11 bg-neutral-800 border-neutral-700 text-white text-base"
                     />
@@ -224,7 +312,7 @@ export default function SubscriptionPage() {
                     <div className="grid grid-cols-3 gap-3">
                       <button
                         type="button"
-                        onClick={() => setPaymentType("FULL")}
+                        onClick={() => handlePaymentTypeChange("FULL")}
                         className={`p-3 rounded-lg border text-sm font-semibold transition-all text-center flex flex-col items-center justify-center gap-1 ${
                           paymentType === "FULL"
                             ? "bg-emerald-600 border-emerald-500 text-white shadow-md ring-2 ring-emerald-400/40"
@@ -236,7 +324,7 @@ export default function SubscriptionPage() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setPaymentType("INSTALLMENTS_2")}
+                        onClick={() => handlePaymentTypeChange("INSTALLMENTS_2")}
                         className={`p-3 rounded-lg border text-sm font-semibold transition-all text-center flex flex-col items-center justify-center gap-1 ${
                           paymentType === "INSTALLMENTS_2"
                             ? "bg-emerald-600 border-emerald-500 text-white shadow-md ring-2 ring-emerald-400/40"
@@ -248,7 +336,7 @@ export default function SubscriptionPage() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setPaymentType("INSTALLMENTS_3")}
+                        onClick={() => handlePaymentTypeChange("INSTALLMENTS_3")}
                         className={`p-3 rounded-lg border text-sm font-semibold transition-all text-center flex flex-col items-center justify-center gap-1 ${
                           paymentType === "INSTALLMENTS_3"
                             ? "bg-emerald-600 border-emerald-500 text-white shadow-md ring-2 ring-emerald-400/40"
@@ -298,7 +386,7 @@ export default function SubscriptionPage() {
                   <h2 className="text-lg font-semibold text-white border-b border-neutral-800 pb-3 flex items-center justify-between">
                     <span>Riepilogo e Rate</span>
                     <span className="text-sm font-normal text-neutral-400">
-                      {calculatedInstallments.length} {calculatedInstallments.length === 1 ? "rata" : "rate"}
+                      {installments.length} {installments.length === 1 ? "rata" : "rate"}
                     </span>
                   </h2>
 
@@ -313,51 +401,109 @@ export default function SubscriptionPage() {
                     <div className="p-3 rounded-lg bg-neutral-800/80 border border-neutral-700">
                       <div className="text-xs text-neutral-400">Residuo da saldare</div>
                       <div className="text-xl font-bold text-amber-400">
-                        €{Math.max(0, Number(totalPrice || 0) - totalPaid)}
+                        €{totalUnpaid}
                       </div>
                     </div>
                   </div>
 
                   {/* RATE LIST */}
                   <div className="space-y-3">
-                    {calculatedInstallments.map((inst) => (
-                      <div
-                        key={inst.installmentNumber}
-                        className={`p-3.5 rounded-lg border flex items-center justify-between transition-all ${
-                          inst.paid
-                            ? "bg-emerald-950/30 border-emerald-600/40 text-emerald-200"
-                            : "bg-amber-950/25 border-amber-600/35 text-amber-200"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          {inst.paid ? (
-                            <div className="h-8 w-8 rounded-full bg-emerald-900/60 flex items-center justify-center shrink-0">
-                              <CheckCircle2 className="h-5 w-5 text-emerald-400" />
-                            </div>
-                          ) : (
-                            <div className="h-8 w-8 rounded-full bg-amber-900/60 flex items-center justify-center shrink-0">
-                              <Clock className="h-5 w-5 text-amber-400" />
-                            </div>
-                          )}
-                          <div>
-                            <div className="font-bold text-base text-white">
-                              Rata {inst.installmentNumber}: €{inst.amount}
-                            </div>
-                            <div className="text-xs text-neutral-400">
-                              {inst.paid
-                                ? `Pagata oggi (${formatDateIT(inst.paidDate || inst.dueDate)})`
-                                : `Scadenza: ${formatDateIT(inst.dueDate)}`}
+                    {installments.map((inst) => {
+                      const isEditable =
+                        (paymentType === "INSTALLMENTS_2" && inst.installmentNumber === 1) ||
+                        (paymentType === "INSTALLMENTS_3" &&
+                          (inst.installmentNumber === 1 || inst.installmentNumber === 2));
+
+                      const isRemainder =
+                        (paymentType === "INSTALLMENTS_2" && inst.installmentNumber === 2) ||
+                        (paymentType === "INSTALLMENTS_3" && inst.installmentNumber === 3);
+
+                      return (
+                        <div
+                          key={inst.installmentNumber}
+                          className={`p-3.5 rounded-lg border flex items-center justify-between transition-all ${
+                            inst.paid
+                              ? "bg-emerald-950/30 border-emerald-600/40 text-emerald-200"
+                              : "bg-amber-950/25 border-amber-600/35 text-amber-200"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            {inst.paid ? (
+                              <div className="h-8 w-8 rounded-full bg-emerald-900/60 flex items-center justify-center shrink-0">
+                                <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                              </div>
+                            ) : (
+                              <div className="h-8 w-8 rounded-full bg-amber-900/60 flex items-center justify-center shrink-0">
+                                <Clock className="h-5 w-5 text-amber-400" />
+                              </div>
+                            )}
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-base text-white whitespace-nowrap">
+                                  Rata {inst.installmentNumber}:
+                                </span>
+                                {isEditable ? (
+                                  <div className="relative flex items-center">
+                                    <span className="absolute left-2.5 text-neutral-400 text-sm font-semibold pointer-events-none">
+                                      €
+                                    </span>
+                                    <Input
+                                      type="number"
+                                      min={0}
+                                      step={1}
+                                      value={rawInputAmounts[inst.installmentNumber] ?? inst.amount}
+                                      onChange={(e) =>
+                                        handleInstallmentAmountChange(
+                                          inst.installmentNumber,
+                                          e.target.value,
+                                        )
+                                      }
+                                      onBlur={() =>
+                                        handleInstallmentInputBlur(inst.installmentNumber)
+                                      }
+                                      className="w-24 h-8 pl-6 pr-2 py-1 text-sm bg-neutral-900 border-neutral-700 text-white font-bold rounded focus:border-brand focus:ring-1 focus:ring-brand"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="px-2.5 py-0.5 text-sm bg-neutral-800/80 border border-neutral-700 rounded font-bold text-neutral-200">
+                                      €{inst.amount}
+                                    </span>
+                                    {isRemainder && (
+                                      <span className="text-[11px] text-neutral-400 font-normal italic">
+                                        (Residuo)
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-xs text-neutral-400 mt-1">
+                                {inst.paid
+                                  ? `Pagata oggi (${formatDateIT(inst.paidDate || inst.dueDate)})`
+                                  : `Scadenza: ${formatDateIT(inst.dueDate)}`}
+                              </div>
                             </div>
                           </div>
+                          <Badge
+                            variant={inst.paid ? "success" : "dangerOutline"}
+                            className="px-2 py-0.5"
+                          >
+                            {inst.paid ? "Pagata" : "Da saldare"}
+                          </Badge>
                         </div>
-                        <Badge
-                          variant={inst.paid ? "success" : "dangerOutline"}
-                          className="px-2 py-0.5"
-                        >
-                          {inst.paid ? "Pagata" : "Da saldare"}
-                        </Badge>
+                      );
+                    })}
+
+                    {hasNegativeInstallment && (
+                      <div className="p-2.5 rounded-lg bg-red-950/60 border border-red-500/50 text-red-200 text-xs">
+                        ⚠️ Gli importi delle rate non possono superare il prezzo totale dell&apos;abbonamento.
                       </div>
-                    ))}
+                    )}
+                    {!hasNegativeInstallment && sumMismatch && (
+                      <div className="p-2.5 rounded-lg bg-amber-950/60 border border-amber-500/50 text-amber-200 text-xs">
+                        ⚠️ La somma delle rate (€{installmentsSum}) deve essere uguale al prezzo totale (€{totalPrice}).
+                      </div>
+                    )}
                   </div>
                 </div>
 

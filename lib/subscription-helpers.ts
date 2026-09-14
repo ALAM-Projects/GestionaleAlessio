@@ -126,6 +126,131 @@ export function calculateInstallments(
   return { totalPaid: totalPrice, installments: [] };
 }
 
+export function updateInstallmentDates(
+  installments: SubscriptionInstallment[],
+  newStartDate: string,
+): SubscriptionInstallment[] {
+  const baseDate = newStartDate || getTodayDateString();
+  return installments.map((inst) => {
+    const newDueDate =
+      inst.installmentNumber === 1
+        ? baseDate
+        : addMonths(baseDate, inst.installmentNumber - 1);
+
+    return {
+      ...inst,
+      dueDate: newDueDate,
+      paidDate: inst.paid ? (inst.paidDate || baseDate) : null,
+    };
+  });
+}
+
+export function redistributeInstallments(
+  totalPrice: number,
+  paymentType: PaymentType,
+  currentInstallments: SubscriptionInstallment[],
+  editedInstallmentNumber: number,
+  newAmount: number,
+  startDate?: string,
+): { totalPaid: number; installments: SubscriptionInstallment[] } {
+  const date = startDate || getTodayDateString();
+
+  // If no current installments, generate defaults first
+  let baseInstallments = currentInstallments;
+  if (!baseInstallments || baseInstallments.length === 0) {
+    baseInstallments = calculateInstallments(totalPrice, paymentType, date).installments;
+  }
+
+  if (paymentType === "FULL") {
+    return calculateInstallments(totalPrice, paymentType, date);
+  }
+
+  if (paymentType === "INSTALLMENTS_2") {
+    // Only Rata 1 can be edited; Rata 2 is always the remainder
+    const r1 = Math.max(0, Math.round(newAmount));
+    const r2 = totalPrice - r1;
+
+    const r1Date = baseInstallments[0]?.dueDate || date;
+    const r2Date = baseInstallments[1]?.dueDate || addMonths(date, 1);
+
+    const updatedInstallments: SubscriptionInstallment[] = [
+      {
+        installmentNumber: 1,
+        amount: r1,
+        dueDate: r1Date,
+        paid: baseInstallments[0]?.paid ?? true,
+        paidDate: baseInstallments[0]?.paidDate ?? date,
+      },
+      {
+        installmentNumber: 2,
+        amount: r2,
+        dueDate: r2Date,
+        paid: baseInstallments[1]?.paid ?? false,
+        paidDate: baseInstallments[1]?.paidDate ?? null,
+      },
+    ];
+
+    const totalPaid = updatedInstallments
+      .filter((i) => i.paid)
+      .reduce((sum, i) => sum + i.amount, 0);
+
+    return { totalPaid, installments: updatedInstallments };
+  }
+
+  if (paymentType === "INSTALLMENTS_3") {
+    const r1Date = baseInstallments[0]?.dueDate || date;
+    const r2Date = baseInstallments[1]?.dueDate || addMonths(date, 1);
+    const r3Date = baseInstallments[2]?.dueDate || addMonths(date, 2);
+
+    let r1 = baseInstallments[0]?.amount ?? Math.round(totalPrice / 3);
+    let r2 = baseInstallments[1]?.amount ?? Math.round(totalPrice / 3);
+    let r3 = baseInstallments[2]?.amount ?? totalPrice - (r1 + r2);
+
+    if (editedInstallmentNumber === 1) {
+      r1 = Math.max(0, Math.round(newAmount));
+      const residuo = totalPrice - r1;
+      r2 = Math.round(residuo / 2);
+      r3 = residuo - r2;
+    } else if (editedInstallmentNumber === 2) {
+      r2 = Math.max(0, Math.round(newAmount));
+      r3 = totalPrice - r1 - r2;
+    }
+    // Rata 3 is not editable, always the remainder
+
+    const updatedInstallments: SubscriptionInstallment[] = [
+      {
+        installmentNumber: 1,
+        amount: r1,
+        dueDate: r1Date,
+        paid: baseInstallments[0]?.paid ?? true,
+        paidDate: baseInstallments[0]?.paidDate ?? date,
+      },
+      {
+        installmentNumber: 2,
+        amount: r2,
+        dueDate: r2Date,
+        paid: baseInstallments[1]?.paid ?? false,
+        paidDate: baseInstallments[1]?.paidDate ?? null,
+      },
+      {
+        installmentNumber: 3,
+        amount: r3,
+        dueDate: r3Date,
+        paid: baseInstallments[2]?.paid ?? false,
+        paidDate: baseInstallments[2]?.paidDate ?? null,
+      },
+    ];
+
+    const totalPaid = updatedInstallments
+      .filter((i) => i.paid)
+      .reduce((sum, i) => sum + i.amount, 0);
+
+    return { totalPaid, installments: updatedInstallments };
+  }
+
+  return { totalPaid: totalPrice, installments: [] };
+}
+
 export function parseInstallments(
   installmentsData: any,
 ): SubscriptionInstallment[] {
