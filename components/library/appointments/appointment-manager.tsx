@@ -1,7 +1,12 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AppointmentsTable } from "./appointments.table";
+import AppointmentsCalendar from "./appointments.calendar";
 import { useRouter } from "next/navigation";
-import { Dumbbell, Plus } from "lucide-react";
+import { Dumbbell, Plus, LayoutList, CalendarDays } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const AppointmentManager = ({ ...props }) => {
   const router = useRouter();
@@ -21,6 +26,29 @@ const AppointmentManager = ({ ...props }) => {
     setAppointmentData,
   } = props;
 
+  const [viewMode, setViewMode] = useState<"table" | "calendar">("table");
+
+  // Restore saved view preference
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("appointments_view_mode");
+      if (saved === "table" || saved === "calendar") {
+        setViewMode(saved);
+      }
+    } catch (e) {
+      // Ignore localStorage errors
+    }
+  }, []);
+
+  const handleSetViewMode = (mode: "table" | "calendar") => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem("appointments_view_mode", mode);
+    } catch (e) {
+      // Ignore
+    }
+  };
+
   const openAppointmentModal = setAppointmentModalOpen ?? setModalOpen;
 
   return (
@@ -37,7 +65,8 @@ const AppointmentManager = ({ ...props }) => {
                 Allenamenti
               </h3>
               <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30">
-                {appointments?.length ?? 0} {appointments?.length === 1 ? "appuntamento" : "appuntamenti"}
+                {appointments?.length ?? 0}{" "}
+                {appointments?.length === 1 ? "appuntamento" : "appuntamenti"}
               </span>
             </div>
             <p className="text-xs text-neutral-400 mt-0.5">
@@ -48,29 +77,73 @@ const AppointmentManager = ({ ...props }) => {
           </div>
         </div>
 
-        {showButton && (
-          <Button
-            variant="brand"
-            size="sm"
-            onClick={() => openAppointmentModal(true)}
-            className="h-9 px-4 text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-brand/20 shrink-0"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span>Nuovo appuntamento</span>
-          </Button>
-        )}
+        <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+          {/* VIEW SWITCHER TOGGLE: TABELLA / CALENDARIO */}
+          <div className="flex items-center p-1 rounded-xl bg-neutral-950/60 border border-neutral-800">
+            <button
+              type="button"
+              onClick={() => handleSetViewMode("table")}
+              className={cn(
+                "px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer",
+                viewMode === "table"
+                  ? "bg-neutral-800 text-white shadow-sm border border-neutral-700"
+                  : "text-neutral-400 hover:text-neutral-200"
+              )}
+            >
+              <LayoutList className="h-3.5 w-3.5" />
+              <span>Tabella</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSetViewMode("calendar")}
+              className={cn(
+                "px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer",
+                viewMode === "calendar"
+                  ? "bg-neutral-800 text-white shadow-sm border border-neutral-700"
+                  : "text-neutral-400 hover:text-neutral-200"
+              )}
+            >
+              <CalendarDays className="h-3.5 w-3.5" />
+              <span>Calendario</span>
+            </button>
+          </div>
+
+          {showButton && (
+            <Button
+              variant="brand"
+              size="sm"
+              onClick={() => openAppointmentModal(true)}
+              className="h-9 px-4 text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-brand/20 shrink-0"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>Nuovo appuntamento</span>
+            </Button>
+          )}
+        </div>
       </div>
 
-      {/* TABLE DIRECT IN CARD */}
-      <AppointmentsTable
-        appointments={appointments}
-        clientSubscriptions={subscriptions}
-        isClientPage={isClientPage}
-        setModalOpen={openAppointmentModal}
-        clientId={clientId}
-        getPageInfo={() => getPageInfo()}
-        setAppointmentData={setAppointmentData}
-      />
+      {/* CONTENT: TABLE OR CALENDAR */}
+      {viewMode === "table" ? (
+        <AppointmentsTable
+          appointments={appointments}
+          clientSubscriptions={subscriptions}
+          isClientPage={isClientPage}
+          setModalOpen={openAppointmentModal}
+          clientId={clientId}
+          getPageInfo={() => getPageInfo()}
+          setAppointmentData={setAppointmentData}
+        />
+      ) : (
+        <AppointmentsCalendar
+          appointments={appointments}
+          clientSubscriptions={subscriptions}
+          isClientPage={isClientPage}
+          setModalOpen={openAppointmentModal}
+          clientId={clientId}
+          getPageInfo={() => getPageInfo()}
+          setAppointmentData={setAppointmentData}
+        />
+      )}
     </div>
   );
 };
