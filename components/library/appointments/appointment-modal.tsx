@@ -4,17 +4,25 @@ import { useEffect, useMemo, useState } from "react";
 import {
   AlertDialog,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogHeader,
-  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Label } from "../../ui/label";
-import { Input } from "../../ui/input";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { upsertAppointment } from "@/app/api/appointments/upsertAppointment";
 import { createRecurringAppointments } from "@/app/api/appointments/createRecurringAppointments";
-import SuperButton from "../common/super-button";
 import { GroupUser } from "@/app/api/user/getUsersList";
 import { Combobox } from "@/components/ui/combobox";
+import {
+  AlertTriangle,
+  Calendar,
+  Clock,
+  Dumbbell,
+  Loader2,
+  Repeat,
+  X,
+} from "lucide-react";
 
 function generateWeeklyDates(startDate: string, weeks: number): string[] {
   const dates: string[] = [];
@@ -108,7 +116,14 @@ export const AppointmentModal = ({ ...props }) => {
     )
       return true;
     return false;
-  }, [appointmentData, addUsersSelect, hasAvailableSubscriptionTrainings, isRecurring, recurringWeeks, previewDates]);
+  }, [
+    appointmentData,
+    addUsersSelect,
+    hasAvailableSubscriptionTrainings,
+    isRecurring,
+    recurringWeeks,
+    previewDates,
+  ]);
 
   useEffect(() => {
     if (!appointmentData?.date) {
@@ -123,130 +138,83 @@ export const AppointmentModal = ({ ...props }) => {
 
   return (
     <AlertDialog open={modalOpen} onOpenChange={setModalOpen}>
-      <AlertDialogContent className="border-0 bg-primary">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-white flex items-start justify-between">
-            <span className="text-3xl">
-              {isRecurring ? "Appuntamenti ricorrenti" : "Nuovo appuntamento"}
-            </span>
-            <div
-              className="text-white text-md cursor-pointer"
-              onClick={() => closeModal()}
-            >
-              X
+      <AlertDialogContent className="bg-neutral-900 border border-neutral-800 rounded-3xl shadow-2xl p-6 sm:p-7 max-w-lg text-white space-y-5">
+        {/* HEADER */}
+        <AlertDialogHeader className="space-y-0">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="h-11 w-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+                <Dumbbell className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-white tracking-tight">
+                  {isEditMode
+                    ? "Modifica appuntamento"
+                    : isRecurring
+                    ? "Appuntamenti ricorrenti"
+                    : "Nuovo appuntamento"}
+                </h2>
+                <p className="text-xs text-neutral-400 mt-0.5">
+                  {isEditMode
+                    ? "Modifica data, ora e parametri dell'allenamento"
+                    : "Inserisci data ed ora della seduta di allenamento"}
+                </p>
+              </div>
             </div>
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            Inserisci data ed ora del nuovo appuntamento
-          </AlertDialogDescription>
+
+            <button
+              type="button"
+              onClick={closeModal}
+              className="h-8 w-8 rounded-full bg-neutral-800 hover:bg-neutral-750 border border-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition-colors shrink-0"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </AlertDialogHeader>
 
+        {/* TYPE TOGGLE: SINGOLO / RICORRENTE */}
         {!isEditMode && (
-          <div className="flex gap-2">
+          <div className="p-1 rounded-xl bg-neutral-950/60 border border-neutral-800 flex gap-1">
             <button
               type="button"
               onClick={() => setIsRecurring(false)}
-              className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                 !isRecurring
-                  ? "bg-white text-primary"
-                  : "text-neutral-400 hover:text-white"
+                  ? "bg-neutral-800 text-white shadow-sm border border-neutral-700"
+                  : "text-neutral-400 hover:text-neutral-200"
               }`}
             >
-              Singolo
+              <Calendar className="h-3.5 w-3.5" />
+              <span>Singolo</span>
             </button>
             <button
               type="button"
               onClick={() => setIsRecurring(true)}
-              className={`px-3 py-1 rounded-full text-sm font-semibold transition-colors ${
+              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                 isRecurring
-                  ? "bg-white text-primary"
-                  : "text-neutral-400 hover:text-white"
+                  ? "bg-neutral-800 text-white shadow-sm border border-neutral-700"
+                  : "text-neutral-400 hover:text-neutral-200"
               }`}
             >
-              Ricorrente
+              <Repeat className="h-3.5 w-3.5" />
+              <span>Ricorrente</span>
             </button>
           </div>
         )}
 
-        <div className="gap-1.5">
-          <Label className="text-neutral-400 font-bold text-md" htmlFor="email">
-            {isRecurring ? "Data di inizio" : "Data"}
-          </Label>
-          <Input
-            type="date"
-            id="date"
-            name="date"
-            value={appointmentData?.date || ""}
-            className="text-primary text-md"
-            onChange={(e) =>
-              setAppointmentData({ ...appointmentData, date: e.target.value })
-            }
-          />
-        </div>
-        <div className="gap-1.5">
-          <Label className="text-neutral-400 font-bold text-md" htmlFor="email">
-            Ora
-          </Label>
-          <Input
-            type="time"
-            id="time"
-            name="time"
-            className="text-primary text-md"
-            placeholder=""
-            value={appointmentData?.time || ""}
-            onChange={(e) =>
-              setAppointmentData({ ...appointmentData, time: e.target.value })
-            }
-          />
-        </div>
-
-        {isRecurring && (
-          <>
-            <div className="gap-1.5">
-              <Label className="text-neutral-400 font-bold text-md">
-                Numero di settimane
-              </Label>
-              <Input
-                type="number"
-                min={1}
-                max={52}
-                className="text-primary text-md"
-                value={recurringWeeks}
-                onChange={(e) => setRecurringWeeks(Number(e.target.value))}
-              />
-            </div>
-            {previewDates.length > 0 && (
-              <div className="gap-1.5">
-                <Label className="text-neutral-400 font-bold text-md">
-                  Anteprima ({previewDates.length} appuntamenti)
-                </Label>
-                <ul className="text-white text-sm max-h-40 overflow-y-auto space-y-1 mt-1">
-                  {previewDates.map((d) => (
-                    <li key={d} className="text-neutral-300">
-                      {new Date(d).toLocaleDateString("it-IT", {
-                        weekday: "long",
-                        day: "2-digit",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </>
-        )}
-
+        {/* CLIENT SELECT (IF IN GENERAL DASHBOARD) */}
         {addUsersSelect && (
-          <div className="gap-1.5">
-            <Label
-              className="text-neutral-400 font-bold text-md"
-              htmlFor="email"
-            >
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
               Cliente
             </Label>
             <Combobox
-              options={usersList?.map((user: GroupUser) => ({ value: user.id, label: user.fullName })) ?? []}
+              options={
+                usersList?.map((user: GroupUser) => ({
+                  value: user.id,
+                  label: user.fullName,
+                })) ?? []
+              }
               value={appointmentData?.userId || ""}
               onValueChange={(value) =>
                 setAppointmentData({ ...appointmentData, userId: value })
@@ -257,21 +225,106 @@ export const AppointmentModal = ({ ...props }) => {
             />
           </div>
         )}
-        {!hasAvailableSubscriptionTrainings && (
-          <>
-            <div className="gap-1.5">
-              <Label
-                className="text-neutral-400 font-bold text-md"
-                htmlFor="email"
-              >
-                Guadagno
+
+        {/* FORM GRID: DATA & ORA */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5 text-neutral-400" />
+              <span>{isRecurring ? "Data di inizio" : "Data"}</span>
+            </Label>
+            <DatePicker
+              value={appointmentData?.date || ""}
+              onChange={(date) =>
+                setAppointmentData({ ...appointmentData, date })
+              }
+              placeholder="Seleziona data..."
+              className="w-full h-10 bg-neutral-800/80 border-neutral-700 text-white rounded-xl text-xs"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5 text-neutral-400" />
+              <span>Ora</span>
+            </Label>
+            <Input
+              type="time"
+              id="time"
+              name="time"
+              value={appointmentData?.time || ""}
+              onChange={(e) =>
+                setAppointmentData({ ...appointmentData, time: e.target.value })
+              }
+              className="h-10 bg-neutral-800/80 border-neutral-700 text-white rounded-xl px-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 [color-scheme:dark]"
+            />
+          </div>
+        </div>
+
+        {/* RECURRING SETTINGS */}
+        {isRecurring && (
+          <div className="p-4 rounded-xl bg-neutral-950/40 border border-neutral-800 space-y-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+                Numero di settimane
               </Label>
+              <Input
+                type="number"
+                min={1}
+                max={52}
+                value={recurringWeeks}
+                onChange={(e) => setRecurringWeeks(Number(e.target.value))}
+                className="h-10 bg-neutral-800/80 border-neutral-700 text-white rounded-xl text-sm"
+              />
+            </div>
+
+            {previewDates.length > 0 && (
+              <div className="space-y-1.5 pt-1">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+                  Anteprima ({previewDates.length} appuntamenti)
+                </Label>
+                <div className="max-h-32 overflow-y-auto space-y-1 pr-1">
+                  {previewDates.map((d) => (
+                    <div
+                      key={d}
+                      className="px-2.5 py-1 rounded-lg bg-neutral-800/60 border border-neutral-750 text-xs text-neutral-300 capitalize flex items-center justify-between"
+                    >
+                      <span>
+                        {new Date(d).toLocaleDateString("it-IT", {
+                          weekday: "short",
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </span>
+                      {appointmentData?.time && (
+                        <span className="text-neutral-400 text-[11px]">
+                          h {appointmentData.time}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* GUADAGNO (IF NO ACTIVE SUBSCRIPTION OR GENERAL DASHBOARD) */}
+        {!hasAvailableSubscriptionTrainings && (
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+              Guadagno (€)
+            </Label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm font-semibold">
+                €
+              </span>
               <Input
                 type="number"
                 id="price"
                 name="price"
-                className="text-primary text-md"
-                placeholder="eg. 20€"
+                placeholder="20"
                 value={appointmentData?.price || ""}
                 onChange={(e) =>
                   setAppointmentData({
@@ -279,31 +332,44 @@ export const AppointmentModal = ({ ...props }) => {
                     price: e.target.value,
                   })
                 }
+                className="h-10 pl-8 bg-neutral-800/80 border-neutral-700 text-white rounded-xl text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
-              {addUsersSelect && (
-                <p className="text-neutral-400 text-sm">
-                  Se il cliente ha un abbonamento attivo, lasciare vuoto.
-                </p>
-              )}
             </div>
-          </>
+            {addUsersSelect && (
+              <p className="text-[11px] text-neutral-400">
+                Se il cliente ha un abbonamento attivo con sedute disponibili, puoi lasciare vuoto.
+              </p>
+            )}
+          </div>
         )}
 
-        <div className="mx-auto mb-5">
-          {error && (
-            <p className="text-red-500 mt-4 bg-red-500/10 p-2 px-3 rounded-md">
-              {error}
-            </p>
-          )}
-        </div>
+        {/* ERROR MESSAGE */}
+        {error && (
+          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/25 flex items-center gap-2 text-xs text-red-400">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
 
-        <SuperButton
-          disabled={buttonDisabled}
-          onClick={(e) => handleUpsertAppointment(e)}
-          text="Salva"
-          isLoading={isLoading}
+        {/* SAVE CTA BUTTON */}
+        <Button
+          type="button"
+          disabled={buttonDisabled || isLoading}
+          onClick={handleUpsertAppointment}
           variant="brand"
-        />
+          className="w-full h-11 text-sm font-semibold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-brand/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Salvataggio in corso...</span>
+            </>
+          ) : isEditMode ? (
+            "Salva modifiche"
+          ) : (
+            "Salva appuntamento"
+          )}
+        </Button>
       </AlertDialogContent>
     </AlertDialog>
   );

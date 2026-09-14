@@ -13,8 +13,9 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,6 +39,14 @@ import { Badge } from "@/components/ui/badge";
 import { editAppointmentStatusOrPaid } from "@/app/api/appointments/editAppointmentStatusOrPaid";
 import { AppointmentStatus } from "@/types/db_types";
 
+import {
+  formatDateIT,
+  getSubscriptionPaymentAlert,
+  getTodayDateString,
+  parseInstallments,
+} from "@/lib/subscription-helpers";
+import { payInstallment } from "@/app/api/subscriptions/payInstallment";
+
 export const columns: ColumnDef<Subscription>[] = [
   {
     accessorKey: "id",
@@ -55,8 +64,25 @@ export const columns: ColumnDef<Subscription>[] = [
     },
     cell: ({ row }) => {
       const id = row.getValue("id");
+      const alert = getSubscriptionPaymentAlert(row.original);
 
-      return <div className="text-left font-medium">{id as string}</div>;
+      return (
+        <div className="flex items-center gap-2 text-left font-medium">
+          <span>#{id as string}</span>
+          {alert && (
+            <span
+              title={alert.message}
+              className={`inline-flex items-center justify-center p-1 rounded cursor-pointer shrink-0 transition-transform hover:scale-110 ${
+                alert.isUrgent
+                  ? "bg-red-950/70 border border-red-500/60 text-red-300 hover:text-red-200"
+                  : "bg-amber-950/70 border border-amber-500/60 text-amber-400 hover:text-amber-300"
+              }`}
+            >
+              <AlertTriangle className="h-3.5 w-3.5" />
+            </span>
+          )}
+        </div>
+      );
     },
   },
   {
@@ -120,54 +146,117 @@ export const columns: ColumnDef<Subscription>[] = [
     cell: ({ row }) => {
       const price = row.getValue("totalPrice");
 
-      return <div className="">€{price as string}</div>;
+      return <div className="font-semibold">€{price as string}</div>;
     },
   },
   {
     accessorKey: "totalPaid",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          className="px-0 hover:bg-trasparent hover:text-white"
-        >
-          Pagato
-        </Button>
-      );
+    header: () => {
+      return <div className="text-left">Pagamento</div>;
     },
     cell: ({ row }) => {
-      const paid = row.getValue("totalPaid");
-      const totalPrice = row.getValue("totalPrice");
-      return (
-        <Badge
-          variant={paid === totalPrice ? "successOutline" : "dangerOutline"}
-        >
-          €{paid as string}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "appointmentsIncluded",
-    header: () => <div className="text-left">Appuntamenti inclusi</div>,
-    cell: ({ row }) => {
-      const appointmentsIncluded = row.getValue("appointmentsIncluded");
+      const paid = Number(row.getValue("totalPaid") || 0);
+      const totalPrice = Number(row.getValue("totalPrice") || 0);
+      const fullyPaid = paid >= totalPrice && totalPrice > 0;
 
       return (
-        <div className="text-left font-medium">
-          {appointmentsIncluded as string}
+        <div className="text-left">
+          <Badge
+            variant={fullyPaid ? "success" : "dangerOutline"}
+            className="text-xs"
+          >
+            €{paid} / €{totalPrice}
+          </Badge>
         </div>
       );
     },
   },
   {
-    accessorKey: "doneAppointments",
-    header: ({ column }) => {
-      return <div className="text-left">Appuntamenti fatti</div>;
-    },
+    id: "installments",
+    header: () => <div className="text-left">Rate</div>,
     cell: ({ row }) => {
-      const doneAppointments = row.getValue("doneAppointments");
-      return <div className="">{doneAppointments as string}</div>;
+      const installments = parseInstallments((row.original as any).installments);
+      const today = getTodayDateString();
+
+      if (!installments || installments.length === 0) {
+        return <span className="text-neutral-400 text-xs">-</span>;
+      }
+
+      return (
+        <div className="flex flex-wrap gap-1.5 text-left">
+          {installments.map((inst) => {
+            const isOverdue = !inst.paid && today > inst.dueDate;
+            return (
+              <span
+                key={inst.installmentNumber}
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium border ${
+                  inst.paid
+                    ? "bg-emerald-950/40 border-emerald-600/40 text-emerald-300"
+                    : isOverdue
+                    ? "bg-red-950/50 border-red-500/60 text-red-300 font-semibold"
+                    : "bg-amber-950/40 border-amber-600/40 text-amber-300"
+                }`}
+              >
+                <span>R{inst.installmentNumber}: €{inst.amount}</span>
+                {inst.paid ? (
+                  <span className="text-emerald-400 font-bold">✓</span>
+                ) : isOverdue ? (
+                  <span className="text-red-400 font-bold">⚠️ Scaduta</span>
+                ) : (
+                  <span className="text-amber-300/80 text-[10px]">
+                    ⏳ {formatDateIT(inst.dueDate)}
+                  </span>
+                )}
+              </span>
+            );
+          })}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "expirationDate",
+    header: () => <div className="text-left">Scadenza</div>,
+    cell: ({ row }) => {
+      const expDate = (row.original as any).expirationDate;
+      if (!expDate) return <span className="text-neutral-400 text-xs">-</span>;
+
+      const today = getTodayDateString();
+      const isExpired = today > expDate && !row.original.completed;
+
+      return (
+        <div className="text-left">
+          {isExpired ? (
+            <Badge variant="dangerOutline" className="text-xs">
+              Scaduto il {formatDateIT(expDate)}
+            </Badge>
+          ) : (
+            <span className="text-sm">{formatDateIT(expDate)}</span>
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    id: "appointmentsProgress",
+    header: () => <div className="text-left">Allenamenti</div>,
+    cell: ({ row }) => {
+      const done = Number(row.original.doneAppointments || 0);
+      const included = Number(row.original.appointmentsIncluded || 0);
+      const isCompleted = done >= included && included > 0;
+
+      return (
+        <div className="text-left flex items-center gap-2">
+          <span className="text-sm font-semibold text-white">
+            {done} <span className="text-neutral-500 font-normal">/</span> {included}
+          </span>
+          {isCompleted && (
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-neutral-800 text-neutral-300 border border-neutral-700">
+              Completati
+            </span>
+          )}
+        </div>
+      );
     },
   },
 ];
@@ -182,6 +271,7 @@ export function SubscriptionsTable({ ...props }) {
     setSubscriptionData,
   } = props;
 
+  const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -233,57 +323,17 @@ export function SubscriptionsTable({ ...props }) {
   };
 
   return (
-    <div className="w-full mt-5">
-      <div className="flex justify-between items-center pb-4">
-        {/* <Input
-          type="date"
-          placeholder="Filtra per data..."
-          value={(table.getColumn("date")?.getFilterValue() as string) ?? ""}
-          onChange={(event) => {
-            table.getColumn("date")?.setFilterValue(event.target.value);
-          }}
-          className="w-2/3 md:w-4/5 xl:w-4/12"
-        /> */}
-        {/* <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="ml-4 bg-neutral-200 text-primary"
-            >
-              Colonne <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu> */}
-      </div>
-      <div className="rounded-md border">
+    <div className="w-full">
+      <div className="w-full overflow-x-auto">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-neutral-850/50 border-b border-neutral-800">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow className="hover:bg-neutral-800" key={headerGroup.id}>
+              <TableRow className="hover:bg-transparent border-b border-neutral-800" key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   if (header.id == "user" && isClientPage) return null;
                   else
                     return (
-                      <TableHead key={header.id}>
+                      <TableHead key={header.id} className="text-xs font-semibold text-neutral-400 uppercase tracking-wider py-3.5 first:pl-6 last:pr-6">
                         {header.isPlaceholder
                           ? null
                           : flexRender(
@@ -299,83 +349,110 @@ export function SubscriptionsTable({ ...props }) {
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <>
-                  <TableRow
-                    key={row.id}
-                    className="hover:bg-neutral-800 text-white text-lg"
-                    // data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => {
-                      if (cell.column.id == "user" && isClientPage) return null;
-                      else
-                        return (
-                          <TableCell key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext(),
-                            )}
-                          </TableCell>
-                        );
-                    })}
-                    {!(row.original.completed && row.original.totalPaid === row.original.totalPrice) && (
-                    <TableCell className="text-white">
+                <TableRow
+                  key={row.id}
+                  className="hover:bg-neutral-850/40 text-white border-b border-neutral-800/60 transition-colors"
+                >
+                  {row.getVisibleCells().map((cell) => {
+                    if (cell.column.id == "user" && isClientPage) return null;
+                    else
+                      return (
+                        <TableCell key={cell.id} className="py-3.5 first:pl-6 last:pr-6">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      );
+                  })}
+                  {!(row.original.completed && row.original.totalPaid === row.original.totalPrice) && (
+                    <TableCell className="text-white py-3.5 pr-6 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
+                          <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-neutral-800">
                             <span className="sr-only">Apri menù</span>
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-800 text-neutral-200">
                           <DropdownMenuLabel>Azioni</DropdownMenuLabel>
                           <DropdownMenuItem
                             onClick={() => {
-                              setSubscriptionData(row.original);
-                              setSubscriptionModalOpen(true);
+                              router.push(
+                                `/dashboard/cliente/${row.original.userId}/abbonamento?subscriptionId=${row.original.id}`,
+                              );
                             }}
                           >
                             Modifica abbonamento
                           </DropdownMenuItem>
+                          {(() => {
+                            const insts = parseInstallments(
+                              (row.original as any).installments,
+                            );
+                            const unpaid = insts.filter((i) => !i.paid);
+                            if (unpaid.length === 0) return null;
+                            return (
+                              <>
+                                <DropdownMenuLabel>Saldo rate</DropdownMenuLabel>
+                                {unpaid.map((inst) => (
+                                  <DropdownMenuItem
+                                    key={inst.installmentNumber}
+                                    className="text-emerald-400 font-medium cursor-pointer"
+                                    onClick={async () => {
+                                      const ok = await payInstallment(
+                                        row.original.id,
+                                        inst.installmentNumber,
+                                      );
+                                      if (ok && props.getPageInfo) {
+                                        props.getPageInfo();
+                                      }
+                                    }}
+                                  >
+                                    Segna {inst.installmentNumber}ª rata come saldata (€{inst.amount})
+                                  </DropdownMenuItem>
+                                ))}
+                              </>
+                            );
+                          })()}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
-                    )}
-                  </TableRow>
-                </>
+                  )}
+                </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center text-white hover:bg-primary"
+                  className="h-28 text-center text-neutral-400 hover:bg-transparent"
                 >
-                  Nessun risultato.
+                  Nessun abbonamento registrato.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        {/* <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div> */}
+      <div className="flex items-center justify-between px-6 py-3.5 border-t border-neutral-800">
+        <div className="text-xs text-neutral-400">
+          {table.getFilteredRowModel().rows.length} {table.getFilteredRowModel().rows.length === 1 ? "abbonamento" : "abbonamenti"}
+        </div>
         <div className="space-x-2">
           <Button
-            variant={"dashboard"}
+            variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className=""
+            className="h-8 px-3 text-xs bg-neutral-800 hover:bg-neutral-750 text-neutral-200 border-neutral-700 disabled:opacity-40"
           >
             Indietro
           </Button>
           <Button
-            variant={"dashboard"}
+            variant="outline"
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
+            className="h-8 px-3 text-xs bg-neutral-800 hover:bg-neutral-750 text-neutral-200 border-neutral-700 disabled:opacity-40"
           >
             Avanti
           </Button>

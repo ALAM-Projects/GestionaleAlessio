@@ -14,7 +14,11 @@ function toSerializable<T>(data: T): T {
 async function getAppointments(): Promise<Appointment[]> {
   const appointments = await prisma.appointment.findMany({
     include: {
-      user: true,
+      user: {
+        include: {
+          subscriptions: true,
+        },
+      },
     },
     orderBy: {
       date: "desc",

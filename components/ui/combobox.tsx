@@ -53,20 +53,31 @@ export function Combobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between bg-white text-black font-normal", className)}
+          className={cn(
+            "w-full h-10 justify-between bg-neutral-800/80 hover:bg-neutral-800 border-neutral-700 text-white hover:text-white rounded-xl text-sm font-normal focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors shadow-none",
+            className
+          )}
         >
-          <span className={cn(!selectedLabel && "text-muted-foreground")}>
+          <span className={cn(!selectedLabel ? "text-neutral-400" : "text-white font-medium")}>
             {selectedLabel ?? placeholder}
           </span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-neutral-400" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0" style={{ width: "var(--radix-popover-trigger-width)" }}>
-        <Command>
-          <CommandInput placeholder={searchPlaceholder} />
-          <CommandList>
-            <CommandEmpty>{emptyText}</CommandEmpty>
-            <CommandGroup>
+      <PopoverContent
+        className="w-full p-0 bg-neutral-900 border border-neutral-800 text-white rounded-2xl shadow-2xl overflow-hidden z-50"
+        style={{ width: "var(--radix-popover-trigger-width)" }}
+      >
+        <Command className="bg-neutral-900 text-white">
+          <CommandInput
+            placeholder={searchPlaceholder}
+            className="h-10 border-b border-neutral-800 text-white placeholder:text-neutral-500 text-xs px-3"
+          />
+          <CommandList className="max-h-60 overflow-y-auto p-1.5 text-white">
+            <CommandEmpty className="py-6 text-center text-xs text-neutral-400">
+              {emptyText}
+            </CommandEmpty>
+            <CommandGroup className="text-white">
               {options.map((opt) => (
                 <CommandItem
                   key={opt.value}
@@ -75,14 +86,17 @@ export function Combobox({
                     onValueChange(opt.value);
                     setOpen(false);
                   }}
+                  className="cursor-pointer rounded-lg px-2.5 py-2 text-sm text-neutral-200 data-[selected=true]:bg-neutral-800 data-[selected=true]:text-white hover:bg-neutral-800 hover:text-white flex items-center justify-between transition-colors"
                 >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === opt.value ? "opacity-100" : "opacity-0",
-                    )}
-                  />
-                  {opt.label}
+                  <span className="flex items-center gap-2">
+                    <Check
+                      className={cn(
+                        "h-4 w-4 text-blue-400",
+                        value === opt.value ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    <span>{opt.label}</span>
+                  </span>
                 </CommandItem>
               ))}
             </CommandGroup>

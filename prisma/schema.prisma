@@ -67,6 +67,10 @@ model Subscription {
   totalPaid            Int
   appointmentsIncluded Int
   doneAppointments     Int
+  advancePaymentDate   String?
+  expirationDate       String?
+  paymentType          String   @default("FULL")
+  installments         Json?
   // relation to client table
   user                 User     @relation(fields: [userId], references: [id])
   userId               String

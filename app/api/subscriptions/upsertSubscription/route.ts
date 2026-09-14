@@ -12,6 +12,10 @@ export async function POST(request: Request) {
     clientId,
     doneAppointments,
     subscriptionId,
+    advancePaymentDate,
+    expirationDate,
+    paymentType,
+    installments,
   }: {
     totalPrice: number;
     totalPaid: number;
@@ -20,6 +24,10 @@ export async function POST(request: Request) {
     clientId: string;
     doneAppointments?: number;
     subscriptionId?: string;
+    advancePaymentDate?: string;
+    expirationDate?: string;
+    paymentType?: string;
+    installments?: any;
   } = body;
 
   const success = await upsertSubscription(
@@ -30,6 +38,10 @@ export async function POST(request: Request) {
     clientId,
     doneAppointments,
     subscriptionId != null ? Number(subscriptionId) : undefined,
+    advancePaymentDate,
+    expirationDate,
+    paymentType,
+    installments,
   );
 
   if (!success) {

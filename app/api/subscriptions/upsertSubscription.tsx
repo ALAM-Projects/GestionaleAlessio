@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 async function upsertSubscription(
   totalPrice: number,
@@ -10,20 +11,40 @@ async function upsertSubscription(
   clientId: string,
   doneAppointments?: number,
   subscriptionId?: number,
+  advancePaymentDate?: string | null,
+  expirationDate?: string | null,
+  paymentType?: string,
+  installments?: any,
 ): Promise<boolean> {
   if (subscriptionId) {
     const pricePerAppointment = Math.round(totalPrice / appointmentsIncluded);
 
+    const updateData: Prisma.SubscriptionUpdateInput = {
+      totalPrice,
+      totalPaid,
+      appointmentsIncluded,
+      doneAppointments,
+      completed,
+    };
+
+    if (advancePaymentDate !== undefined) {
+      updateData.advancePaymentDate = advancePaymentDate;
+    }
+    if (expirationDate !== undefined) {
+      updateData.expirationDate = expirationDate;
+    }
+    if (paymentType !== undefined) {
+      updateData.paymentType = paymentType;
+    }
+    if (installments !== undefined) {
+      updateData.installments =
+        installments === null ? Prisma.JsonNull : (installments as Prisma.InputJsonValue);
+    }
+
     const [updated] = await prisma.$transaction([
       prisma.subscription.update({
         where: { id: subscriptionId },
-        data: {
-          totalPrice,
-          totalPaid,
-          appointmentsIncluded,
-          doneAppointments,
-          completed,
-        },
+        data: updateData,
       }),
       prisma.appointment.updateMany({
         where: { subscriptionId },
@@ -48,6 +69,11 @@ async function upsertSubscription(
         appointmentsIncluded,
         completed: false,
         doneAppointments: 0,
+        advancePaymentDate: advancePaymentDate || null,
+        expirationDate: expirationDate || null,
+        paymentType: paymentType || "FULL",
+        installments:
+          installments ? (installments as Prisma.InputJsonValue) : Prisma.JsonNull,
         userId: clientId,
       },
     });
