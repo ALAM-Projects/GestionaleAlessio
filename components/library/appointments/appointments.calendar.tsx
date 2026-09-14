@@ -77,7 +77,7 @@ function addDays(d: Date, days: number): Date {
   return result;
 }
 
-const START_HOUR = 7;
+const START_HOUR = 5;
 const END_HOUR = 22; // up to 22:00
 
 interface TimeSlot {
